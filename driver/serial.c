@@ -19,6 +19,6 @@ struct serial {
     unsigned int itip;
     unsigned int itop;
     unsigned int tdr;
-}
+};
 
 static volatile struct serial* const serial_i = (struct serial*)SERIAL_BASE;
