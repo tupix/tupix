@@ -17,7 +17,7 @@ AlignConsecutiveAssignments: false
 AlignConsecutiveDeclarations: false
 #AlignEscapedNewlines: Left # Unknown to clang-format-4.0
 AlignOperands: true
-AlignTrailingComments: false
+AlignTrailingComments: true
 AllowAllParametersOfDeclarationOnNextLine: false
 AllowShortBlocksOnASingleLine: false
 AllowShortCaseLabelsOnASingleLine: false
@@ -503,7 +503,7 @@ IncludeCategories:
 IncludeIsMainRegex: '(Test)?$'
 IndentCaseLabels: false
 #IndentPPDirectives: None # Unknown to clang-format-5.0
-IndentWidth: 8
+IndentWidth: 4
 IndentWrappedFunctionNames: false
 JavaScriptQuotes: Leave
 JavaScriptWrapImports: true
@@ -526,7 +526,7 @@ PenaltyBreakString: 10
 PenaltyExcessCharacter: 100
 PenaltyReturnTypeOnItsOwnLine: 60
 
-PointerAlignment: Right
+PointerAlignment: Left
 ReflowComments: false
 SortIncludes: false
 #SortUsingDeclarations: false # Unknown to clang-format-4.0
