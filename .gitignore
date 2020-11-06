@@ -1,0 +1,16 @@
+# compiler files
+*.d
+*.o
+
+# compiled files
+kernel
+kernel.bin
+kernel_dump.s
+
+
+# misc
+tags
+compile_commands.json
+.clangd
+
+.vimrc
