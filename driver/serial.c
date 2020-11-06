@@ -3,7 +3,9 @@
 struct serial {
     unsigned int dr; // data register
     unsigned int rsrecr;
+    unsigned int padding0[4];
     unsigned int fr; // flag register
+    unsigned int padding1;
     unsigned int ilpr;
     unsigned int ibrd;
     unsigned int fbrd;
@@ -15,6 +17,7 @@ struct serial {
     unsigned int mis;
     unsigned int icr;
     unsigned int dmacr;
+    unsigned int padding2[13];
     unsigned int itcr;
     unsigned int itip;
     unsigned int itop;
