@@ -25,3 +25,8 @@ struct serial {
 };
 
 static volatile struct serial* const serial_i = (struct serial*)SERIAL_BASE;
+
+void kputchar(char c)
+{
+	serial_i->dr = c;
+}
