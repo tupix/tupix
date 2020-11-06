@@ -1,4 +1,4 @@
-#define SERIAL_BASE 0x7E201000
+#define SERIAL_BASE (0x7E201000 - 0x3F000000)
 
 struct serial {
     unsigned int dr; // data register
