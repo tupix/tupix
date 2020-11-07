@@ -89,7 +89,7 @@ void kprintf(const char* format, ...)
 		case 'p':
 			break;
 		case '%':
-			kputchar('%')
+			kputchar('%');
 			break;
 		default:
 			// NOTE: Error!
