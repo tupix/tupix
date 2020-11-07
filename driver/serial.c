@@ -1,8 +1,7 @@
 #include <stdarg.h>
 
 // TODO(aurel): Move this to a util library!!
-enum bool { true = 1, false = 0 };
-typedef enum bool bool;
+typedef enum bool { true = 1, false = 0 } bool;
 
 #define SERIAL_BASE (0x7E201000 - 0x3F000000)
 
@@ -32,10 +31,17 @@ struct serial {
 
 static volatile struct serial* const serial_i = (struct serial*)SERIAL_BASE;
 
-void kputchar(char c)
+void kputchar(unsigned char c)
 {
 	// TODO(aurel): Check if buffer is empty? What else needs to happen to make this safe?
 	serial_i->dr = c;
+}
+
+void kputs(const char* s)
+{
+	while (*s) {
+		kputchar(*(s++));
+	}
 }
 
 void kprintf(const char* format, ...)
@@ -44,41 +50,39 @@ void kprintf(const char* format, ...)
 	va_start(args, format);
 
 	const char* cur_char = format;
-	unsigned int count = 0;
 	while (*cur_char) {
 		if (*(cur_char++) != '%')
 			continue;
 
-		switch (*cur_char) {
+		switch (*(cur_char++)) {
 		case 'c':
 		case 's':
 		case 'x':
 		case 'i':
 		case 'u':
 		case 'p':
-			count++;
-			// Intentional fall through
 		case '%':
 			break;
 		default:
 			// NOTE: Error!
 			return;
 		}
-		cur_char++;
 	}
-
-	char* string[count];
+	// Reset cur_char
+	cur_char = format;
 
 	while (*cur_char) {
 		if (*cur_char != '%') {
-			kputchar(*cur_char);
-			cur_char++;
+			kputchar(*(cur_char++));
 			continue;
 		}
+
 		switch (*(++cur_char)) {
 		case 'c':
+			kputchar((unsigned char)va_arg(args, int));
 			break;
 		case 's':
+			kputs(va_arg(args, const char*));
 			break;
 		case 'x':
 			break;
@@ -87,15 +91,14 @@ void kprintf(const char* format, ...)
 		case 'u':
 			break;
 		case 'p':
+			// uintptr_t
 			break;
 		case '%':
 			kputchar('%');
 			break;
-		default:
-			// NOTE: Error!
-			// Not possible since we checked in first loop
-			return;
 		}
 		cur_char++;
 	}
+
+	va_end(args);
 }
