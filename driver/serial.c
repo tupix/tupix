@@ -45,7 +45,7 @@ void kprintf(const char* format, ...)
 
 	const char* cur_char = format;
 	unsigned int count = 0;
-	while (!(*cur_char)) {
+	while (*cur_char) {
 		if (*cur_char == '%') {
 			switch (*(++cur_char)) {
 			case 'c':
@@ -68,7 +68,7 @@ void kprintf(const char* format, ...)
 
 	char* string[count];
 
-	while (!(*cur_char)) {
+	while (*cur_char) {
 		if (*cur_char != '%') {
 			kputchar(*cur_char);
 		} else {
