@@ -1,12 +1,13 @@
 # compiler files
 *.d
 *.o
+*.o_d
 
 # compiled files
 kernel
 kernel.bin
 kernel_dump.s
-
+kernel_debug
 
 # misc
 tags
