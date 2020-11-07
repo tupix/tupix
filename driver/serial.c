@@ -46,22 +46,23 @@ void kprintf(const char* format, ...)
 	const char* cur_char = format;
 	unsigned int count = 0;
 	while (*cur_char) {
-		if (*cur_char == '%') {
-			switch (*(++cur_char)) {
-			case 'c':
-			case 's':
-			case 'x':
-			case 'i':
-			case 'u':
-			case 'p':
-				count++;
-				break;
-			case '%':
-				break;
-			default:
-				// NOTE: Error!
-				return;
-			}
+		if (*(cur_char++) != '%')
+			continue;
+
+		switch (*cur_char) {
+		case 'c':
+		case 's':
+		case 'x':
+		case 'i':
+		case 'u':
+		case 'p':
+			count++;
+			// Intentional fall through
+		case '%':
+			break;
+		default:
+			// NOTE: Error!
+			return;
 		}
 		cur_char++;
 	}
@@ -71,21 +72,29 @@ void kprintf(const char* format, ...)
 	while (*cur_char) {
 		if (*cur_char != '%') {
 			kputchar(*cur_char);
-		} else {
-			switch (*(++cur_char)) {
-			case 'c':
-			case 's':
-			case 'x':
-			case 'i':
-			case 'u':
-			case 'p':
-			case '%':
-				count++;
-				break;
-			default:
-				// NOTE: Error!
-				return;
-			}
+			cur_char++;
+			continue;
+		}
+		switch (*(++cur_char)) {
+		case 'c':
+			break;
+		case 's':
+			break;
+		case 'x':
+			break;
+		case 'i':
+			break;
+		case 'u':
+			break;
+		case 'p':
+			break;
+		case '%':
+			kputchar('%')
+			break;
+		default:
+			// NOTE: Error!
+			// Not possible since we checked in first loop
+			return;
 		}
 		cur_char++;
 	}
