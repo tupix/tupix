@@ -178,8 +178,8 @@ void kprintf(const char* format, ...)
 	char num_str[MAX_NUM_LEN + 3]; // 0x and \0
 	unsigned int len;
 	while (*cur_char) {
-		if (*cur_char != '%') {
-			kputchar(*(cur_char++));
+		if (*(cur_char++) != '%') {
+			kputchar(*(cur_char - 1));
 			continue;
 		}
 
@@ -188,7 +188,7 @@ void kprintf(const char* format, ...)
 
 		bool repeat = false;
 		do {
-			switch (*(cur_char++)) {
+			switch (*cur_char) {
 			case '0' ... '9':
 				if (*cur_char == '0') {
 					padding = '0';
