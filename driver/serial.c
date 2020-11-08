@@ -159,7 +159,7 @@ void kprintf(const char* format, ...)
 			case 'u':
 			case 'p':
 			case 's':
-			case 'c':
+			case 'c': // TODO: check if repeat == true and error?
 			case '%':
 				repeat = false;
 				break;
