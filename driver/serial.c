@@ -1,6 +1,17 @@
 #include <serial.h>
 #include <stdarg.h>
 
+
+#define max(a,b) \
+   ({ __typeof__ (a) _a = (a); \
+       __typeof__ (b) _b = (b); \
+     _a > _b ? _a : _b; })
+
+#define min(a,b) \
+({ __typeof__ (a) _a = (a); \
+    __typeof__ (b) _b = (b); \
+  _a < _b ? _a : _b; })
+
 // TODO(aurel): Move this to a util library!!
 typedef enum bool { true = 1, false = 0 } bool;
 
@@ -45,16 +56,7 @@ unsigned int calc_digits(unsigned int n, unsigned int base)
 	return num;
 }
 
-char* ltostr(long n, unsigned int base, char* str)
-{
-	if (n < 0) {
-		*str++ = '-';
-		n *= -1;
-	}
-	return ultostr(n, base, str) - 1;
-}
-
-char* ultostr(unsigned long n, unsigned int base, char* str)
+char* ultostr(unsigned long n, unsigned int base, char* str, unsigned int* len)
 {
 	if (base < 2 || base > 36)
 		return str; // TODO: ERROR
@@ -62,7 +64,8 @@ char* ultostr(unsigned long n, unsigned int base, char* str)
 	// unsigned int num_digits = (int)(log(n) / log(base)) + 1;
 
 	// Start from the least significant digit
-	str += calc_digits(n, base);
+	*len = calc_digits(n, base);
+	str += *len;
 	*str = 0;
 
 	// If n == 0, the loop will be skipped.
@@ -74,16 +77,39 @@ char* ultostr(unsigned long n, unsigned int base, char* str)
 		cur_digit = n % base;
 
 		if (cur_digit > 9)
-			ascii_off = 87; // ASCII a - 10
+			ascii_off = 'a' - 10;
 		else
-			ascii_off = 48; // ASCII 0
+			ascii_off = '0';
 
-		*--str = ascii_off + cur_digit;
+		*(--str) = ascii_off + cur_digit;
 
 		n /= base;
 	}
 
 	return str;
+}
+
+char* ltostr(long n, unsigned int base, char* str, unsigned int* len)
+{
+	char* result;
+	unsigned int offset = 0;
+	if (n < 0) {
+		*(str++) = '-';
+		n *= -1;
+		offset = 1;
+	}
+	result = ultostr(n, base, str, len) - offset;
+	*len += offset;
+	return result;
+}
+
+unsigned int str_len(const char* str)
+{
+	unsigned int len = 0;
+	while (*(str++)) {
+		len++;
+	}
+	return len;
 }
 
 void kputchar(unsigned char c)
@@ -92,72 +118,130 @@ void kputchar(unsigned char c)
 	serial_i->dr = c;
 }
 
-void kputs(const char* s)
+void kprint(const char* s)
 {
 	while (*s) {
 		kputchar(*(s++));
 	}
 }
 
+inline void print_with_padding(const char* num_str, unsigned int len,
+							   unsigned int field_width, const char padding)
+{
+	unsigned int str_len = max(len, field_width);
+	for (unsigned int i = 0; i < str_len - len; ++i) {
+		kputchar(padding);
+	}
+	kprint(num_str);
+}
+
 void kprintf(const char* format, ...)
 {
-	va_list args;
-	va_start(args, format);
-
 	const char* cur_char = format;
+	unsigned int n_escape = 0;
 	while (*cur_char) {
 		if (*(cur_char++) != '%')
 			continue;
 
-		switch (*(cur_char++)) {
-		case 'c':
-		case 's':
-		case 'x':
-		case 'i':
-		case 'u':
-		case 'p':
-		case '%':
-			break;
-		default:
-			// NOTE: Error!
-			return;
-		}
+		n_escape++;
+
+		bool repeat = false;
+		do {
+			switch (*(cur_char++)) {
+			case '0' ... '9':
+				while (*cur_char >= '0' && *cur_char <= '9') {
+					cur_char++;
+				}
+				repeat = true;
+				break;
+			case 'x':
+			case 'i':
+			case 'u':
+			case 'p':
+			case 's':
+			case 'c':
+			case '%':
+				repeat = false;
+				break;
+			default:
+				// NOTE: Error!
+				return;
+			}
+		} while (repeat);
 	}
 	// Reset cur_char
 	cur_char = format;
 
+	va_list args;
+	va_start(args, format);
+
 	char num_str[MAX_NUM_LEN + 3]; // 0x and \0
+	unsigned int len;
 	while (*cur_char) {
 		if (*cur_char != '%') {
 			kputchar(*(cur_char++));
 			continue;
 		}
 
-		switch (*(++cur_char)) {
-		case 'c':
-			kputchar((unsigned char)va_arg(args, int));
-			break;
-		case 's':
-			kputs(va_arg(args, const char*));
-			break;
-		case 'x':
-			kputs(ultostr(va_arg(args, unsigned int), 16, num_str));
-			break;
-		case 'i':
-			kputs(ltostr(va_arg(args, int), 10, num_str));
-			break;
-		case 'u':
-			kputs(ultostr(va_arg(args, unsigned int), 10, num_str));
-			break;
-		case 'p':
-			*num_str = '0';
-			*(num_str + 1) = 'x';
-			kputs(ultostr((unsigned long)va_arg(args, void*), 16, num_str + 2) - 2);
-			break;
-		case '%':
-			kputchar('%');
-			break;
-		}
+		char padding = ' ';
+		unsigned int field_width = 0;
+
+		bool repeat = false;
+		do {
+			switch (*(cur_char++)) {
+			case '0' ... '9':
+				if (*cur_char == '0') {
+					padding = '0';
+					cur_char++;
+				}
+
+				// Move pointer to the end of the number and walk through the number again in
+				// reverse.
+				const char* beg = cur_char;
+				while (*cur_char >= '0' && *cur_char <= '9') {
+					++cur_char;
+				}
+				const char* end = cur_char;
+				for (unsigned int power = 1; --cur_char >= beg; power *= 10) {
+					unsigned int cur = *cur_char - '0';
+					field_width += power * cur;
+				}
+				cur_char = end;
+
+				repeat = true;
+				break;
+			case 'c':
+				kputchar((unsigned char)va_arg(args, int));
+				break;
+			case 's': {
+				const char* str = va_arg(args, const char*);
+				print_with_padding(str, str_len(str), field_width, padding);
+				break;
+			}
+			case 'x':
+				ultostr(va_arg(args, unsigned int), 16, num_str, &len);
+				print_with_padding(num_str, len, field_width, padding);
+				break;
+			case 'i':
+				ltostr(va_arg(args, int), 10, num_str, &len);
+				print_with_padding(num_str, len, field_width, padding);
+				break;
+			case 'u':
+				ultostr(va_arg(args, unsigned int), 10, num_str, &len);
+				print_with_padding(num_str, len, field_width, padding);
+				break;
+			case 'p':
+				*num_str = '0';
+				*(num_str + 1) = 'x';
+				ultostr((unsigned long)va_arg(args, void*), 16, num_str + 2,
+						&len);
+				print_with_padding(num_str, len, field_width, padding);
+				break;
+			case '%':
+				kputchar('%');
+				break;
+			}
+		} while (repeat);
 		cur_char++;
 	}
 
