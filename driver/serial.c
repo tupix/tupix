@@ -47,6 +47,23 @@ struct serial {
 
 static volatile struct serial* const serial_i = (struct serial*)SERIAL_BASE;
 
+void kputchar(unsigned char c)
+{
+        // TODO(aurel): Check if buffer is empty? What else needs to happen to make this safe?
+        serial_i->dr = c;
+}
+
+unsigned char kgetchar()
+{
+    // TODO(aurel): Check if buffer has been written to? What else needs to happen to make this safe?
+    return (unsigned char)(serial_i->dr & 0xff);
+}
+
+
+
+// TODO: Move the following into a different file!
+
+
 unsigned int calc_digits(unsigned int n, unsigned int base)
 {
 	// Start at 1 when n == 0
@@ -113,12 +130,6 @@ unsigned int str_len(const char* str)
 		len++;
 	}
 	return len;
-}
-
-void kputchar(unsigned char c)
-{
-	// TODO(aurel): Check if buffer is empty? What else needs to happen to make this safe?
-	serial_i->dr = c;
 }
 
 void kprint(const char* s)
