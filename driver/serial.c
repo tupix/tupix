@@ -178,7 +178,7 @@ void kprintf(const char* format, ...)
 	va_list args;
 	va_start(args, format);
 
-	char num_str[MAX_NUM_LEN + 3]; // 0x and \0
+	char num_str[MAX_NUM_LEN + 1]; // \0
 	unsigned int len;
 	while (*cur_char) {
 		if (*(cur_char++) != '%') {
@@ -232,9 +232,8 @@ void kprintf(const char* format, ...)
 			print_with_padding(num_str, len, field_width, padding);
 			break;
 		case 'p':
-			*num_str = '0';
-			*(num_str + 1) = 'x';
-			ultostr((unsigned long)va_arg(args, void*), 16, num_str + 2, &len);
+			kprint("0x");
+			ultostr((unsigned long)va_arg(args, void*), 16, num_str, &len);
 			print_with_padding(num_str, len, field_width, padding);
 			break;
 		case '%':

@@ -13,5 +13,5 @@ void start_kernel(void)
 
 	kprintf("foo %c%c%c %s %%\n", 98, 'a', 'r', "baz");
 	kprintf("%x %i %u\n", 31, -31, 31);
-	kprintf("%p\n", &start_kernel);
+	kprintf("%010p\n", &start_kernel);
 }
