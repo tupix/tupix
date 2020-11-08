@@ -212,23 +212,28 @@ void kprintf(const char* format, ...)
 				break;
 			case 'c':
 				kputchar((unsigned char)va_arg(args, int));
+                                repeat = false;
 				break;
 			case 's': {
 				const char* str = va_arg(args, const char*);
 				print_with_padding(str, str_len(str), field_width, padding);
+                                repeat = false;
 				break;
 			}
 			case 'x':
 				ultostr(va_arg(args, unsigned int), 16, num_str, &len);
 				print_with_padding(num_str, len, field_width, padding);
+                                repeat = false;
 				break;
 			case 'i':
 				ltostr(va_arg(args, int), 10, num_str, &len);
 				print_with_padding(num_str, len, field_width, padding);
+                                repeat = false;
 				break;
 			case 'u':
 				ultostr(va_arg(args, unsigned int), 10, num_str, &len);
 				print_with_padding(num_str, len, field_width, padding);
+                                repeat = false;
 				break;
 			case 'p':
 				*num_str = '0';
@@ -236,9 +241,11 @@ void kprintf(const char* format, ...)
 				ultostr((unsigned long)va_arg(args, void*), 16, num_str + 2,
 						&len);
 				print_with_padding(num_str, len, field_width, padding);
+                                repeat = false;
 				break;
 			case '%':
 				kputchar('%');
+                                repeat = false;
 				break;
 			}
 		} while (repeat);
