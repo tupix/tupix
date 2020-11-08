@@ -126,7 +126,7 @@ void kprint(const char* s)
 }
 
 inline void print_with_padding(const char* num_str, unsigned int len,
-							   unsigned int field_width, const char padding)
+                               unsigned int field_width, const char padding)
 {
 	unsigned int str_len = max(len, field_width);
 	for (unsigned int i = 0; i < str_len - len; ++i) {
