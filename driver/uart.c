@@ -1,8 +1,8 @@
-#include <driver/serial.h>
+#include <driver/uart.h>
 
-#define SERIAL_BASE (0x7E201000 - 0x3F000000)
+#define UART_BASE (0x7E201000 - 0x3F000000)
 
-struct serial {
+struct uart {
 	unsigned int dr; // data register
 	unsigned int rsrecr;
 	unsigned int padding0[4];
@@ -26,16 +26,17 @@ struct serial {
 	unsigned int tdr;
 };
 
-static volatile struct serial* const serial_i = (struct serial*)SERIAL_BASE;
+static volatile struct uart* const uart_i = (struct uart*)UART_BASE;
 
 void kputchar(unsigned char c)
 {
 	// TODO(aurel): Check if buffer is empty? What else needs to happen to make this safe?
-	serial_i->dr = c;
+	uart_i->dr = c;
 }
 
 unsigned char kgetchar()
 {
 	// TODO(aurel): Check if buffer has been written to? What else needs to happen to make this safe?
-	return (unsigned char)(serial_i->dr & 0xff);
+	char c = (unsigned char)(uart_i->dr & 0xff);
+	return c;
 }

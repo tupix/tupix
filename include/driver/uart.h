@@ -1,7 +1,7 @@
-#ifndef SERIAL_H
-#define SERIAL_H
+#ifndef DRI_UART_H
 
 void kputchar(unsigned char c);
 unsigned char kgetchar();
 
+#define DRI_UART_H
 #endif

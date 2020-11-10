@@ -1,5 +1,7 @@
 #include <system/io.h>
 
+#include <driver/uart.h>
+
 void start_kernel(void)
 {
 	// yellow_on();
@@ -10,7 +12,10 @@ void start_kernel(void)
 	// 	kputchar('\n');
 	// }
 
-	kprintf("foo %c%c%c %s %%\n", 98, 'a', 'r', "baz");
-	kprintf("%x %i %u\n", 31, -31, 31);
-	kprintf("%010p\n", &start_kernel);
+	//kprintf("foo %c%c%c %s %%\n", 98, 'a', 'r', "baz");
+	//kprintf("%x %i %u\n", 31, -31, 31);
+	//kprintf("%010p\n", &start_kernel);
+
+	char c = kgetchar();
+	kprintf("%c", c);
 }

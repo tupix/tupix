@@ -1,6 +1,6 @@
 #include <stdarg.h>
 
-#include <driver/serial.h>
+#include <driver/uart.h>
 
 #include <std/strings.h>
 #include <std/types.h>

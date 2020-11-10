@@ -46,7 +46,7 @@ OBJ += system/std/strings.o
 
 # Driver
 OBJ += driver/led.o
-OBJ += driver/serial.o
+OBJ += driver/uart.o
 
 # Wenn ihr zuhause arbeitet, hier das TFTP-Verzeichnis eintragen
 TFTP_PATH = /srv/tftp
