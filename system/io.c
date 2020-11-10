@@ -10,18 +10,16 @@
 
 void kprint(const char* s)
 {
-	while (*s) {
+	while (*s)
 		kputchar(*(s++));
-	}
 }
 
 inline void print_with_padding(const char* num_str, unsigned int len,
 							   unsigned int field_width, const char padding)
 {
 	unsigned int str_len = max(len, field_width);
-	for (unsigned int i = 0; i < str_len - len; ++i) {
+	for (unsigned int i = 0; i < str_len - len; ++i)
 		kputchar(padding);
-	}
 	kprint(num_str);
 }
 
@@ -36,9 +34,8 @@ bool check_format_str(const char* str)
 		do {
 			switch (*(cur_char++)) {
 			case '0' ... '9':
-				while (*cur_char >= '0' && *cur_char <= '9') {
-					cur_char++;
-				}
+				while (*cur_char >= '0' && *cur_char <= '9')
+					++cur_char;
 				repeat = true;
 				break;
 			case 'x':
@@ -59,7 +56,8 @@ bool check_format_str(const char* str)
 	return true;
 }
 
-unsigned int calc_field_width(const char* cur_char, char* padding, unsigned int* flag_len)
+unsigned int calc_field_width(const char* cur_char, char* padding,
+							  unsigned int* flag_len)
 {
 	*flag_len = 0;
 	unsigned int field_width = 0;
@@ -73,19 +71,17 @@ unsigned int calc_field_width(const char* cur_char, char* padding, unsigned int*
 			*padding = ' ';
 		}
 
-		// Move pointer to the end of the number and walk through the number
-		// again in reverse.
+		// Move pointer to the end of the number and walk through the number again in reverse.
 		const char* beg = cur_char;
 		while (*cur_char >= '0' && *cur_char <= '9') {
 			++cur_char;
 			++(*flag_len);
 		}
-		for (unsigned int power = 1; --cur_char >= beg; power *= 10) {
-			unsigned int cur = *cur_char - '0';
+		for (unsigned int cur, power = 1; --cur_char >= beg; power *= 10) {
+			cur = *cur_char - '0';
 			field_width += power * cur;
 		}
 	}
-
 	return field_width;
 }
 
@@ -98,9 +94,8 @@ void kprintf(const char* format, ...)
 	va_start(args, format);
 
 	const char* cur_char = format;
-	char num_str[MAX_NUM_LEN + 1]; // MAX_NUM_LEN + \0
 	char padding;
-	unsigned int len, flags_len, field_width;
+	unsigned int flags_len, field_width;
 	while (*cur_char) {
 		if (*(cur_char++) != '%') {
 			kputchar(*(cur_char - 1));
@@ -108,8 +103,22 @@ void kprintf(const char* format, ...)
 		}
 
 		field_width = calc_field_width(cur_char, &padding, &flags_len);
-		// Skip flags and jump to conversion specifier.
+		// Skip flags and jump to conversion specifier
 		cur_char += flags_len;
+
+		// clang-format off
+// NOTE Macro: All number-type arguments go through mostly the same routine. This macro avoids
+// duplicate code with minimal changes.
+// Argument of data-type `type` gets fetched by va_arg and cast into `cast_type`. The value
+// then gets converted into a string and interpreted in base `base` and printed.
+#define num_arg(type, cast_type, base)                                         \
+	do {                                                                       \
+		char num_str[MAX_NUM_LEN + 1]; /* MAX_NUM_LEN + \0 */                  \
+		unsigned int len;                                                      \
+		ultostr((cast_type)va_arg(args, type), base, num_str, &len);           \
+		print_with_padding(num_str, len, field_width, padding);                \
+	} while (0)
+		// clang-format on
 
 		switch (*cur_char) {
 		case 'c':
@@ -121,28 +130,23 @@ void kprintf(const char* format, ...)
 			break;
 		}
 		case 'x':
-			ultostr(va_arg(args, unsigned int), 16, num_str, &len);
-			print_with_padding(num_str, len, field_width, padding);
+			num_arg(unsigned int, unsigned int, 16);
 			break;
 		case 'i':
-			ltostr(va_arg(args, int), 10, num_str, &len);
-			print_with_padding(num_str, len, field_width, padding);
+			num_arg(int, int, 10);
 			break;
 		case 'u':
-			ultostr(va_arg(args, unsigned int), 10, num_str, &len);
-			print_with_padding(num_str, len, field_width, padding);
+			num_arg(unsigned int, unsigned int, 10);
 			break;
 		case 'p':
 			kprint("0x");
-			ultostr((unsigned long)va_arg(args, void*), 16, num_str, &len);
-			print_with_padding(num_str, len, field_width, padding);
+			num_arg(void*, unsigned long, 16);
 			break;
 		case '%':
 			kputchar('%');
 			break;
 		}
-		cur_char++;
+		++cur_char;
 	}
-
 	va_end(args);
 }
