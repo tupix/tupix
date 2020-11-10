@@ -3,11 +3,11 @@
 #define UART_BASE (0x7E201000 - 0x3F000000)
 
 enum fr_bit_field {
-    FR_BUSY = 3, // busy transmitting data
-    FR_RXFE = 4, // receive FIFO empty
-    FR_TXFF = 5, // transmit FIFO full
-    FR_RXFF = 6, // receive FIFO full
-    FR_TXFE = 7	 // transmit FIFO empty
+	FR_BUSY = 3, // busy transmitting data
+	FR_RXFE = 4, // receive FIFO empty
+	FR_TXFF = 5, // transmit FIFO full
+	FR_RXFF = 6, // receive FIFO full
+	FR_TXFE = 7	 // transmit FIFO empty
 };
 
 struct uart {
