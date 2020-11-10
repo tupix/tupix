@@ -36,8 +36,13 @@ KERNEL_USER_SPLIT = false
 
 # Hier eure Dateien hinzufügen
 # System
+#OBJ := $(wildcard system/*.o)
+#OBJ += $(wildcard system/std/*.o)
 OBJ = system/entry.o
 OBJ += system/start.o
+OBJ += system/io.o
+OBJ += system/std/util.o
+OBJ += system/std/strings.o
 
 # Driver
 OBJ += driver/led.o
@@ -81,6 +86,7 @@ OBJDUMP = arm-none-eabi-objdump
 CFLAGS = -Wall -Wextra -ffreestanding -mcpu=cortex-a7 -O2
 CFLAGS_DEBUG = $(CFLAGS) -ggdb
 CPPFLAGS = -Iinclude
+#CPPFLAGS += -Iuser/include
 LDFLAGS = -T$(LSCRIPT)
 ifneq ($(BIN_LSG), )
 	LDFLAGS += -L$(BIN_LSG_DIR) -l$(BIN_LSG)

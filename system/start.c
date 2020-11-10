@@ -1,5 +1,4 @@
-#include <led.h>
-#include <serial.h>
+#include <system/io.h>
 
 void start_kernel(void)
 {
