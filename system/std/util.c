@@ -1,5 +1,7 @@
 #include "std/util.h"
 
+#include <std/types.h>
+
 unsigned int calc_digits(unsigned int n, unsigned int base)
 {
 	// Start at 1 when n == 0
@@ -57,4 +59,14 @@ char* ltostr(long n, unsigned int base, char* str, unsigned int* len)
 	result = ultostr(n, base, str, len) - offset;
 	*len += offset;
 	return result;
+}
+
+bool is_set(unsigned int word, unsigned char bitn)
+{
+	return !!(word & (1U << bitn));
+}
+
+void set_bit(unsigned int* word, unsigned char bitn)
+{
+	*word |= 1U << bitn;
 }
