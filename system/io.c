@@ -112,11 +112,11 @@ void kprintf(const char* format, ...)
 // The next argument is fetched, casted, interpreted in base `base` and then
 // converted into a string by a call to either ltostr or ultostr depending of
 // the `prefix` arg. Finally the string is printed.
-#define num_arg(type, cast_type, prefix, base)                                         \
+#define NUM_ARG(func, type, cast_type, base)                                   \
 	do {                                                                       \
 		char num_str[MAX_NUM_LEN + 1]; /* MAX_NUM_LEN + len('\0') */           \
 		unsigned int len;                                                      \
-		prefix ## tostr((cast_type)va_arg(args, type), base, num_str, &len);   \
+		func((cast_type)va_arg(args, type), base, num_str, &len);              \
 		print_with_padding(num_str, len, field_width, padding);                \
 	} while (0)
 		// clang-format on
@@ -131,17 +131,17 @@ void kprintf(const char* format, ...)
 			break;
 		}
 		case 'x':
-			num_arg(unsigned int, unsigned int, ul, 16);
+			NUM_ARG(ultostr, unsigned int, unsigned int, 16);
 			break;
 		case 'i':
-			num_arg(int, int, l, 10);
+			NUM_ARG(ltostr, int, int, 10);
 			break;
 		case 'u':
-			num_arg(unsigned int, unsigned int, ul, 10);
+			NUM_ARG(ultostr, unsigned int, unsigned int, 10);
 			break;
 		case 'p':
 			kprint("0x");
-			num_arg(void*, unsigned long, ul, 16);
+			NUM_ARG(ultostr, void*, unsigned long, 16);
 			break;
 		case '%':
 			kputchar('%');
