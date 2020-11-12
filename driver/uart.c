@@ -44,10 +44,13 @@ void kputchar(unsigned char c)
 	// Check flag register (FR) TXFF (bit 5) - Transmit FIFO full
 	// Maybe also BUSY (bit 3) - busy transmitting data
 
-    while (is_set(uart_i->fr, FR_TXFF)) {
-    } // wait until transmit FIFO is not full
+	while (is_set(uart_i->fr, FR_TXFF)) {
+	} // wait until transmit FIFO is not full
 	uart_i->dr = c;
-    clear_bit(&(uart_i->fr), FR_TXFF);
+
+    while (is_set(uart_i->fr, FR_BUSY)) {
+    } // wait until transmit FIFO is not full
+	clear_bit(&(uart_i->fr), FR_TXFF);
 }
 
 unsigned char kgetchar()
