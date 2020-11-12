@@ -109,14 +109,13 @@ void kprintf(const char* format, ...)
 		// clang-format off
 // NOTE Macro: All number-type arguments go through mostly the same routine.
 // This macro avoids duplicate code with minimal changes.
-// The next argument is fetched, casted, interpreted in base `base` and then
-// converted into a string by a call to either ltostr or ultostr depending of
-// the `prefix` arg. Finally the string is printed.
-#define NUM_ARG(func, type, cast_type, base)                                   \
+// The next argument is fetched, casted, the interpretation in base `base` then
+// converted to a string by `converter_func` and that result finally printed.
+#define NUM_ARG(converter_func, type, cast_type, base)                         \
 	do {                                                                       \
 		char num_str[MAX_NUM_LEN + 1]; /* MAX_NUM_LEN + len('\0') */           \
 		unsigned int len;                                                      \
-		func((cast_type)va_arg(args, type), base, num_str, &len);              \
+		converter_func((cast_type)va_arg(args, type), base, num_str, &len);    \
 		print_with_padding(num_str, len, field_width, padding);                \
 	} while (0)
 		// clang-format on
