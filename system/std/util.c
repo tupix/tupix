@@ -68,6 +68,8 @@ bool is_set(volatile unsigned int word, unsigned char bitn)
 
 void set_bit(volatile unsigned int* word, unsigned char bitn)
 {
+	if (bitn > 31)
+		return;
 	*word |= 1U << bitn;
 }
 
