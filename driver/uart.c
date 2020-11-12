@@ -43,7 +43,11 @@ void kputchar(unsigned char c)
 	// TODO(aurel): Check if buffer is empty? What else needs to happen to make this safe?
 	// Check flag register (FR) TXFF (bit 5) - Transmit FIFO full
 	// Maybe also BUSY (bit 3) - busy transmitting data
+
+    while (is_set(uart_i->fr, FR_TXFF)) {
+    } // wait until transmit FIFO is not full
 	uart_i->dr = c;
+    clear_bit(&(uart_i->fr), FR_TXFF);
 }
 
 unsigned char kgetchar()
