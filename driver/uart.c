@@ -47,10 +47,10 @@ void kputchar(unsigned char c)
 	while (is_set(uart_i->fr, FR_TXFF)) {
 	} // wait until transmit FIFO is not full
 	uart_i->dr = c;
+    clear_bit(&(uart_i->fr), FR_TXFF);
 
     while (is_set(uart_i->fr, FR_BUSY)) {
-    } // wait until transmit FIFO is not full
-	clear_bit(&(uart_i->fr), FR_TXFF);
+    } // wait until not busy transmitting anymore
 }
 
 unsigned char kgetchar()
