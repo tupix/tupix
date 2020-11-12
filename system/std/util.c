@@ -43,7 +43,6 @@ char* ultostr(unsigned long n, unsigned int base, char* str, unsigned int* len)
 
 		n /= base;
 	}
-
 	return str;
 }
 
@@ -75,5 +74,5 @@ void set_bit(volatile unsigned int* word, unsigned char bitn)
 
 void clear_bit(volatile unsigned int* word, unsigned char bitn)
 {
-    *word |= 0U << bitn;
+	*word |= 0U << bitn;
 }

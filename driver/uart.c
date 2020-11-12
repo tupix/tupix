@@ -40,28 +40,20 @@ static volatile struct uart* const uart_i = (struct uart*)UART_BASE;
 
 void kputchar(unsigned char c)
 {
-	// TODO(aurel): Check if buffer is empty? What else needs to happen to make this safe?
-	// Check flag register (FR) TXFF (bit 5) - Transmit FIFO full
-	// Maybe also BUSY (bit 3) - busy transmitting data
-
-	while (is_set(uart_i->fr, FR_TXFF)) {
-	} // wait until transmit FIFO is not full
+	// wait until transmit FIFO is not full
+	while (is_set(uart_i->fr, FR_TXFF)) {}
 	uart_i->dr = c;
-    clear_bit(&(uart_i->fr), FR_TXFF);
+	clear_bit(&(uart_i->fr), FR_TXFF);
 
-    while (is_set(uart_i->fr, FR_BUSY)) {
-    } // wait until not busy transmitting anymore
+	// wait until not busy transmitting anymore
+	while (is_set(uart_i->fr, FR_BUSY)) {}
 }
 
 unsigned char kgetchar()
 {
-	// TODO(aurel): Check if buffer has been written to? What else needs to happen to make this safe?
-
-	while (is_set(uart_i->fr, FR_RXFE)) {
-	} // wait until recieve FIFO is not empty
+	// wait until recieve FIFO is not empty
+	while (is_set(uart_i->fr, FR_RXFE)) {}
 	char c = (unsigned char)(uart_i->dr & 0xff);
-	// TODO(aurel): Maybe set FR->RXFE to 1 to signify that its empty again?
-
 	set_bit(&(uart_i->fr), FR_RXFE);
 
 	return c;
