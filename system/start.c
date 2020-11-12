@@ -1,9 +1,11 @@
-#include <system/io.h>
-
+#include <config.h>
 #include <driver/uart.h>
+#include <system/io.h>
 
 void start_kernel(void)
 {
+	test_kprintf();
+
 	// yellow_on();
 	// for (int i = 0; i < 10; i++) {
 	// 	for (int i = 0; i < 10; i++) {
@@ -16,6 +18,8 @@ void start_kernel(void)
 	//kprintf("%x %i %u\n", 31, -31, 31);
 	//kprintf("%010p\n", &start_kernel);
 
-	char c = kgetchar();
-	kprintf("%c", c);
+	while (1) {
+		char c = kgetchar();
+		kprintf("\n%x %i %u %p %c\n", c, c, c, c, c);
+	}
 }
