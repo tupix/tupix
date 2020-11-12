@@ -5,5 +5,5 @@
 
 inline void test_kprintf(void)
 {
-	kprintf("kprintf_test");
+	kprintf("kprintf_test\n");
 }
