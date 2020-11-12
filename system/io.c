@@ -107,15 +107,16 @@ void kprintf(const char* format, ...)
 		cur_char += flags_len;
 
 		// clang-format off
-// NOTE Macro: All number-type arguments go through mostly the same routine. This macro avoids
-// duplicate code with minimal changes.
-// Argument of data-type `type` gets fetched by va_arg and cast into `cast_type`. The value
-// then gets converted into a string and interpreted in base `base` and printed.
-#define num_arg(type, cast_type, base)                                         \
+// NOTE Macro: All number-type arguments go through mostly the same routine.
+// This macro avoids duplicate code with minimal changes.
+// The next argument is fetched, casted, interpreted in base `base` and then
+// converted into a string by a call to either ltostr or ultostr depending of
+// the `prefix` arg. Finally the string is printed.
+#define num_arg(type, cast_type, prefix, base)                                         \
 	do {                                                                       \
-		char num_str[MAX_NUM_LEN + 1]; /* MAX_NUM_LEN + \0 */                  \
+		char num_str[MAX_NUM_LEN + 1]; /* MAX_NUM_LEN + len('\0') */           \
 		unsigned int len;                                                      \
-		ultostr((cast_type)va_arg(args, type), base, num_str, &len);           \
+		prefix ## tostr((cast_type)va_arg(args, type), base, num_str, &len);   \
 		print_with_padding(num_str, len, field_width, padding);                \
 	} while (0)
 		// clang-format on
@@ -130,17 +131,17 @@ void kprintf(const char* format, ...)
 			break;
 		}
 		case 'x':
-			num_arg(unsigned int, unsigned int, 16);
+			num_arg(unsigned int, unsigned int, ul, 16);
 			break;
 		case 'i':
-			num_arg(int, int, 10);
+			num_arg(int, int, l, 10);
 			break;
 		case 'u':
-			num_arg(unsigned int, unsigned int, 10);
+			num_arg(unsigned int, unsigned int, ul, 10);
 			break;
 		case 'p':
 			kprint("0x");
-			num_arg(void*, unsigned long, 16);
+			num_arg(void*, unsigned long, ul, 16);
 			break;
 		case '%':
 			kputchar('%');
