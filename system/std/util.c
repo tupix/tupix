@@ -61,12 +61,17 @@ char* ltostr(long n, unsigned int base, char* str, unsigned int* len)
 	return result;
 }
 
-bool is_set(unsigned int word, unsigned char bitn)
+bool is_set(volatile unsigned int word, unsigned char bitn)
 {
 	return !!(word & (1U << bitn));
 }
 
-void set_bit(unsigned int* word, unsigned char bitn)
+void set_bit(volatile unsigned int* word, unsigned char bitn)
 {
 	*word |= 1U << bitn;
+}
+
+void clear_bit(volatile unsigned int* word, unsigned char bitn)
+{
+    *word |= 0U << bitn;
 }
