@@ -22,8 +22,8 @@ unsigned int calc_digits(unsigned int n, unsigned int base);
 
 char* ultostr(unsigned long n, unsigned int base, char* str, unsigned int* len);
 char* ltostr(long n, unsigned int base, char* str, unsigned int* len);
-bool is_set(unsigned int word, unsigned char bitn);
-void set_bit(unsigned int* word, unsigned char bitn);
+bool is_set(volatile unsigned int word, unsigned char bitn);
+void set_bit(volatile unsigned int* word, unsigned char bitn);
 
 #define STD_UTIL_H
 #endif
