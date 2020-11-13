@@ -34,13 +34,10 @@ BIN_LSG =
 # Ab Aufgabe 4 auf true
 KERNEL_USER_SPLIT = false
 
-# Hier eure Dateien hinzufügen
-# System
-OBJ = system/entry.o
-OBJ += system/start.o
-
-# Driver
-OBJ += driver/led.o
+# Source Dateien
+ASS_OBJ := $(shell find . -name "*.S" | sed 's/S$$/o/')
+SRC_OBJ := $(shell find . -name "*.c" | sed 's/c$$/o/')
+OBJ := $(ASS_OBJ) $(SRC_OBJ)
 
 # Wenn ihr zuhause arbeitet, hier das TFTP-Verzeichnis eintragen
 TFTP_PATH = /srv/tftp

@@ -1,6 +1,6 @@
 #include <config.h>
 #include <driver/uart.h>
-#include <system/io.h>
+#include <std/io.h>
 
 void start_kernel(void)
 {
