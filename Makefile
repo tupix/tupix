@@ -66,7 +66,7 @@ endif
 OBJ_DEBUG = $(OBJ:.o=.o_d)
 
 # Abgabe Dateien
-SUBMISSION_FILES = $(shell find . -name '*' -not -name '*.tar.gz' -not -name '.*' -not -type d -not -name '*.pdf' -not -name '*.o' -not -name '*.o_d*' -not -path './.*')
+SUBMISSION_FILES = $(shell git ls-files | grep -Ev "(^|/)\." | grep -Ev "\.(tar\.gz|pdf)$$")
 MATRIKEL_NR := $(shell awk '(NR > 1) && (NR < 3)  {ORS="+"; print prev} {prev=$$1} END { ORS=""; print $$1 }' matrikel_nr.txt )
 
 # Konfiguration
