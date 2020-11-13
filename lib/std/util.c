@@ -67,12 +67,14 @@ bool is_set(volatile unsigned int word, unsigned char bitn)
 
 void set_bit(volatile unsigned int* word, unsigned char bitn)
 {
-	if (bitn > 31)
+	if (bitn > (sizeof(unsigned int) * 8) - 1)
 		return;
 	*word |= 1U << bitn;
 }
 
 void clear_bit(volatile unsigned int* word, unsigned char bitn)
 {
-	*word |= 0U << bitn;
+	if (bitn > (sizeof(unsigned int) * 8) - 1)
+		return;
+	*word &= ~(1U << bitn);
 }
