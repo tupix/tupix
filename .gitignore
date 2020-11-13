@@ -1,3 +1,6 @@
+# ignore submission
+*.tar.gz
+
 # compiler files
 *.d
 *.o
