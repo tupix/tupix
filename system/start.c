@@ -10,6 +10,6 @@ void start_kernel(void)
 
 	while (1) {
 		char c = kgetchar();
-		kprintf("%c %03i %03u %x %p\n", c, c, c, c, c);
+		kprintf("%c %03i %03u %x\n", c, c, c, c);
 	}
 }
