@@ -51,7 +51,7 @@ void kputchar(unsigned char c)
 
 unsigned char kgetchar()
 {
-	// wait until recieve FIFO is not empty
+	// wait until receive FIFO is not empty
 	while (is_set(uart_i->fr, FR_RXFE)) {}
 	char c = (unsigned char)(uart_i->dr & 0xff);
 	set_bit(&(uart_i->fr), FR_RXFE);
