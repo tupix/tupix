@@ -6,7 +6,7 @@
 #include <std/types.h>
 #include <std/util.h>
 
-#define MAX_NUM_LEN 20 // len(-9223372036854775808)
+#define MAX_NUM_LEN 20 // len("-9223372036854775808")
 
 void kprint(const char* s)
 {
@@ -107,10 +107,12 @@ void kprintf(const char* format, ...)
 		cur_char += flags_len;
 
 		// clang-format off
-// NOTE Macro: All number-type arguments go through mostly the same routine.
-// This macro avoids duplicate code with minimal changes.
-// The next argument is fetched, casted, the interpretation in base `base` then
-// converted to a string by `converter_func` and that result finally printed.
+/*
+ * NOTE: All number-type arguments go through mostly the same routine.
+ * This macro avoids duplicate code with minimal changes.
+ * The next argument is fetched, casted, the interpretation in base `base` then
+ * converted to a string by `converter_func` and that result finally printed.
+ */
 #define NUM_ARG(converter_func, type, cast_type, base)                         \
 	do {                                                                       \
 		char num_str[MAX_NUM_LEN + 1]; /* MAX_NUM_LEN + len('\0') */           \
