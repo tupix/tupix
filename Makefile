@@ -36,17 +36,11 @@ KERNEL_USER_SPLIT = false
 
 # Hier eure Dateien hinzufügen
 # System
-#OBJ := $(wildcard system/*.o)
-#OBJ += $(wildcard system/std/*.o)
 OBJ = system/entry.o
 OBJ += system/start.o
-OBJ += system/io.o
-OBJ += system/std/util.o
-OBJ += system/std/strings.o
 
 # Driver
 OBJ += driver/led.o
-OBJ += driver/uart.o
 
 # Wenn ihr zuhause arbeitet, hier das TFTP-Verzeichnis eintragen
 TFTP_PATH = /srv/tftp
@@ -76,6 +70,7 @@ OBJ_DEBUG = $(OBJ:.o=.o_d)
 
 # Abgabe Dateien
 SUBMISSION_FILES = $(shell find . -name '*' -not -name '*.tar.gz' -not -name '.*' -not -type d -not -name '*.pdf' -not -name '*.o' -not -name '*.o_d*' -not -path './.*')
+MATRIKEL_NR := $(shell awk '(NR > 1) && (NR < 3)  {ORS="+"; print prev} {prev=$$1} END { ORS=""; print $$1 }' matrikel_nr.txt )
 
 # Konfiguration
 CC = arm-none-eabi-gcc
@@ -86,7 +81,6 @@ OBJDUMP = arm-none-eabi-objdump
 CFLAGS = -Wall -Wextra -ffreestanding -mcpu=cortex-a7 -O2
 CFLAGS_DEBUG = $(CFLAGS) -ggdb
 CPPFLAGS = -Iinclude
-#CPPFLAGS += -Iuser/include
 LDFLAGS = -T$(LSCRIPT)
 ifneq ($(BIN_LSG), )
 	LDFLAGS += -L$(BIN_LSG_DIR) -l$(BIN_LSG)
@@ -165,25 +159,27 @@ clean:
 	rm -f "$(MATRIKEL_NR).tar.gz"
 	$(MAKE) -C user clean
 
-submission: clean abgabe_check
+.PHONY: submission
+submission: abgabe_check clean
 	tar -czf "$(MATRIKEL_NR).tar.gz" $(SUBMISSION_FILES)
 
 home: kernel.img
 	cp -v kernel.img $(TFTP_PATH)
 
 # Abgabe check
+#
+
+MATRIKEL_NR_ROWS := $(shell test "$$(wc -l < matrikel_nr.txt)" -gt 2; echo $$?)
+MATRIKEL_NR_DIGITS := $(shell egrep -vq '^[0-9]{6}$$' matrikel_nr.txt; echo $$?)
+
 .PHONY: abgabe_check
 abgabe_check:
-	ifeq ($(shell test "$$(wc -l < matrikel_nr.txt)" -gt 2; echo $$?),0)
+ifeq ($(MATRIKEL_NR_ROWS), 0)
+	$(error "matrikel_nr.txt hat zu viele Zeilen (max 2)")
+endif
+ifeq ($(MATRIKEL_NR_DIGITS),0)
+	$(error "matrikel_nr.txt ist fehlerhaft. Matrikel Nummer muss aus 6 Ziffern bestehen")
+endif
+ifeq ($(MATRIKEL_NR), )
 	$(error "matrikel_nr.txt ist fehlerhaft oder leer!")
-	endif
-
-	ifeq ($(shell egrep -vq '^[0-9]{6}$$' matrikel_nr.txt; echo $$?),0)
-	$(error "matrikel_nr.txt ist fehlerhaft oder leer!")
-	endif
-
-	MATRIKEL_NR = $(shell awk '(NR > 1) && (NR < 3)  {ORS="+"; print prev} {prev=$$1} END { ORS=""; print $$1 }' matrikel_nr.txt )
-
-	ifeq ($(MATRIKEL_NR), )
-	$(error "matrikel_nr.txt ist fehlerhaft oder leer!")
-	endif
+endif
