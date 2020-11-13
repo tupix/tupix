@@ -4,6 +4,8 @@
 
 void start_kernel(void)
 {
+	init_uart();
+
 	test_kprintf();
 
 	// yellow_on();
@@ -18,8 +20,11 @@ void start_kernel(void)
 	//kprintf("%x %i %u\n", 31, -31, 31);
 	//kprintf("%010p\n", &start_kernel);
 
+	unsigned int i = 1;
+	kprintf("%016p\n", &i);
+
 	while (1) {
 		char c = kgetchar();
-		kprintf("%c %i %u %x %p\n", c, c, c, c, c);
+		kprintf("%c %03i %03u %x %p\n", c, c, c, c, c);
 	}
 }
