@@ -93,9 +93,10 @@ void kprintf(const char* format, ...)
 	va_list args;
 	va_start(args, format);
 
-	const char* cur_char = format;
 	char padding;
-	unsigned int flags_len, field_width;
+    const char* cur_char = format;
+    char num_str[MAX_NUM_LEN + 1]; /* MAX_NUM_LEN + len('\0') */
+	unsigned int flags_len, field_width, len;
 	while (*cur_char) {
 		if (*(cur_char++) != '%') {
 			kputchar(*(cur_char - 1));
@@ -105,22 +106,6 @@ void kprintf(const char* format, ...)
 		field_width = calc_field_width(cur_char, &padding, &flags_len);
 		// Skip flags and jump to conversion specifier
 		cur_char += flags_len;
-
-		// clang-format off
-/*
- * NOTE: All number-type arguments go through mostly the same routine.
- * This macro avoids duplicate code with minimal changes.
- * The next argument is fetched, casted, the interpretation in base `base` then
- * converted to a string by `converter_func` and that result finally printed.
- */
-#define NUM_ARG(converter_func, type, cast_type, base)                         \
-	do {                                                                       \
-		char num_str[MAX_NUM_LEN + 1]; /* MAX_NUM_LEN + len('\0') */           \
-		unsigned int len;                                                      \
-		converter_func((cast_type)va_arg(args, type), base, num_str, &len);    \
-		print_with_padding(num_str, len, field_width, padding);                \
-	} while (0)
-		// clang-format on
 
 		switch (*cur_char) {
 		case 'c':
@@ -132,17 +117,28 @@ void kprintf(const char* format, ...)
 			break;
 		}
 		case 'x':
-			NUM_ARG(ultostr, unsigned int, unsigned int, 16);
+			ultostr(va_arg(args, unsigned int), 16, num_str, &len);
+			print_with_padding(num_str, len, field_width, padding);
 			break;
-		case 'i':
-			NUM_ARG(ltostr, int, int, 10);
+		case 'i': {
+			ltostr(va_arg(args, int), 10, num_str, &len);
+			int offset = 0;
+			if (num_str[0] == '-') {
+				kputchar('-');
+				offset = 1;
+			}
+			print_with_padding(num_str + offset, len - offset,
+							   field_width - offset, padding);
 			break;
+		}
 		case 'u':
-			NUM_ARG(ultostr, unsigned int, unsigned int, 10);
+			ultostr(va_arg(args, unsigned int), 10, num_str, &len);
+			print_with_padding(num_str, len, field_width, padding);
 			break;
 		case 'p':
 			kprint("0x");
-			NUM_ARG(ultostr, void*, unsigned long, 16);
+			ultostr((unsigned long)va_arg(args, void*), 16, num_str, &len);
+			print_with_padding(num_str, len, field_width, padding);
 			break;
 		case '%':
 			kputchar('%');
