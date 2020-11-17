@@ -3,4 +3,4 @@
 
 void register_checker(void);
 
-#endif//_REGCHECK_H_
+#endif //_REGCHECK_H_

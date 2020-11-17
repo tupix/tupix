@@ -42,8 +42,8 @@ enum lcrh_bit_field {
 };
 
 enum cr_bit_field {
-	CR_RXE    = 9, // receive enable
-	CR_TXE    = 8, // transmit enable
+	CR_RXE	  = 9, // receive enable
+	CR_TXE	  = 8, // transmit enable
 	CR_UARTEN = 0, // UART enable
 };
 

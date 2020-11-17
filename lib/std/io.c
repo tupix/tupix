@@ -59,7 +59,7 @@ bool check_format_str(const char* str)
 unsigned int calc_field_width(const char* cur_char, char* padding,
 							  unsigned int* flag_len)
 {
-	*flag_len = 0;
+	*flag_len				 = 0;
 	unsigned int field_width = 0;
 
 	if (*cur_char >= '0' && *cur_char <= '9') {
@@ -94,8 +94,8 @@ void kprintf(const char* format, ...)
 	va_start(args, format);
 
 	char padding;
-    const char* cur_char = format;
-    char num_str[MAX_NUM_LEN + 1]; /* MAX_NUM_LEN + len('\0') */
+	const char* cur_char = format;
+	char num_str[MAX_NUM_LEN + 1]; /* MAX_NUM_LEN + len('\0') */
 	unsigned int flags_len, field_width, len;
 	while (*cur_char) {
 		if (*(cur_char++) != '%') {
