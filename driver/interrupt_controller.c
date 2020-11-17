@@ -1,5 +1,7 @@
 #include <driver/BCM2836.h>
+
 #include <std/types.h>
+#include <std/util.h>
 
 #define INTERRUPT_REGISTER_BASE (0x7E00B000 - MMU_BASE_OFFSET)
 
@@ -42,6 +44,7 @@ enum irq_basic_pending {
 	ARM_MAILBOX_IRQP	   = 1, // ARM Mailbox IRQ pending
 	ARM_TIMER_IRQP		   = 0, // ARM Timer IRQ pending
 };
+
 // Bit field for irq_pending, enable_irqs and disable_irqs
 enum irq_table {
 	irq_uart_int		= 57, // UART
@@ -77,10 +80,19 @@ enum fiq_table {
 	fiq_aux_int			  = 29,
 };
 
-static volatile uint64* const interrupt_register =
-		(uint64*)INTERRUPT_REGISTER_BASE;
-
 enum fiq_control_bit_field {
 	FIQ_CONTROL_ENABLE = 7, // enable the FIQ generation
 	FIQ_CONTROL_SOURCE = 0, // select FIQ source
 };
+
+static volatile struct interrupt_register* const ir =
+		(struct interrupt_register*)INTERRUPT_REGISTER_BASE;
+
+void init_interrupt_controller()
+{
+	// TODO: This is for the fast interrupt
+	//set_bit(&(ir->fiq_control), FIQ_CONTROL_ENABLE);
+	//ir->fiq_control |= fiq_arm_timer; // FIQ should be Timer interrupt
+
+	SET_BIT(ir->enable_irqs, (uint32)irq_uart_int);
+}
