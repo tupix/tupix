@@ -79,3 +79,8 @@ enum fiq_table {
 
 static volatile uint64* const interrupt_register =
 		(uint64*)INTERRUPT_REGISTER_BASE;
+
+enum fiq_control_bit_field {
+	FIQ_CONTROL_ENABLE = 7, // enable the FIQ generation
+	FIQ_CONTROL_SOURCE = 0, // select FIQ source
+};
