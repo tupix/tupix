@@ -1,3 +1,7 @@
+# patch files
+*.orig
+*.rej
+
 # compiler files
 *.d
 *.o
