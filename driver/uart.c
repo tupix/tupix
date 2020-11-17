@@ -4,25 +4,6 @@
 
 #define UART_BASE (0x7E201000 - 0x3F000000)
 
-enum fr_bit_field {
-	FR_BUSY = 0x3, // busy transmitting data
-	FR_RXFE = 0x4, // receive FIFO empty
-	FR_TXFF = 0x5, // transmit FIFO full
-	FR_RXFF = 0x6, // receive FIFO full
-	FR_TXFE = 0x7  // transmit FIFO empty
-};
-
-enum cr_bit_field {
-	CR_UARTEN = 0x0, // UART enable
-	CR_TXE = 0x8,	 // transmit enable
-	CR_RXE = 0x9,	 // receive enable
-};
-
-enum lcrh_bit_field {
-	LCRH_FEN = 0x4,	 // FIFO enable
-	LCRH_WLEN = 0x5, // word length
-};
-
 struct uart {
 	unsigned int dr;		   // data register
 	unsigned int rsrecr;	   //
@@ -45,6 +26,25 @@ struct uart {
 	unsigned int itip;		   //
 	unsigned int itop;		   //
 	unsigned int tdr;		   //
+};
+
+enum fr_bit_field {
+	FR_TXFE = 7, // transmit FIFO empty
+	FR_RXFF = 6, // receive FIFO full
+	FR_TXFF = 5, // transmit FIFO full
+	FR_RXFE = 4, // receive FIFO empty
+	FR_BUSY = 3, // busy transmitting data
+};
+
+enum lcrh_bit_field {
+	LCRH_WLEN = 5, // word length
+	LCRH_FEN  = 4, // FIFO enable
+};
+
+enum cr_bit_field {
+	CR_RXE    = 9, // receive enable
+	CR_TXE    = 8, // transmit enable
+	CR_UARTEN = 0, // UART enable
 };
 
 static volatile struct uart* const uart_i = (struct uart*)UART_BASE;
