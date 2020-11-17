@@ -86,15 +86,15 @@ static volatile struct uart* const uart = (struct uart*)UART_BASE;
 void init_uart()
 {
 	// Disable the UART.
-	clear_bit(&(uart->cr), CR_UARTEN);
+	CLEAR_BIT(uart->cr, (uint32)CR_UARTEN);
 	// Flush the transmit FIFO
-	clear_bit(&(uart->lcrh), LCRH_FEN);
+	CLEAR_BIT(uart->lcrh, (uint32)LCRH_FEN);
 
 	// Reprogram the UART
-	set_bit(&(uart->cr), CR_RXE);
-	set_bit(&(uart->cr), CR_TXE);
+	SET_BIT(uart->cr, (uint32)CR_RXE);
+	SET_BIT(uart->cr, (uint32)CR_TXE);
 
-	set_bit(&(uart->lcrh), LCRH_FEN); // enable transmit and receive FIFO
+	SET_BIT(uart->lcrh, (uint32)LCRH_FEN); // enable transmit and receive FIFO
 	uart->lcrh |= (LCRH_WLEN_8 << LCRH_WLEN); // set word length
 
 	uart->imsc = 0; // clear all UART interrupt bits
@@ -102,19 +102,19 @@ void init_uart()
 	uart->ifls |= (IFLS_IFLSEL_1_8 << IFLS_RXIFLSEL); // rx interrupt trigger
 
 	// Enable the UART.
-	set_bit(&(uart->cr), CR_UARTEN);
+	SET_BIT(uart->cr, (uint32)CR_UARTEN);
 }
 
 void uart_putchar(unsigned char c)
 {
 	// wait until transmit FIFO is not full
-	while (is_set(uart->fr, FR_TXFF)) {}
+	while (IS_SET(uart->fr, FR_TXFF)) {}
 	uart->dr = c;
 }
 
 unsigned char uart_getchar()
 {
 	// wait until receive FIFO is not empty
-	while (is_set(uart->fr, FR_RXFE)) {}
+	while (IS_SET(uart->fr, FR_RXFE)) {}
 	return (unsigned char)(uart->dr & 0xff);
 }
