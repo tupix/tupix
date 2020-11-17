@@ -22,11 +22,13 @@ char* ultostr(unsigned long n, unsigned int base, char* str, unsigned int* len)
 	// Start from the least significant digit
 	*len = calc_digits(n, base);
 	str += *len;
-	*str = 0;
+	*str = '\0';
 
-	// If n == 0, the loop will be skipped.
-	if (!n)
-		*str = 0;
+	// If n == 0, the loop would be skipped.
+	if (!n) {
+		*(--str) = '0';
+		return str;
+	}
 
 	unsigned int cur_digit, ascii_offset;
 	while (n) {
