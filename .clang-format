@@ -13,8 +13,8 @@
 ---
 AccessModifierOffset: -4
 AlignAfterOpenBracket: Align
-AlignConsecutiveAssignments: false
-AlignConsecutiveDeclarations: false
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
 #AlignEscapedNewlines: Left # Unknown to clang-format-4.0
 AlignOperands: true
 AlignTrailingComments: true
