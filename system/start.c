@@ -6,8 +6,6 @@ void start_kernel(void)
 {
 	init_uart();
 
-	test_kprintf();
-
 	while (1) {
 		char c = kgetchar();
 		kprintf("%c %03i %03u %x\n", c, c, c, c);
