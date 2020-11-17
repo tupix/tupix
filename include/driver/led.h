@@ -1,6 +1,6 @@
-#ifndef _LED_H_
-#define _LED_H_
+#ifndef DRIVER_LED_H
+#define DRIVER_LED_H
 
 void yellow_on(void);
 
-#endif
+#endif /* DRIVER_LED_H */

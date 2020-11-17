@@ -1,6 +1,6 @@
-#ifndef _REGCHECK_H_
-#define _REGCHECK_H_
+#ifndef SYSTEM_REGCHECK_H
+#define SYSTEM_REGCHECK_H
 
 void register_checker(void);
 
-#endif //_REGCHECK_H_
+#endif /* SYSTEM_REGCHECK_H */

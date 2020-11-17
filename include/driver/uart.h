@@ -1,8 +1,8 @@
-#ifndef _DRI_UART_H_
+#ifndef DRIVER_UART_H
+#define DRIVER_UART_H
 
 void init_uart();
 void uart_putchar(unsigned char c);
 unsigned char uart_getchar();
 
-#define _DRI_UART_H_
-#endif
+#endif /* DRIVER_UART_H */

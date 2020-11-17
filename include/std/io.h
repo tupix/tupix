@@ -1,6 +1,6 @@
-#ifndef _SYSTEM_IO_H_
+#ifndef SYSTEM_IO_H
+#define SYSTEM_IO_H
 
 void kprintf(const char* format, ...) __attribute__((format(printf, 1, 2)));
 
-#define _SYSTEM_IO_H_
-#endif
+#endif /* SYSTEM_IO_H */
