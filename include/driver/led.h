@@ -1,5 +1,5 @@
-#ifndef LED_H
-#define LED_H
+#ifndef _LED_H_
+#define _LED_H_
 
 void yellow_on(void);
 

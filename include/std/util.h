@@ -1,4 +1,4 @@
-#ifndef STD_UTIL_H
+#ifndef _STD_UTIL_H_
 
 #include <std/types.h>
 
@@ -26,5 +26,5 @@ bool is_set(volatile unsigned int word, unsigned char bitn);
 void set_bit(volatile unsigned int* word, unsigned char bitn);
 void clear_bit(volatile unsigned int* word, unsigned char bitn);
 
-#define STD_UTIL_H
+#define _STD_UTIL_H_
 #endif

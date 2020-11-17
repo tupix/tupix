@@ -1,6 +1,6 @@
-#ifndef STD_TYPES_H
+#ifndef _STD_TYPES_H_
 
 typedef enum bool { true = 1, false = 0 } bool;
 
-#define STD_TYPES_H
+#define _STD_TYPES_H_
 #endif

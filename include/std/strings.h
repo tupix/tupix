@@ -1,6 +1,6 @@
-#ifndef STD_STRINGS_H
+#ifndef _STD_STRINGS_H_
 
 unsigned int str_len(const char* str);
 
-#define STD_STRINGS_H
+#define _STD_STRINGS_H_
 #endif
