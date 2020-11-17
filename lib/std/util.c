@@ -24,7 +24,7 @@ char* ultostr(unsigned long n, unsigned int base, char* str, unsigned int* len)
 	str += *len;
 	*str = '\0';
 
-	// If n == 0, the loop would be skipped.
+	// If n == 0, just return "0\0"
 	if (!n) {
 		*(--str) = '0';
 		return str;
@@ -34,11 +34,11 @@ char* ultostr(unsigned long n, unsigned int base, char* str, unsigned int* len)
 	while (n) {
 		cur_digit = n % base;
 
-        // ASCII digits and letters are not consecutive to each other which is why we have to differentiate
-        // between them and take a different offset.
+		// ASCII digits and letters are not consecutive to each other which is why we have to differentiate
+		// between them and take a different offset.
 		if (cur_digit >= 10) {
-            // a is the 10th hex-digit
-            cur_digit -= 10;
+			// a is the 10th hex-digit
+			cur_digit -= 10;
 			ascii_offset = 'a';
 		} else {
 			ascii_offset = '0';
