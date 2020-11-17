@@ -69,14 +69,14 @@ void init_uart()
 	set_bit(&(uart_i->cr), CR_UARTEN);
 }
 
-void kputchar(unsigned char c)
+void uart_putchar(unsigned char c)
 {
 	// wait until transmit FIFO is not full
 	while (is_set(uart_i->fr, FR_TXFF)) {}
 	uart_i->dr = c;
 }
 
-unsigned char kgetchar()
+unsigned char uart_getchar()
 {
 	// wait until receive FIFO is not empty
 	while (is_set(uart_i->fr, FR_RXFE)) {}
