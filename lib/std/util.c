@@ -19,8 +19,6 @@ char* ultostr(unsigned long n, unsigned int base, char* str, unsigned int* len)
 	if (base < 2 || base > 36)
 		return str; // TODO: ERROR
 
-	// unsigned int num_digits = (int)(log(n) / log(base)) + 1;
-
 	// Start from the least significant digit
 	*len = calc_digits(n, base);
 	str += *len;
@@ -30,16 +28,20 @@ char* ultostr(unsigned long n, unsigned int base, char* str, unsigned int* len)
 	if (!n)
 		*str = 0;
 
-	unsigned int cur_digit, ascii_off;
+	unsigned int cur_digit, ascii_offset;
 	while (n) {
 		cur_digit = n % base;
 
-		if (cur_digit > 9)
-			ascii_off = 'a' - 10;
-		else
-			ascii_off = '0';
-
-		*(--str) = ascii_off + cur_digit;
+        // ASCII digits and letters are not consecutive to each other which is why we have to differentiate
+        // between them and take a different offset.
+		if (cur_digit >= 10) {
+            // a is the 10th hex-digit
+            cur_digit -= 10;
+			ascii_offset = 'a';
+		} else {
+			ascii_offset = '0';
+		}
+		*(--str) = cur_digit + ascii_offset;
 
 		n /= base;
 	}
