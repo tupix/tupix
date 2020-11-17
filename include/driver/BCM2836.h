@@ -1,0 +1,6 @@
+#ifndef _DRIVER_BCM2836_H_
+
+#define MMU_BASE_OFFSET 0x3F000000
+
+#define _DRIVER_BCM2836_H_
+#endif

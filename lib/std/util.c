@@ -76,6 +76,15 @@ void set_bit(volatile unsigned int* word, unsigned char bitn)
 	*word |= 1U << bitn;
 }
 
+// TODO: put into header and test
+void set_bit_to(volatile unsigned int* word, unsigned char bitn,
+				unsigned int value)
+{
+	if (bitn > (sizeof(unsigned int) * 8) - 1)
+		return;
+	*word |= value << bitn;
+}
+
 void clear_bit(volatile unsigned int* word, unsigned char bitn)
 {
 	if (bitn > (sizeof(unsigned int) * 8) - 1)
