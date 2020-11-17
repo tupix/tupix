@@ -44,16 +44,37 @@ enum irq_basic_pending {
 };
 // Bit field for irq_pending, enable_irqs and disable_irqs
 enum irq_table {
-	uart_int		= 57,
-	pcm_int			= 55,
-	spi_int			= 54,
-	i2c_int			= 53,
-	gpio_int		= 49,
-	smi				= 48,
-	pwa1			= 46,
-	pwa0			= 45,
-	i2c_spi_slv_int = 43,
-	aux_int			= 29,
+	irq_uart_int		= 57, // UART
+	irq_pcm_int			= 55,
+	irq_spi_int			= 54,
+	irq_i2c_int			= 53,
+	irq_gpio_int		= 49,
+	irq_smi				= 48,
+	irq_pwa1			= 46,
+	irq_pwa0			= 45,
+	irq_i2c_spi_slv_int = 43,
+	irq_aux_int			= 29,
+};
+
+enum fiq_table {
+	fiq_ill_access_type_0 = 71,
+	fiq_ill_access_type_1 = 70,
+	fiq_gpu1_halted		  = 69,
+	fiq_gpu0_halted		  = 68,
+	fiq_arm_doorbell_1	  = 67,
+	fiq_arm_doorbell_0	  = 66,
+	fiq_arm_mailbox		  = 65,
+	fiq_arm_timer		  = 64,
+	fiq_uart_int		  = 57, // UART
+	fiq_pcm_int			  = 55,
+	fiq_spi_int			  = 54,
+	fiq_i2c_int			  = 53,
+	fiq_gpio_int		  = 49,
+	fiq_smi				  = 48,
+	fiq_pwa1			  = 46,
+	fiq_pwa0			  = 45,
+	fiq_i2c_spi_slv_int	  = 43,
+	fiq_aux_int			  = 29,
 };
 
 static volatile uint64* const interrupt_register =
