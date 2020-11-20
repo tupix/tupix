@@ -2,29 +2,29 @@
 # Kurzanleitung
 # =============
 #
-# make			-- Baut den Kernel.
+# make				-- Baut den Kernel.
 #
-# make all		-- Wie make
+# make all			-- Wie make
 #
 # make debug		-- Baut den Kernel mit debug flags
 #
 # make install		-- Baut den Kernel und transferiert ihn auf den Server.
-# 			   Das Board holt sich diesen Kernel beim nächsten Reset.
+# 			   		   Das Board holt sich diesen Kernel beim nächsten Reset.
 #
-# make qemu		-- Baut den Kernel und führt ihn unter QEMU aus
+# make qemu			-- Baut den Kernel und führt ihn unter QEMU aus
 #
 # make qemu_debug	-- Baut den Kernel und führt ihn unter QEMU mit debug
-# 			   Optionen aus. Zum debuggen in einem zweiten Terminal
-# 			   folgendes ausführen:
-# 			   $ arm-none-eabi-gdb kernel_debug
-# 			   $ target remote localhost:1234
+# 			   		   Optionen aus. Zum debuggen in einem zweiten Terminal
+# 			   		   folgendes ausführen:
+# 			   		   $ arm-none-eabi-gdb kernel_debug
+# 			   		   $ target remote localhost:1234
 #
 # make clean		-- Löscht alle erzeugten Dateien.
 #
 # make submission	-- Packt alles im Verzeichnis für die Abgabe zusammen
 #
-# make home		-- kopiert das fertige image nach $TFTP_PATH, für die
-#			   Arbeit zuhause einfach den Pfad eintragen
+# make home			-- kopiert das fertige image nach $TFTP_PATH, für die
+#			   		   Arbeit zuhause einfach den Pfad eintragen
 
 
 # Binäre Lsg (falls verwendet, ansonsten leer lassen)

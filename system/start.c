@@ -8,6 +8,7 @@ void start_kernel(void)
 	init_interrupt_controller();
 	init_uart();
 
+	while (1) {};
 #if 0
 	while (1) {
 		char c = uart_getchar();

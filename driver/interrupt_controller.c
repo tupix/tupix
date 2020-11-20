@@ -91,6 +91,7 @@ static volatile struct interrupt_register* const ir =
 void init_interrupt_controller()
 {
 	// TODO: This is for the fast interrupt
+	// TODO: Maybe we can actually generate a regular iq for the timer
 	//set_bit(&(ir->fiq_control), FIQ_CONTROL_ENABLE);
 	//ir->fiq_control |= fiq_arm_timer; // FIQ should be Timer interrupt
 

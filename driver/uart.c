@@ -71,14 +71,16 @@ enum ifls_iflsel {
 };
 
 enum imsc_bit_field {
-	IMSC_OEIM	= 10, // overrun error interrupt mask
-	IMSC_BEIM	= 9,  // break error interrupt mask
-	IMSC_PEIM	= 8,  // parity error interrupt mask
-	IMSC_FEIM	= 7,  // framing error interrupt mask
-	IMSC_RTIM	= 6,  // receive timeout mask
-	IMSC_TEIM	= 5,  // transmit interrupt mask
-	IMSC_RXIM	= 4,  // receive interrupt mask
-	IMSC_CTSMIM = 1,  // nUARTCTS modem interrupt mask
+	IMSC_OEIM = 10, // overrun error interrupt mask
+	IMSC_BEIM = 9,	// break error interrupt mask
+	IMSC_PEIM = 8,	// parity error interrupt mask
+	IMSC_FEIM = 7,	// framing error interrupt mask
+	IMSC_RTIM = 6,	// receive timeout mask
+	IMSC_TEIM = 5,	// transmit interrupt mask
+	IMSC_RXIM = 4,	// receive interrupt mask
+	/* 2,3 unsupported, read as don't care */
+	IMSC_CTSMIM = 1, // nUARTCTS modem interrupt mask
+	/* 0 unsupported, read as don't care */
 };
 
 static volatile struct uart* const uart = (struct uart*)UART_BASE;

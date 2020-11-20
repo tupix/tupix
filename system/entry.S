@@ -32,14 +32,18 @@ _tupix:
 	 */
 	ldr sp,=0x20000
 
+    bl _init_sp
+
     /* setzen, der ivt base-address im VBAR */
     ldr r0, =_ivt
     mcr p15, 0, r0, c12, c0, 0
 
 	/* Zu c Code springen */
 	bl start_kernel
+
+/* endless loop waiting on interrupts */
 .Lend:
-	WFI
+	WFI // wait for interrupt
 	b .Lend
 
 _exitHyper:
