@@ -17,3 +17,21 @@ _ivt:
 	_not_used:              .word not_used
 	_irq:                   .word irq
 	_fiq:                   .word fiq
+
+.global _init_sp
+_init_sp:
+    // supervisor mode
+    mov sp, #0x8000000
+
+    ldr r0, =0x7FFFC00
+    msr sp_und, r0
+    ldr r0, =0x7FFF800
+    msr sp_abt, r0
+    ldr r0, =0x7FFF400
+    msr sp_irq, r0
+    ldr r0, =0x7FFF000
+    msr sp_fiq, r0
+    ldr r0, =0x7FFEC00
+    msr sp_usr, r0
+
+    mov pc, lr

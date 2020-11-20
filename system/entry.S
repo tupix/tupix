@@ -23,6 +23,7 @@ _loopCores:
 	tst r0, #3
 	bne .Lend
 
+.extern _init_sp
 .extern _ivt
 _tupix:
 	/* Wir brauchen einen validen Stack für Qemu.
