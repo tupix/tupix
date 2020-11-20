@@ -1,12 +1,7 @@
 .section .init
 
-.extern _ivt
 .global _start
 _start:
-    /* setzen, der ivt base-address im VBAR */
-    ldr r0, =_ivt
-    mcr p15, 0, r0, c12, c0, 0
-
 	/* Erkennen ob Hypervisor Mode aktiv */
 	mrs r0, cpsr
 	and r0, r0, #0x1F
@@ -28,12 +23,18 @@ _loopCores:
 	tst r0, #3
 	bne .Lend
 
+.extern _ivt
 _tupix:
 	/* Wir brauchen einen validen Stack für Qemu.
 	 * Auf dem Pi wurde dieser zwar bereits durch U-Boot
 	 * gesetzt, schadet aber auch nicht
 	 */
 	ldr sp,=0x20000
+
+    /* setzen, der ivt base-address im VBAR */
+    ldr r0, =_ivt
+    mcr p15, 0, r0, c12, c0, 0
+
 	/* Zu c Code springen */
 	bl start_kernel
 .Lend:
