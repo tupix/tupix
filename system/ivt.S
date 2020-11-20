@@ -1,5 +1,3 @@
-.section .text
-
 .global _ivt
 .balign 64
 _ivt:

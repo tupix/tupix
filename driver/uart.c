@@ -98,6 +98,7 @@ void init_uart()
 	uart->lcrh |= (LCRH_WLEN_8 << LCRH_WLEN); // set word length
 
 	uart->imsc = 0; // clear all UART interrupt bits
+	SET_BIT(uart->imsc, (uint32)IMSC_RXIM);
 
 	uart->ifls |= (IFLS_IFLSEL_1_8 << IFLS_RXIFLSEL); // rx interrupt trigger
 

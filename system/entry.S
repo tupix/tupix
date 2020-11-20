@@ -1,7 +1,12 @@
 .section .init
 
+.extern _ivt
 .global _start
 _start:
+    /* setzen, der ivt base-address im VBAR */
+    ldr r0, =_ivt
+    mcr p15, 0, r0, c12, c0, 0
+
 	/* Erkennen ob Hypervisor Mode aktiv */
 	mrs r0, cpsr
 	and r0, r0, #0x1F
