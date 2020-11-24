@@ -8,40 +8,40 @@
 #include <std/io.h>
 void reset()
 {
-	kprintf("reset");
+	kprintf("reset\n");
 }
 
 void undefined_instruction()
 {
-	kprintf("undefined instruction");
+	kprintf("undefined instruction\n");
 }
 
 void software_interrupt()
 {
-	kprintf("software interrupt");
+	kprintf("software interrupt\n");
 }
 
 void prefetch_abort()
 {
-	kprintf("prefetch abort");
+	kprintf("prefetch abort\n");
 }
 
 void data_abort()
 {
-	kprintf("data abort");
+	kprintf("data abort\n");
 }
 
 void not_used()
 {
-	kprintf("not used");
+	kprintf("not used\n");
 }
 
 void irq()
 {
-	kprintf("IRQ");
+	kprintf("IRQ\n");
 }
 
 void fiq()
 {
-	kprintf("FIQ");
+	kprintf("FIQ\n");
 }
