@@ -14,6 +14,9 @@ void kprint(const char* s)
 		uart_putchar(*(s++));
 }
 
+/**
+ * Make sure you do not underflow field_width or len when calling.
+ */
 inline void print_with_padding(const char* num_str, unsigned int len,
 							   unsigned int field_width, const char padding)
 {
@@ -128,7 +131,7 @@ void kprintf(const char* format, ...)
 				offset = 1;
 			}
 			print_with_padding(num_str + offset, len - offset,
-							   field_width - offset, padding);
+							   max((int)(field_width - offset), 0), padding);
 			break;
 		}
 		case 'u':

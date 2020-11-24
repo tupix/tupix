@@ -2,7 +2,7 @@
 
 #include <std/types.h>
 
-unsigned int calc_digits(unsigned int n, unsigned int base)
+unsigned int calc_digits(unsigned long n, unsigned int base)
 {
 	// Start at 1 when n == 0
 	unsigned int num = !n;

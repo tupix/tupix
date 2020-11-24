@@ -49,7 +49,7 @@
 
 #define IS_SET(bitfield, bit) (!!((bitfield) & (1U << (bit))))
 
-unsigned int calc_digits(unsigned int n, unsigned int base);
+unsigned int calc_digits(unsigned long n, unsigned int base);
 
 char* ultostr(unsigned long n, unsigned int base, char* str, unsigned int* len);
 char* ltostr(long n, unsigned int base, char* str, unsigned int* len);
