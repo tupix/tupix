@@ -15,15 +15,19 @@ void start_kernel(void)
 		switch (c) {
 		case 's':
 			// trigger Supervisor Call
+			asm("svc #0");
 			break;
 		case 'u':
 			// trigger Undefined Instruction
+			asm(".word 0xf7f0a000\n");
 			break;
 		case 'p':
 			// trigger Prefetch Abort
+			asm("bkpt #0");
 			break;
 		case 'd':
 			// trigger Data Abort
+			// TODO: trigger
 			break;
 		}
 	}
