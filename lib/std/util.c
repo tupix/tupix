@@ -59,7 +59,10 @@ char* ltostr(long n, unsigned int base, char* str, unsigned int* len)
 		n *= -1;
 		offset = 1;
 	}
+
+	// returns str + offset
 	result = ultostr(n, base, str, len) - offset;
 	*len += offset;
+
 	return result;
 }
