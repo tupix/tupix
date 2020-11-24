@@ -70,6 +70,7 @@ enum ifls_iflsel {
 	IFLS_IFLSEL_7_8 = 0b100,
 };
 
+// clang-format off
 enum imsc_bit_field {
 	IMSC_OEIM = 10, // overrun error interrupt mask
 	IMSC_BEIM = 9,	// break error interrupt mask
@@ -82,6 +83,7 @@ enum imsc_bit_field {
 	IMSC_CTSMIM = 1, // nUARTCTS modem interrupt mask
 	/* 0 unsupported, read as don't care */
 };
+// clang-format on
 
 static volatile struct uart* const uart = (struct uart*)UART_BASE;
 
