@@ -128,7 +128,7 @@ void kprintf(const char* format, ...)
 				offset = 1;
 			}
 			print_with_padding(num_str + offset, len - offset,
-							   field_width - offset, padding);
+							   max((int)(field_width - offset), 0), padding);
 			break;
 		}
 		case 'u':
