@@ -19,11 +19,11 @@ void start_kernel(void)
 			break;
 		case 'u':
 			// trigger Undefined Instruction
-			asm(".word 0xf7f0a000\n");
+			asm("udf");
 			break;
 		case 'p':
 			// trigger Prefetch Abort
-			asm("bkpt #0");
+			asm("bkpt");
 			break;
 		case 'd':
 			// trigger Data Abort
