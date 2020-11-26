@@ -18,6 +18,25 @@ _ivt:
 	_irq:                   .word irq
 	_fiq:                   .word fiq
 
+// TODO: subtract return-offset.
+// is the return offset 8 for undefined instruction?
+undefined_instruction:
+    push { sp, pc, lr, r0 - r12 }
+    mov r0, sp
+    // TODO: load all other registers on to the stack
+    b print_registers
+
+#if 0
+    // TODO: these here!
+    fiq_pc, fiq_lr, fiq_sp,
+    irq_pc, irq_lr, irq_sp,
+    abt_pc, abt_lr, abt_sp,
+    und_pc, und_lr, und_sp,
+    svc_pc, svc_lr, svc_sp,
+    usr_pc, usr_lr, usr_sp,
+    spsr, cpsr,
+#endif
+
 .global _init_sp
 _init_sp:
     // supervisor mode
