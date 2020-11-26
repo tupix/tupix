@@ -23,7 +23,7 @@ struct registers {
 	uint32 r11;
 	uint32 r12;
 	uint32 sp;
-   uint32 lr;
+	uint32 lr;
 	uint32 pc;
 
 #if 0
@@ -56,9 +56,9 @@ struct registers {
 #endif
 };
 
-void print_registers(void *sp)
+void print_registers(void* sp)
 {
-    volatile struct registers* reg = (struct registers*)sp;
+	volatile struct registers* reg = (struct registers*)sp;
 }
 
 void reset()
