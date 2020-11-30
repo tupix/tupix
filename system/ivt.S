@@ -21,6 +21,9 @@ _ivt:
 // TODO: subtract return-offset.
 // is the return offset 8 for undefined instruction?
 undefined_instruction:
+    // NOTE(Aurel): The registers are positioned in here as they are in the
+    // struct. They however have to be pushed a little differently hence why
+    // they are loaded weirdly into the processor registors a little.
     push { sp }
     push { pc }
     push { lr }
@@ -55,5 +58,8 @@ undefined_instruction:
     mrs r2, spsr_fiq
     push {r0 - r8}
 
+    // NOTE(Aurel): Give current stack pointer as first argument. It points
+    // exactly to the end of where all the registers have been pushed to and is
+    // therefor the location at which the struct registers should be placed.
     mov r0, sp
     b print_registers
