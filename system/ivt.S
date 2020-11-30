@@ -21,21 +21,39 @@ _ivt:
 // TODO: subtract return-offset.
 // is the return offset 8 for undefined instruction?
 undefined_instruction:
-    push { sp, pc, lr, r0 - r12 }
+    push { sp }
+    push { pc }
+    push { lr }
+    push { r0 - r12 }
+
+    mrs r1, spsr
+    mrs r0, cpsr
+    push {r0 - r1}
+
+    // TODO(AUREL): Something is not quite right with the spsr of the modes.
+
+    // usr
+    mrs r5, lr_usr
+    mrs r6, sp_usr
+    // svc
+    mrs r2, lr_svc
+    mrs r3, sp_svc
+    mrs r4, spsr_svc
+    push {r2 - r6}
+
+    // abt
+    mrs r6, lr_abt
+    mrs r7, sp_abt
+    mrs r8, spsr_abt
+    // irq
+    mrs r3, lr_irq
+    mrs r4, sp_irq
+    mrs r5, spsr_irq
+    // fiq
+    mrs r0, lr_fiq
+    mrs r1, sp_fiq
+    mrs r2, spsr_fiq
+    push {r0 - r8}
+
     mov r0, sp
-    // TODO: load all other registers on to the stack
     b print_registers
-
-#if 0
-    // TODO: these here!
-    fiq_pc, fiq_lr, fiq_sp,
-    irq_pc, irq_lr, irq_sp,
-    abt_pc, abt_lr, abt_sp,
-    und_pc, und_lr, und_sp,
-    svc_pc, svc_lr, svc_sp,
-    usr_pc, usr_lr, usr_sp,
-    spsr, cpsr,
-#endif
-
-
-
