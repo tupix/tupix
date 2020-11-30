@@ -33,7 +33,8 @@ undefined_instruction:
     mrs r0, cpsr
     push {r0 - r1}
 
-    // TODO(AUREL): Something is not quite right with the spsr of the modes.
+    // TODO(AUREL): Something is not quite right with the spsr of the modes. Or
+    // maybe it is? Why are so many 0?
 
     // usr
     mrs r5, lr_usr
