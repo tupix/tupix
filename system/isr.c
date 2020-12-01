@@ -10,13 +10,14 @@
 #include <std/util.h>
 
 enum cpsr_mode_bits {
-	USER	   = 0b10000,
-	FIQ		   = 0b10001,
-	IRQ		   = 0b10010,
-	SUPERVISOR = 0b10011,
-	ABORT	   = 0b10111,
-	UNDEFINED  = 0b11011,
-	SYSTEM	   = 0b11111,
+	USER		  = 0b10000,
+	FIQ			  = 0b10001,
+	IRQ			  = 0b10010,
+	SUPERVISOR	  = 0b10011,
+	ABORT		  = 0b10111,
+	UNDEFINED	  = 0b11011,
+	SYSTEM		  = 0b11111,
+	UNINITIALIZED = 0,
 };
 
 void psr_flags_str(uint32 flags, char* str)
@@ -61,6 +62,9 @@ void psr_flags_str(uint32 flags, char* str)
 	case SYSTEM:
 		mode_str = "System\0";
 		break;
+	case UNINITIALIZED:
+		mode_str = "Uninitialized\0";
+        break;
 	}
 }
 
