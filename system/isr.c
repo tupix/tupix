@@ -21,6 +21,9 @@ enum cpsr_mode_bits {
 	UNINITIALIZED = 0,
 };
 
+// NOTE(Aurel): 8 flags, 3 spaces, 10 chars for the mode name and '\0'
+#define PSR_STR_LEN (8 + 3 + 13 + 1)
+
 void psr_flags_str(uint32 flags, char* str)
 {
 	str[4]	= ' ';
@@ -118,13 +121,14 @@ void print_registers(void* sp)
 {
 	volatile struct registers* reg = (struct registers*)sp;
 
-	// NOTE(Aurel): 8 flags, 3 spaces, 10 chars for the mode name and '\0'
-	char und_cpsr_str[8 + 3 + 13 + 1];
-	char und_spsr_str[8 + 3 + 13 + 1];
-	char svc_spsr_str[8 + 3 + 13 + 1];
-	char abt_spsr_str[8 + 3 + 13 + 1];
-	char fiq_spsr_str[8 + 3 + 13 + 1];
-	char irq_spsr_str[8 + 3 + 13 + 1];
+	char* exception_str = "Undefined Instruction";
+
+	char und_cpsr_str[PSR_STR_LEN];
+	char und_spsr_str[PSR_STR_LEN];
+	char svc_spsr_str[PSR_STR_LEN];
+	char abt_spsr_str[PSR_STR_LEN];
+	char fiq_spsr_str[PSR_STR_LEN];
+	char irq_spsr_str[PSR_STR_LEN];
 
 	psr_flags_str(reg->cpsr, und_cpsr_str);
 	psr_flags_str(reg->spsr, und_spsr_str);
@@ -135,7 +139,7 @@ void print_registers(void* sp)
 
 	// clang-format off
 	kprintf("################################################################################\n"
-			"Undefined Instruction at address 0x%08x\n"
+			"%s at address 0x%08x\n"
 			"\n"
 			">>> register snapshot (current mode) <<<\n"
 			"R0: 0x%08x    R8:  0x%08x\n"
@@ -153,7 +157,7 @@ void print_registers(void* sp)
 			"\n"
 			">>> registers (mode-specific) <<<\n"
 			"             LR         SP         SPSR\n"
-			"User/System: 0x%08x 0x%08x\n"              /* TODO(Aurel): Why is there no space for the SPSR here? */
+			"User/System: 0x%08x 0x%08x\n"              
             "Supervisor:  0x%08x 0x%08x %s\t(0x%08x)\n"
 			"Abort:       0x%08x 0x%08x %s\t(0x%08x)\n"
 			"FIQ:         0x%08x 0x%08x %s\t(0x%08x)\n"
