@@ -27,7 +27,7 @@ void start_kernel(void)
 			break;
 		case 'd':
 			// trigger Data Abort
-			// TODO: trigger
+			asm("ldr r0 [r1, #1]!");
 			break;
 		}
 	}
