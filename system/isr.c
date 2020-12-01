@@ -119,7 +119,7 @@ struct registers {
 	uint32 sp;
 };
 
-void print_registers(struct registers reg, char* exc_str,
+void print_registers(volatile struct registers* reg, char* exc_str,
 					 char* exc_system_info_str, char* exc_extra_info_str)
 {
 	char und_cpsr_str[PSR_STR_LEN];
@@ -129,13 +129,13 @@ void print_registers(struct registers reg, char* exc_str,
 	char fiq_spsr_str[PSR_STR_LEN];
 	char irq_spsr_str[PSR_STR_LEN];
 
-	psr_flags_str(reg.cpsr, und_cpsr_str);
-	psr_flags_str(reg.spsr, und_spsr_str);
-	psr_flags_str(reg.svc_spsr, svc_spsr_str);
-	psr_flags_str(reg.abt_spsr, abt_spsr_str);
-	psr_flags_str(reg.fiq_spsr, fiq_spsr_str);
-	psr_flags_str(reg.irq_spsr, irq_spsr_str);
-	psr_flags_str(reg.und_spsr, und_spsr_str);
+	psr_flags_str(reg->cpsr, und_cpsr_str);
+	psr_flags_str(reg->spsr, und_spsr_str);
+	psr_flags_str(reg->svc_spsr, svc_spsr_str);
+	psr_flags_str(reg->abt_spsr, abt_spsr_str);
+	psr_flags_str(reg->fiq_spsr, fiq_spsr_str);
+	psr_flags_str(reg->irq_spsr, irq_spsr_str);
+	psr_flags_str(reg->und_spsr, und_spsr_str);
 
 	// clang-format off
 	kprintf("################################################################################\n"
@@ -165,24 +165,24 @@ void print_registers(struct registers reg, char* exc_str,
 			"Undefined:   0x%08x 0x%08x %s\t(0x%08x)\n"
 			"\n"
 			"%s\n",
-			exc_str, reg.lr,
+			exc_str, reg->lr,
 			exc_extra_info_str,
-			reg.r0, reg.r8,
-			reg.r1, reg.r9,
-			reg.r2, reg.r10,
-			reg.r3, reg.r11,
-			reg.r4, reg.r12,
-			reg.r5, reg.sp,
-			reg.r6, reg.lr,
-			reg.r7, reg.pc,
-			und_cpsr_str, reg.cpsr,
-			und_spsr_str, reg.spsr,
-			reg.usr_lr, reg.usr_sp,
-			reg.svc_lr, reg.svc_sp, svc_spsr_str, reg.svc_spsr,
-			reg.abt_lr, reg.abt_sp, abt_spsr_str, reg.abt_spsr,
-			reg.fiq_lr, reg.fiq_sp, fiq_spsr_str, reg.fiq_spsr,
-			reg.irq_lr, reg.irq_sp, irq_spsr_str, reg.irq_spsr,
-			reg.und_lr, reg.und_sp, und_spsr_str, reg.spsr,
+			reg->r0, reg->r8,
+			reg->r1, reg->r9,
+			reg->r2, reg->r10,
+			reg->r3, reg->r11,
+			reg->r4, reg->r12,
+			reg->r5, reg->sp,
+			reg->r6, reg->lr,
+			reg->r7, reg->pc,
+			und_cpsr_str, reg->cpsr,
+			und_spsr_str, reg->spsr,
+			reg->usr_lr, reg->usr_sp,
+			reg->svc_lr, reg->svc_sp, svc_spsr_str, reg->svc_spsr,
+			reg->abt_lr, reg->abt_sp, abt_spsr_str, reg->abt_spsr,
+			reg->fiq_lr, reg->fiq_sp, fiq_spsr_str, reg->fiq_spsr,
+			reg->irq_lr, reg->irq_sp, irq_spsr_str, reg->irq_spsr,
+			reg->und_lr, reg->und_sp, und_spsr_str, reg->spsr,
 			exc_system_info_str
 		);
 	// clang-format on
@@ -191,35 +191,35 @@ void print_registers(struct registers reg, char* exc_str,
 void reset_handler(void* sp)
 {
 	volatile struct registers* reg = (struct registers*)sp;
-	print_registers(*reg, "Reset", "System halted.", "");
+	print_registers(reg, "Reset", "System halted.", "");
 	// TODO(Aurel): Does anything have to happen?
 }
 
 void undefined_instruction_handler(void* sp)
 {
 	volatile struct registers* reg = (struct registers*)sp;
-	print_registers(*reg, "Undefined Instruction", "System halted.", "");
+	print_registers(reg, "Undefined Instruction", "System halted.", "");
 	// TODO(Aurel): Does anything have to happen?
 }
 
 void software_interrupt_handler(void* sp)
 {
 	volatile struct registers* reg = (struct registers*)sp;
-	print_registers(*reg, "Software Interrupt", "System halted.", "");
+	print_registers(reg, "Software Interrupt", "System halted.", "");
 	// TODO(Aurel): Does anything have to happen?
 }
 
 void prefetch_abort_handler(void* sp)
 {
 	volatile struct registers* reg = (struct registers*)sp;
-	print_registers(*reg, "Prefetch Abort", "System halted.", "");
+	print_registers(reg, "Prefetch Abort", "System halted.", "");
 	// TODO(Aurel): Does anything have to happen?
 }
 
 void data_abort_handler(void* sp)
 {
 	volatile struct registers* reg = (struct registers*)sp;
-	print_registers(*reg, "Data Abort", "System halted.", "");
+	print_registers(reg, "Data Abort", "System halted.", "");
 	// TODO(Aurel): Does anything have to happen?
 }
 
@@ -227,20 +227,20 @@ void data_abort_handler(void* sp)
 void not_used_handler(void* sp)
 {
 	volatile struct registers* reg = (struct registers*)sp;
-	//print_registers(*reg, "Unused", "System halted.", "");
+	//print_registers(reg, "Unused", "System halted.", "");
 	// TODO(Aurel): Does anything have to happen?
 }
 
 void irq_handler(void* sp)
 {
 	volatile struct registers* reg = (struct registers*)sp;
-	print_registers(*reg, "Interrupt Request", "Continuing.", "");
+	print_registers(reg, "Interrupt Request", "Continuing.", "");
 	// TODO(Aurel): Does anything have to happen?
 }
 
 void fiq_handler(void* sp)
 {
 	volatile struct registers* reg = (struct registers*)sp;
-	print_registers(*reg, "Fast Interrupt Request", "Continuing.", "");
+	print_registers(reg, "Fast Interrupt Request", "Continuing.", "");
 	// TODO(Aurel): Does anything have to happen?
 }
