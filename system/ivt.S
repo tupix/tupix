@@ -115,7 +115,7 @@ software_interrupt:
     // exactly to the end of where all the registers have been pushed to and is
     // therefor the location at which the struct registers should be placed.
     mov r0, sp
-    b software_interruput_handler
+    b software_interrupt_handler
 
 // TODO: subtract return-offset.
 prefetch_abort:
