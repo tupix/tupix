@@ -154,7 +154,7 @@ void print_registers(void* sp)
 			"\n"
 			">>> current mode-specific registers <<<\n"
 			"             LR         SP         SPSR\n"
-			"User/System: 0x%08x 0x%08x\n" /* TODO(Aurel): Why is there no space for the SPSR here? */
+			"User/System: 0x%08x 0x%08x\n"              /* TODO(Aurel): Why is there no space for the SPSR here? */
             "Supervisor:  0x%08x 0x%08x %s\t(0x%08x)\n"
 			"Abort:       0x%08x 0x%08x %s\t(0x%08x)\n"
 			"FIQ:         0x%08x 0x%08x %s\t(0x%08x)\n"
