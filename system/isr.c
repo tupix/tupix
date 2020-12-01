@@ -120,12 +120,12 @@ void print_registers(void* sp)
 	volatile struct registers* reg = (struct registers*)sp;
 
 	// NOTE(Aurel): 8 flags, 3 spaces, 10 chars for the mode name and '\0'
-	char und_cpsr_str[8 + 3 + 10 + 1];
-	char und_spsr_str[8 + 3 + 10 + 1];
-	char svc_spsr_str[8 + 3 + 10 + 1];
-	char abt_spsr_str[8 + 3 + 10 + 1];
-	char fiq_spsr_str[8 + 3 + 10 + 1];
-	char irq_spsr_str[8 + 3 + 10 + 1];
+	char und_cpsr_str[8 + 3 + 13 + 1];
+	char und_spsr_str[8 + 3 + 13 + 1];
+	char svc_spsr_str[8 + 3 + 13 + 1];
+	char abt_spsr_str[8 + 3 + 13 + 1];
+	char fiq_spsr_str[8 + 3 + 13 + 1];
+	char irq_spsr_str[8 + 3 + 13 + 1];
 
 	psr_flags_str(reg->cpsr, und_cpsr_str);
 	psr_flags_str(reg->spsr, und_spsr_str);
