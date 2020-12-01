@@ -67,6 +67,9 @@ void psr_flags_str(uint32 flags, char* str)
 	case UNINITIALIZED:
 		strncpy(str, "Uninitialized\0", 14);
 		break;
+	default:
+		// TODO(Aurel): This is never supposed to happen. Abort!
+		break;
 	}
 }
 
