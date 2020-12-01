@@ -18,8 +18,10 @@ _ivt:
 	_irq:                   .word irq
 	_fiq:                   .word fiq
 
+reset:
+	// TODO: Crash?
+
 // TODO: subtract return-offset.
-// is the return offset 8 for undefined instruction?
 undefined_instruction:
     // NOTE(Aurel): The registers are positioned in here as they are in the
     // struct. They however have to be pushed a little differently hence why
@@ -66,3 +68,293 @@ undefined_instruction:
     // therefor the location at which the struct registers should be placed.
     mov r0, sp
     b undefined_instruction_handler
+
+// TODO: subtract return-offset.
+software_interrupt:
+    // NOTE(Aurel): The registers are positioned in here as they are in the
+    // struct. They however have to be pushed a little differently hence why
+    // they are loaded weirdly into the processor registors a little.
+    push { sp }
+    push { pc }
+    sub lr, #8 // TODO(Aurel): What is the offset? See documentation.
+    push { lr }
+    push { r0 - r12 }
+
+    mrs r1, spsr
+    mrs r0, cpsr
+    push {r0 - r1}
+
+    // usr
+    mrs r8, lr_usr
+    mrs r9, sp_usr
+    // svc
+    mov r5, lr
+    mov r6, sp
+    mrs r7, spsr
+    // und
+    mrs r2, lr_und
+    mrs r3, sp_und
+    mrs r4, spsr_und
+    push {r2 - r9}
+
+    // abt
+    mrs r6, lr_abt
+    mrs r7, sp_abt
+    mrs r8, spsr_abt
+    // irq
+    mrs r3, lr_irq
+    mrs r4, sp_irq
+    mrs r5, spsr_irq
+    // fiq
+    mrs r0, lr_fiq
+    mrs r1, sp_fiq
+    mrs r2, spsr_fiq
+    push {r0 - r8}
+
+    // NOTE(Aurel): Give current stack pointer as first argument. It points
+    // exactly to the end of where all the registers have been pushed to and is
+    // therefor the location at which the struct registers should be placed.
+    mov r0, sp
+    b software_interruput_handler
+
+// TODO: subtract return-offset.
+prefetch_abort:
+    // NOTE(Aurel): The registers are positioned in here as they are in the
+    // struct. They however have to be pushed a little differently hence why
+    // they are loaded weirdly into the processor registors a little.
+    push { sp }
+    push { pc }
+    sub lr, #8 // TODO(Aurel): What is the offset? See documentation.
+    push { lr }
+    push { r0 - r12 }
+
+    mrs r1, spsr
+    mrs r0, cpsr
+    push {r0 - r1}
+
+    // usr
+    mrs r8, lr_usr
+    mrs r9, sp_usr
+    // svc
+    mrs r5, lr_svc
+    mrs r6, sp_svc
+    mrs r7, spsr_svc
+    // und
+    mrs r2, lr_und
+    mrs r3, sp_und
+    mrs r4, spsr_und
+    push {r2 - r9}
+
+    // abt
+    mov r6, lr
+    mov r7, sp
+    mrs r8, spsr
+    // irq
+    mrs r3, lr_irq
+    mrs r4, sp_irq
+    mrs r5, spsr_irq
+    // fiq
+    mrs r0, lr_fiq
+    mrs r1, sp_fiq
+    mrs r2, spsr_fiq
+    push {r0 - r8}
+
+    // NOTE(Aurel): Give current stack pointer as first argument. It points
+    // exactly to the end of where all the registers have been pushed to and is
+    // therefor the location at which the struct registers should be placed.
+    mov r0, sp
+    b prefetch_abort_handler
+
+// TODO: subtract return-offset.
+data_abort:
+    // NOTE(Aurel): The registers are positioned in here as they are in the
+    // struct. They however have to be pushed a little differently hence why
+    // they are loaded weirdly into the processor registors a little.
+    push { sp }
+    push { pc }
+    sub lr, #8 // TODO(Aurel): What is the offset? See documentation.
+    push { lr }
+    push { r0 - r12 }
+
+    mrs r1, spsr
+    mrs r0, cpsr
+    push {r0 - r1}
+
+    // usr
+    mrs r8, lr_usr
+    mrs r9, sp_usr
+    // svc
+    mrs r5, lr_svc
+    mrs r6, sp_svc
+    mrs r7, spsr_svc
+    // und
+    mrs r2, lr_und
+    mrs r3, sp_und
+    mrs r4, spsr_und
+    push {r2 - r9}
+
+    // abt
+    mov r6, lr
+    mov r7, sp
+    mrs r8, spsr
+    // irq
+    mrs r3, lr_irq
+    mrs r4, sp_irq
+    mrs r5, spsr_irq
+    // fiq
+    mrs r0, lr_fiq
+    mrs r1, sp_fiq
+    mrs r2, spsr_fiq
+    push {r0 - r8}
+
+    // NOTE(Aurel): Give current stack pointer as first argument. It points
+    // exactly to the end of where all the registers have been pushed to and is
+    // therefor the location at which the struct registers should be placed.
+    mov r0, sp
+    b data_abort_handler
+
+// TODO: subtract return-offset.
+not_used:
+#if 0
+    // NOTE(Aurel): The registers are positioned in here as they are in the
+    // struct. They however have to be pushed a little differently hence why
+    // they are loaded weirdly into the processor registors a little.
+    push { sp }
+    push { pc }
+    sub lr, #8 // TODO(Aurel): What is the offset? See documentation.
+    push { lr }
+    push { r0 - r12 }
+
+    mrs r1, spsr
+    mrs r0, cpsr
+    push {r0 - r1}
+
+    // usr
+    mrs r8, lr_usr
+    mrs r9, sp_usr
+    // svc
+    mrs r5, lr_svc
+    mrs r6, sp_svc
+    mrs r7, spsr_svc
+    // und
+    mrs r2, lr_und
+    mrs r3, sp_und
+    mrs r4, spsr_und
+    push {r2 - r9}
+
+    // abt
+    mrs r6, lr_abt
+    mrs r7, sp_abt
+    mrs r8, spsr_abt
+    // irq
+    mrs r3, lr_irq
+    mrs r4, sp_irq
+    mrs r5, spsr_irq
+    // fiq
+    mrs r0, lr_fiq
+    mrs r1, sp_fiq
+    mrs r2, spsr_fiq
+    push {r0 - r8}
+
+    // NOTE(Aurel): Give current stack pointer as first argument. It points
+    // exactly to the end of where all the registers have been pushed to and is
+    // therefor the location at which the struct registers should be placed.
+    mov r0, sp
+#endif
+    b not_used_handler
+
+// TODO: subtract return-offset.
+irq:
+    // NOTE(Aurel): The registers are positioned in here as they are in the
+    // struct. They however have to be pushed a little differently hence why
+    // they are loaded weirdly into the processor registors a little.
+    push { sp }
+    push { pc }
+    sub lr, #8 // TODO(Aurel): What is the offset? See documentation.
+    push { lr }
+    push { r0 - r12 }
+
+    mrs r1, spsr
+    mrs r0, cpsr
+    push {r0 - r1}
+
+    // usr
+    mrs r8, lr_usr
+    mrs r9, sp_usr
+    // svc
+    mrs r5, lr_svc
+    mrs r6, sp_svc
+    mrs r7, spsr_svc
+    // und
+    mrs r2, lr_und
+    mrs r3, sp_und
+    mrs r4, spsr_und
+    push {r2 - r9}
+
+    // abt
+    mrs r6, lr_abt
+    mrs r7, sp_abt
+    mrs r8, spsr_abt
+    // irq
+    mov r3, lr
+    mov r4, sp
+    mrs r5, spsr
+    // fiq
+    mrs r0, lr_fiq
+    mrs r1, sp_fiq
+    mrs r2, spsr_fiq
+    push {r0 - r8}
+
+    // NOTE(Aurel): Give current stack pointer as first argument. It points
+    // exactly to the end of where all the registers have been pushed to and is
+    // therefor the location at which the struct registers should be placed.
+    mov r0, sp
+    b irq_handler
+
+// TODO: subtract return-offset.
+fiq:
+    // NOTE(Aurel): The registers are positioned in here as they are in the
+    // struct. They however have to be pushed a little differently hence why
+    // they are loaded weirdly into the processor registors a little.
+    push { sp }
+    push { pc }
+    sub lr, #8 // TODO(Aurel): What is the offset? See documentation.
+    push { lr }
+    push { r0 - r12 }
+
+    mrs r1, spsr
+    mrs r0, cpsr
+    push {r0 - r1}
+
+    // usr
+    mrs r8, lr_usr
+    mrs r9, sp_usr
+    // svc
+    mrs r5, lr_svc
+    mrs r6, sp_svc
+    mrs r7, spsr_svc
+    // und
+    mrs r2, lr_und
+    mrs r3, sp_und
+    mrs r4, spsr_und
+    push {r2 - r9}
+
+    // abt
+    mrs r6, lr_abt
+    mrs r7, sp_abt
+    mrs r8, spsr_abt
+    // irq
+    mrs r3, lr_irq
+    mrs r4, sp_irq
+    mrs r5, spsr_irq
+    // fiq
+    mov r0, lr
+    mov r1, sp
+    mrs r2, spsr
+    push {r0 - r8}
+
+    // NOTE(Aurel): Give current stack pointer as first argument. It points
+    // exactly to the end of where all the registers have been pushed to and is
+    // therefor the location at which the struct registers should be placed.
+    mov r0, sp
+    b fiq_handler
