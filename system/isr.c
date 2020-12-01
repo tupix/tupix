@@ -119,17 +119,9 @@ struct registers {
 	uint32 sp;
 };
 
-/*
- * NOTE(Aurel): ATTENTION. This function only works with undefined exception
- * right now
- * TODO(Aurel): Make usable for all kinds of exceptions
- */
-void print_registers(void* sp)
+void print_registers(struct registers reg, char* exc_str,
+					 char* exc_system_info_str, char* exc_extra_info_str)
 {
-	volatile struct registers* reg = (struct registers*)sp;
-
-	char* exception_str = "Undefined Instruction";
-
 	char und_cpsr_str[PSR_STR_LEN];
 	char und_spsr_str[PSR_STR_LEN];
 	char svc_spsr_str[PSR_STR_LEN];
@@ -137,18 +129,18 @@ void print_registers(void* sp)
 	char fiq_spsr_str[PSR_STR_LEN];
 	char irq_spsr_str[PSR_STR_LEN];
 
-	psr_flags_str(reg->cpsr, und_cpsr_str);
-	psr_flags_str(reg->spsr, und_spsr_str);
-	psr_flags_str(reg->svc_spsr, svc_spsr_str);
-	psr_flags_str(reg->abt_spsr, abt_spsr_str);
-	psr_flags_str(reg->fiq_spsr, fiq_spsr_str);
-	psr_flags_str(reg->irq_spsr, irq_spsr_str);
-	psr_flags_str(reg->und_spsr, und_spsr_str);
+	psr_flags_str(reg.cpsr, und_cpsr_str);
+	psr_flags_str(reg.spsr, und_spsr_str);
+	psr_flags_str(reg.svc_spsr, svc_spsr_str);
+	psr_flags_str(reg.abt_spsr, abt_spsr_str);
+	psr_flags_str(reg.fiq_spsr, fiq_spsr_str);
+	psr_flags_str(reg.irq_spsr, irq_spsr_str);
+	psr_flags_str(reg.und_spsr, und_spsr_str);
 
 	// clang-format off
 	kprintf("################################################################################\n"
 			"%s at address 0x%08x\n"
-			"\n"
+			"%s\n"
 			">>> register snapshot (current mode) <<<\n"
 			"R0: 0x%08x	R8:  0x%08x\n"
 			"R1: 0x%08x	R9:  0x%08x\n"
@@ -164,33 +156,35 @@ void print_registers(void* sp)
 			"SPSR: %s\t(0x%08x)\n"
 			"\n"
 			">>> registers (mode-specific) <<<\n"
-			"			 LR		 SP		 SPSR\n"
+			"             LR         SP         SPSR\n"
 			"User/System: 0x%08x 0x%08x\n"
 			"Supervisor:  0x%08x 0x%08x %s\t(0x%08x)\n"
-			"Abort:	   0x%08x 0x%08x %s\t(0x%08x)\n"
-			"FIQ:		 0x%08x 0x%08x %s\t(0x%08x)\n"
-			"IRQ:		 0x%08x 0x%08x %s\t(0x%08x)\n"
+			"Abort:       0x%08x 0x%08x %s\t(0x%08x)\n"
+			"FIQ:         0x%08x 0x%08x %s\t(0x%08x)\n"
+			"IRQ:         0x%08x 0x%08x %s\t(0x%08x)\n"
 			"Undefined:   0x%08x 0x%08x %s\t(0x%08x)\n"
 			"\n"
-			"System halted.\n",
-			exception_str,
-			reg->lr,
-			reg->r0, reg->r8,
-			reg->r1, reg->r9,
-			reg->r2, reg->r10,
-			reg->r3, reg->r11,
-			reg->r4, reg->r12,
-			reg->r5, reg->sp,
-			reg->r6, reg->lr,
-			reg->r7, reg->pc,
-			und_cpsr_str, reg->cpsr,
-			und_spsr_str, reg->spsr,
-			reg->usr_lr, reg->usr_sp,
-			reg->svc_lr, reg->svc_sp, svc_spsr_str, reg->svc_spsr,
-			reg->abt_lr, reg->abt_sp, abt_spsr_str, reg->abt_spsr,
-			reg->fiq_lr, reg->fiq_sp, fiq_spsr_str, reg->fiq_spsr,
-			reg->irq_lr, reg->irq_sp, irq_spsr_str, reg->irq_spsr,
-			reg->und_lr, reg->und_sp, und_spsr_str, reg->spsr);
+			"%s\n",
+			exc_str, reg.lr,
+			exc_extra_info_str,
+			reg.r0, reg.r8,
+			reg.r1, reg.r9,
+			reg.r2, reg.r10,
+			reg.r3, reg.r11,
+			reg.r4, reg.r12,
+			reg.r5, reg.sp,
+			reg.r6, reg.lr,
+			reg.r7, reg.pc,
+			und_cpsr_str, reg.cpsr,
+			und_spsr_str, reg.spsr,
+			reg.usr_lr, reg.usr_sp,
+			reg.svc_lr, reg.svc_sp, svc_spsr_str, reg.svc_spsr,
+			reg.abt_lr, reg.abt_sp, abt_spsr_str, reg.abt_spsr,
+			reg.fiq_lr, reg.fiq_sp, fiq_spsr_str, reg.fiq_spsr,
+			reg.irq_lr, reg.irq_sp, irq_spsr_str, reg.irq_spsr,
+			reg.und_lr, reg.und_sp, und_spsr_str, reg.spsr,
+			exc_system_info_str
+		);
 	// clang-format on
 }
 
