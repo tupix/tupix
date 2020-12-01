@@ -26,6 +26,7 @@ undefined_instruction:
     // they are loaded weirdly into the processor registors a little.
     push { sp }
     push { pc }
+    sub lr, #8 // TODO(Aurel): What is the offset? See documentation.
     push { lr }
     push { r0 - r12 }
 
