@@ -6,6 +6,7 @@
  */
 
 #include <std/io.h>
+#include <std/strings.h>
 #include <std/types.h>
 #include <std/util.h>
 
@@ -36,30 +37,28 @@ void psr_flags_str(uint32 flags, char* str)
 	str[8] = IS_SET(flags, 6) ? 'F' : '_';
 	str[9] = IS_SET(flags, 5) ? 'T' : '_';
 
-	// TODO(aurel): This is not working? Why? It puts the correct string into
-	// mode_str, but that does not write them into str..?
-	char* mode_str = str + 10;
+	str += 11;
 	switch ((enum cpsr_mode_bits)(flags & 0b11111)) {
 	case USER:
-		mode_str = "User\0";
+		strncpy(str, "User\0", 5);
 		break;
 	case FIQ:
-		mode_str = "FIQ\0";
+		strncpy(str, "FIQ\0", 4);
 		break;
 	case IRQ:
-		mode_str = "IRQ\0";
+		strncpy(str, "IRQ\0", 4);
 		break;
 	case SUPERVISOR:
-		mode_str = "Supervisor\0";
+		strncpy(str, "Supervisor\0", 11);
 		break;
 	case ABORT:
-		mode_str = "Abort\0";
+		strncpy(str, "Abort\0", 6);
 		break;
 	case UNDEFINED:
-		mode_str = "Undefined\0";
+		strncpy(str, "Undefined\0", 10);
 		break;
 	case SYSTEM:
-		mode_str = "System\0";
+		strncpy(str, "System\0", 7);
 		break;
 	}
 }
