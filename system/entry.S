@@ -41,7 +41,7 @@ _tupix:
 	/* Zu c Code springen */
 	bl start_kernel
 
-/* endless loop waiting on interrupts */
+/* endless loop waiting for interrupts */
 .Lend:
 	WFI // wait for interrupt
 	b .Lend
