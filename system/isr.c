@@ -147,11 +147,11 @@ void print_registers(void* sp)
 			"R6: 0x%08x    LR:  0x%08x\n"
 			"R7: 0x%08x    PC:  0x%08x\n"
 			"\n"
-			">>> current status-register <<<\n"
+			">>> status-register (current mode) <<<\n"
 			"CPSR: %s\t(0x%08x)\n"
 			"SPSR: %s\t(0x%08x)\n"
 			"\n"
-			">>> current mode-specific registers <<<\n"
+			">>> registers (mode-specific) <<<\n"
 			"             LR         SP         SPSR\n"
 			"User/System: 0x%08x 0x%08x\n"              /* TODO(Aurel): Why is there no space for the SPSR here? */
             "Supervisor:  0x%08x 0x%08x %s\t(0x%08x)\n"
