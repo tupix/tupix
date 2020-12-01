@@ -62,8 +62,8 @@ void psr_flags_str(uint32 flags, char* str)
 		strncpy(str, "System\0", 7);
 		break;
 	case UNINITIALIZED:
-		mode_str = "Uninitialized\0";
-        break;
+		strncpy(str, "Uninitialized\0", 14);
+		break;
 	}
 }
 
