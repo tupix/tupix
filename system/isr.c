@@ -147,41 +147,42 @@ void print_registers(void* sp)
 			"%s at address 0x%08x\n"
 			"\n"
 			">>> register snapshot (current mode) <<<\n"
-			"R0: 0x%08x    R8:  0x%08x\n"
-			"R1: 0x%08x    R9:  0x%08x\n"
-			"R2: 0x%08x    R10: 0x%08x\n"
-			"R3: 0x%08x    R11: 0x%08x\n"
-			"R4: 0x%08x    R12: 0x%08x\n"
-			"R5: 0x%08x    SP:  0x%08x\n"
-			"R6: 0x%08x    LR:  0x%08x\n"
-			"R7: 0x%08x    PC:  0x%08x\n"
+			"R0: 0x%08x	R8:  0x%08x\n"
+			"R1: 0x%08x	R9:  0x%08x\n"
+			"R2: 0x%08x	R10: 0x%08x\n"
+			"R3: 0x%08x	R11: 0x%08x\n"
+			"R4: 0x%08x	R12: 0x%08x\n"
+			"R5: 0x%08x	SP:  0x%08x\n"
+			"R6: 0x%08x	LR:  0x%08x\n"
+			"R7: 0x%08x	PC:  0x%08x\n"
 			"\n"
 			">>> status-register (current mode) <<<\n"
 			"CPSR: %s\t(0x%08x)\n"
 			"SPSR: %s\t(0x%08x)\n"
 			"\n"
 			">>> registers (mode-specific) <<<\n"
-			"             LR         SP         SPSR\n"
-			"User/System: 0x%08x 0x%08x\n"              
-            "Supervisor:  0x%08x 0x%08x %s\t(0x%08x)\n"
-			"Abort:       0x%08x 0x%08x %s\t(0x%08x)\n"
-			"FIQ:         0x%08x 0x%08x %s\t(0x%08x)\n"
-			"IRQ:         0x%08x 0x%08x %s\t(0x%08x)\n"
+			"			 LR		 SP		 SPSR\n"
+			"User/System: 0x%08x 0x%08x\n"
+			"Supervisor:  0x%08x 0x%08x %s\t(0x%08x)\n"
+			"Abort:	   0x%08x 0x%08x %s\t(0x%08x)\n"
+			"FIQ:		 0x%08x 0x%08x %s\t(0x%08x)\n"
+			"IRQ:		 0x%08x 0x%08x %s\t(0x%08x)\n"
 			"Undefined:   0x%08x 0x%08x %s\t(0x%08x)\n"
 			"\n"
 			"System halted.\n",
-			reg->lr - 8, // TODO(Aurel): I don't think this is always 8.
+			exception_str,
+			reg->lr,
 			reg->r0, reg->r8,
-            reg->r1, reg->r9,
-            reg->r2, reg->r10,
-            reg->r3, reg->r11,
-            reg->r4, reg->r12,
-            reg->r5, reg->sp,
-            reg->r6, reg->lr,
+			reg->r1, reg->r9,
+			reg->r2, reg->r10,
+			reg->r3, reg->r11,
+			reg->r4, reg->r12,
+			reg->r5, reg->sp,
+			reg->r6, reg->lr,
 			reg->r7, reg->pc,
-            und_cpsr_str, reg->cpsr,
+			und_cpsr_str, reg->cpsr,
 			und_spsr_str, reg->spsr,
-            reg->usr_lr, reg->usr_sp,
+			reg->usr_lr, reg->usr_sp,
 			reg->svc_lr, reg->svc_sp, svc_spsr_str, reg->svc_spsr,
 			reg->abt_lr, reg->abt_sp, abt_spsr_str, reg->abt_spsr,
 			reg->fiq_lr, reg->fiq_sp, fiq_spsr_str, reg->fiq_spsr,
