@@ -65,4 +65,4 @@ undefined_instruction:
     // exactly to the end of where all the registers have been pushed to and is
     // therefor the location at which the struct registers should be placed.
     mov r0, sp
-    b print_registers
+    b undefined_instruction_handler

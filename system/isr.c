@@ -188,44 +188,59 @@ void print_registers(struct registers reg, char* exc_str,
 	// clang-format on
 }
 
-void reset()
+void reset_handler(void* sp)
 {
-	kprintf("reset\n");
+	volatile struct registers* reg = (struct registers*)sp;
+	print_registers(*reg, "Reset", "System halted.", "");
+	// TODO(Aurel): Does anything have to happen?
 }
 
-#if 0
-void undefined_instruction()
+void undefined_instruction_handler(void* sp)
 {
-	kprintf("undefined instruction\n");
-}
-#endif
-
-void software_interrupt()
-{
-	kprintf("software interrupt\n");
+	volatile struct registers* reg = (struct registers*)sp;
+	print_registers(*reg, "Undefined Instruction", "System halted.", "");
+	// TODO(Aurel): Does anything have to happen?
 }
 
-void prefetch_abort()
+void software_interrupt_handler(void* sp)
 {
-	kprintf("prefetch abort\n");
+	volatile struct registers* reg = (struct registers*)sp;
+	print_registers(*reg, "Software Interrupt", "System halted.", "");
+	// TODO(Aurel): Does anything have to happen?
 }
 
-void data_abort()
+void prefetch_abort_handler(void* sp)
 {
-	kprintf("data abort\n");
+	volatile struct registers* reg = (struct registers*)sp;
+	print_registers(*reg, "Prefetch Abort", "System halted.", "");
+	// TODO(Aurel): Does anything have to happen?
 }
 
-void not_used()
+void data_abort_handler(void* sp)
 {
-	kprintf("not used\n");
+	volatile struct registers* reg = (struct registers*)sp;
+	print_registers(*reg, "Data Abort", "System halted.", "");
+	// TODO(Aurel): Does anything have to happen?
 }
 
-void irq()
+// TODO(Aurel): What has to be done in this case?
+void not_used_handler(void* sp)
 {
-	kprintf("IRQ\n");
+	volatile struct registers* reg = (struct registers*)sp;
+	//print_registers(*reg, "Unused", "System halted.", "");
+	// TODO(Aurel): Does anything have to happen?
 }
 
-void fiq()
+void irq_handler(void* sp)
 {
-	kprintf("FIQ\n");
+	volatile struct registers* reg = (struct registers*)sp;
+	print_registers(*reg, "Interrupt Request", "Continuing.", "");
+	// TODO(Aurel): Does anything have to happen?
+}
+
+void fiq_handler(void* sp)
+{
+	volatile struct registers* reg = (struct registers*)sp;
+	print_registers(*reg, "Fast Interrupt Request", "Continuing.", "");
+	// TODO(Aurel): Does anything have to happen?
 }
