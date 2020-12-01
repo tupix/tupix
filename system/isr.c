@@ -83,6 +83,10 @@ struct registers {
 	uint32 abt_sp;
 	uint32 abt_spsr;
 
+	uint32 und_lr;
+	uint32 und_sp;
+	uint32 und_spsr;
+
 	uint32 svc_lr;
 	uint32 svc_sp;
 	uint32 svc_spsr;
@@ -136,6 +140,7 @@ void print_registers(void* sp)
 	psr_flags_str(reg->abt_spsr, abt_spsr_str);
 	psr_flags_str(reg->fiq_spsr, fiq_spsr_str);
 	psr_flags_str(reg->irq_spsr, irq_spsr_str);
+	psr_flags_str(reg->und_spsr, und_spsr_str);
 
 	// clang-format off
 	kprintf("################################################################################\n"
@@ -181,8 +186,7 @@ void print_registers(void* sp)
 			reg->abt_lr, reg->abt_sp, abt_spsr_str, reg->abt_spsr,
 			reg->fiq_lr, reg->fiq_sp, fiq_spsr_str, reg->fiq_spsr,
 			reg->irq_lr, reg->irq_sp, irq_spsr_str, reg->irq_spsr,
-			// NOTE(Aurel): The following is only because we are handling undefined instruction exception.
-			reg->lr, reg->sp, und_spsr_str, reg->spsr);
+			reg->und_lr, reg->und_sp, und_spsr_str, reg->spsr);
 	// clang-format on
 }
 
