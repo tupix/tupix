@@ -1,5 +1,5 @@
 .global _ivt
-.balign 64
+.balign 32
 _ivt:
 	b   reset
 	ldr pc, _undefined_instruction
