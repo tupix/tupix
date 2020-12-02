@@ -137,55 +137,38 @@ void print_registers(volatile struct registers* reg, char* exc_str,
 	psr_flags_str(reg->irq_spsr, irq_spsr_str);
 	psr_flags_str(reg->und_spsr, und_spsr_str);
 
-	// clang-format off
-	kprintf("################################################################################\n"
-			"%s at address 0x%08x\n"
-			"%s\n"
-			">>> register snapshot (current mode) <<<\n"
-			"R0: 0x%08x	R8:  0x%08x\n"
-			"R1: 0x%08x	R9:  0x%08x\n"
-			"R2: 0x%08x	R10: 0x%08x\n"
-			"R3: 0x%08x	R11: 0x%08x\n"
-			"R4: 0x%08x	R12: 0x%08x\n"
-			"R5: 0x%08x	SP:  0x%08x\n"
-			"R6: 0x%08x	LR:  0x%08x\n"
-			"R7: 0x%08x	PC:  0x%08x\n"
-			"\n"
-			">>> status-register (current mode) <<<\n"
-			"CPSR: %s\t(0x%08x)\n"
-			"SPSR: %s\t(0x%08x)\n"
-			"\n"
-			">>> registers (mode-specific) <<<\n"
-			"             LR         SP         SPSR\n"
-			"User/System: 0x%08x 0x%08x\n"
-			"Supervisor:  0x%08x 0x%08x %s\t(0x%08x)\n"
-			"Abort:       0x%08x 0x%08x %s\t(0x%08x)\n"
-			"FIQ:         0x%08x 0x%08x %s\t(0x%08x)\n"
-			"IRQ:         0x%08x 0x%08x %s\t(0x%08x)\n"
-			"Undefined:   0x%08x 0x%08x %s\t(0x%08x)\n"
-			"\n"
-			"%s\n",
-			exc_str, reg->lr,
-			exc_extra_info_str,
-			reg->r0, reg->r8,
-			reg->r1, reg->r9,
-			reg->r2, reg->r10,
-			reg->r3, reg->r11,
-			reg->r4, reg->r12,
-			reg->r5, reg->sp,
-			reg->r6, reg->lr,
-			reg->r7, reg->pc,
-			und_cpsr_str, reg->cpsr,
-			und_spsr_str, reg->spsr,
-			reg->usr_lr, reg->usr_sp,
-			reg->svc_lr, reg->svc_sp, svc_spsr_str, reg->svc_spsr,
-			reg->abt_lr, reg->abt_sp, abt_spsr_str, reg->abt_spsr,
-			reg->fiq_lr, reg->fiq_sp, fiq_spsr_str, reg->fiq_spsr,
-			reg->irq_lr, reg->irq_sp, irq_spsr_str, reg->irq_spsr,
-			reg->und_lr, reg->und_sp, und_spsr_str, reg->spsr,
-			exc_system_info_str
-		);
-	// clang-format on
+	kprintf("################################################################################\n");
+	kprintf("%s at address 0x%08x\n", exc_str, reg->lr);
+	kprintf("%s\n", exc_extra_info_str);
+	kprintf(">>> register snapshot (current mode) <<<\n");
+	kprintf("R0: 0x%08x\tR8:  0x%08x\n", reg->r0, reg->r8);
+	kprintf("R1: 0x%08x\tR9:  0x%08x\n", reg->r1, reg->r9);
+	kprintf("R2: 0x%08x\tR10: 0x%08x\n", reg->r2, reg->r10);
+	kprintf("R3: 0x%08x\tR11: 0x%08x\n", reg->r3, reg->r11);
+	kprintf("R4: 0x%08x\tR12: 0x%08x\n", reg->r4, reg->r12);
+	kprintf("R5: 0x%08x\tSP:  0x%08x\n", reg->r5, reg->sp);
+	kprintf("R6: 0x%08x\tLR:  0x%08x\n", reg->r6, reg->lr);
+	kprintf("R7: 0x%08x\tPC:  0x%08x\n", reg->r7, reg->pc);
+	kprintf("\n");
+	kprintf(">>> status-register (current mode) <<<\n");
+	kprintf("CPSR: %s\t(0x%08x)\n", und_cpsr_str, reg->cpsr);
+	kprintf("SPSR: %s\t(0x%08x)\n", und_spsr_str, reg->spsr);
+	kprintf("\n");
+	kprintf(">>> registers (mode-specific) <<<\n");
+	kprintf("             LR         SP         SPSR\n");
+	kprintf("User/System: 0x%08x 0x%08x\n", reg->usr_lr, reg->und_sp);
+	kprintf("Supervisor:  0x%08x 0x%08x %s\t(0x%08x)\n", reg->svc_lr,
+			reg->svc_sp, svc_spsr_str, reg->svc_spsr);
+	kprintf("Abort:       0x%08x 0x%08x %s\t(0x%08x)\n", reg->abt_lr,
+			reg->abt_sp, abt_spsr_str, reg->abt_spsr);
+	kprintf("FIQ:         0x%08x 0x%08x %s\t(0x%08x)\n", reg->fiq_lr,
+			reg->fiq_sp, fiq_spsr_str, reg->fiq_spsr);
+	kprintf("IRQ:         0x%08x 0x%08x %s\t(0x%08x)\n", reg->irq_lr,
+			reg->irq_sp, irq_spsr_str, reg->irq_spsr);
+	kprintf("Undefined:   0x%08x 0x%08x %s\t(0x%08x)\n", reg->und_lr,
+			reg->und_sp, und_spsr_str, reg->und_spsr);
+	kprintf("\n");
+	kprintf("%s\n", exc_system_info_str);
 }
 
 void reset_handler(void* sp)
