@@ -71,14 +71,15 @@ undefined_instruction:
 	mov r0, sp
 	b undefined_instruction_handler
 
-// TODO: subtract return-offset.
 software_interrupt:
 	// NOTE(Aurel): The registers are positioned in here as they are in the
 	// struct. They however have to be pushed a little differently hence why
 	// they are loaded weirdly into the processor registers a little.
 	push { sp }
 	push { pc }
-	sub lr, #8 // TODO(Aurel): What is the offset? See documentation.
+	// TODO: Think about. Is there a case where we want to jump back to the same
+	// instruction?
+	// sub lr, #8
 	push { lr }
 	push { r0 - r12 }
 
