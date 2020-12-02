@@ -22,13 +22,13 @@ enum cpsr_mode_bits {
 };
 
 enum psr_flags_idx_bitfield {
-	PSR_NEGATIVE = 31,
-	PSR_ZERO = 30,
-	PSR_CARRY = 29,
-	PSR_OVERFLOW = 28,
-	PSR_ENDIANESS = 9,
-	PSR_MASK_IRQ = 7,
-	PSR_MASK_FIQ = 6,
+	PSR_NEGATIVE   = 31,
+	PSR_ZERO	   = 30,
+	PSR_CARRY	   = 29,
+	PSR_OVERFLOW   = 28,
+	PSR_ENDIANESS  = 9,
+	PSR_MASK_IRQ   = 7,
+	PSR_MASK_FIQ   = 6,
 	PSR_THUMB_MODE = 5,
 };
 
