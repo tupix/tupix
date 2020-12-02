@@ -37,17 +37,19 @@ enum psr_flags_idx_bitfield {
 
 void psr_flags_str(uint32 flags, char* str)
 {
-	str[0]	= IS_SET(flags, PSR_NEGATIVE) ? 'N' : '_';
-	str[1]	= IS_SET(flags, PSR_ZERO) ? 'Z' : '_';
-	str[2]	= IS_SET(flags, PSR_CARRY) ? 'C' : '_';
-	str[3]	= IS_SET(flags, PSR_OVERFLOW) ? 'V' : '_';
+    // clang-format off
+	str[0]	= IS_SET(flags, PSR_NEGATIVE)   ? 'N' : '_';
+	str[1]	= IS_SET(flags, PSR_ZERO)       ? 'Z' : '_';
+	str[2]	= IS_SET(flags, PSR_CARRY)      ? 'C' : '_';
+	str[3]	= IS_SET(flags, PSR_OVERFLOW)   ? 'V' : '_';
 	str[4]	= ' ';
-	str[5]	= IS_SET(flags, PSR_ENDIANESS) ? 'E' : '_';
+	str[5]	= IS_SET(flags, PSR_ENDIANESS)  ? 'E' : '_';
 	str[6]	= ' ';
-	str[7]	= IS_SET(flags, PSR_MASK_IRQ) ? 'I' : '_';
-	str[8]	= IS_SET(flags, PSR_MASK_FIQ) ? 'F' : '_';
+	str[7]	= IS_SET(flags, PSR_MASK_IRQ)   ? 'I' : '_';
+	str[8]	= IS_SET(flags, PSR_MASK_FIQ)   ? 'F' : '_';
 	str[9]	= IS_SET(flags, PSR_THUMB_MODE) ? 'T' : '_';
 	str[10] = ' ';
+    // clang-format on
 	str += 11;
 
 	switch ((enum cpsr_mode_bits)(flags & 0b11111)) {
