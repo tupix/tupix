@@ -117,7 +117,9 @@ software_interrupt:
     // exactly to the end of where all the registers have been pushed to and is
     // therefor the location at which the struct registers should be placed.
     mov r0, sp
-    b software_interrupt_handler
+    push {lr}
+    bl software_interrupt_handler
+    pop {pc}
 
 prefetch_abort:
     // NOTE(Aurel): The registers are positioned in here as they are in the
@@ -258,7 +260,10 @@ irq:
     // exactly to the end of where all the registers have been pushed to and is
     // therefor the location at which the struct registers should be placed.
     mov r0, sp
-    b irq_handler
+    push {lr}
+    bl irq_handler
+    pop {lr}
+    b exc_cleanup_return
 
 // TODO: subtract return-offset.
 fiq:
@@ -306,4 +311,20 @@ fiq:
     // exactly to the end of where all the registers have been pushed to and is
     // therefor the location at which the struct registers should be placed.
     mov r0, sp
-    b fiq_handler
+    push {lr}
+    bl fiq_handler
+    pop {lr}
+    b exc_cleanup_return
+
+
+exc_cleanup_return:
+    mrs r0, spsr
+    msr cpsr, r0
+
+    // TODO(Aurel): Maybe just increment to sp. Definitely needs a comment
+    pop {r0 - r9}
+    pop {r0 - r8}
+    pop {r0 - r12}
+
+    // jump back
+    mov pc, lr
