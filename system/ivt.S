@@ -22,14 +22,15 @@ not_used:
 reset:
     b _start
 
-// TODO: subtract return-offset.
 undefined_instruction:
     // NOTE(Aurel): The registers are positioned in here as they are in the
     // struct. They however have to be pushed a little differently hence why
     // they are loaded weirdly into the processor registors a little.
     push { sp }
     push { pc }
-    sub lr, #8 // TODO(Aurel): What is the offset? See documentation.
+    // TODO(Aurel): What is the offset? See documentation.
+    // Maybe add 4 as we don't want to redo the undefined instruction
+    //sub lr, #8
     push { lr }
     push { r0 - r12 }
 
@@ -118,14 +119,13 @@ software_interrupt:
     mov r0, sp
     b software_interrupt_handler
 
-// TODO: subtract return-offset.
 prefetch_abort:
     // NOTE(Aurel): The registers are positioned in here as they are in the
     // struct. They however have to be pushed a little differently hence why
     // they are loaded weirdly into the processor registors a little.
     push { sp }
     push { pc }
-    sub lr, #8 // TODO(Aurel): What is the offset? See documentation.
+    //sub lr, #8 // TODO(Aurel): What is the offset? See documentation.
     push { lr }
     push { r0 - r12 }
 
@@ -166,14 +166,13 @@ prefetch_abort:
     mov r0, sp
     b prefetch_abort_handler
 
-// TODO: subtract return-offset.
 data_abort:
     // NOTE(Aurel): The registers are positioned in here as they are in the
     // struct. They however have to be pushed a little differently hence why
     // they are loaded weirdly into the processor registors a little.
     push { sp }
     push { pc }
-    sub lr, #8 // TODO(Aurel): What is the offset? See documentation.
+    //sub lr, #8 // TODO(Aurel): What is the offset? See documentation.
     push { lr }
     push { r0 - r12 }
 
@@ -220,7 +219,7 @@ irq:
     // they are loaded weirdly into the processor registors a little.
     push { sp }
     push { pc }
-    sub lr, #8 // TODO(Aurel): What is the offset? See documentation.
+    sub lr, #4
     push { lr }
     push { r0 - r12 }
 
