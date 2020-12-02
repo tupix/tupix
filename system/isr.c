@@ -223,14 +223,6 @@ void data_abort_handler(void* sp)
 	while (true) {}
 }
 
-// TODO(Aurel): What has to be done in this case?
-void not_used_handler(void* sp)
-{
-	volatile struct registers* reg = (struct registers*)sp;
-	//print_registers(reg, "Unused", "System halted.", "");
-	// TODO(Aurel): Does anything have to happen?
-}
-
 void irq_handler(void* sp)
 {
 	volatile struct registers* reg = (struct registers*)sp;
