@@ -199,7 +199,7 @@ void undefined_instruction_handler(void* sp)
 {
 	volatile struct registers* reg = (struct registers*)sp;
 	print_registers(reg, "Undefined Instruction", "System halted.", "");
-	// TODO(Aurel): Does anything have to happen?
+	while (true) {}
 }
 
 void software_interrupt_handler(void* sp)
@@ -213,14 +213,14 @@ void prefetch_abort_handler(void* sp)
 {
 	volatile struct registers* reg = (struct registers*)sp;
 	print_registers(reg, "Prefetch Abort", "System halted.", "");
-	// TODO(Aurel): Does anything have to happen?
+	while (true) {}
 }
 
 void data_abort_handler(void* sp)
 {
 	volatile struct registers* reg = (struct registers*)sp;
 	print_registers(reg, "Data Abort", "System halted.", "");
-	// TODO(Aurel): Does anything have to happen?
+	while (true) {}
 }
 
 // TODO(Aurel): What has to be done in this case?
