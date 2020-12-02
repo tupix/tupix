@@ -25,7 +25,7 @@ reset:
 undefined_instruction:
     // NOTE(Aurel): The registers are positioned in here as they are in the
     // struct. They however have to be pushed a little differently hence why
-    // they are loaded weirdly into the processor registors a little.
+    // they are loaded weirdly into the processor registers a little.
     push { sp }
     push { pc }
     // TODO(Aurel): What is the offset? See documentation.
@@ -75,7 +75,7 @@ undefined_instruction:
 software_interrupt:
     // NOTE(Aurel): The registers are positioned in here as they are in the
     // struct. They however have to be pushed a little differently hence why
-    // they are loaded weirdly into the processor registors a little.
+    // they are loaded weirdly into the processor registers a little.
     push { sp }
     push { pc }
     sub lr, #8 // TODO(Aurel): What is the offset? See documentation.
@@ -116,6 +116,8 @@ software_interrupt:
     // NOTE(Aurel): Give current stack pointer as first argument. It points
     // exactly to the end of where all the registers have been pushed to and is
     // therefor the location at which the struct registers should be placed.
+    // NOTE(Aurel): Save the lr before branching and linking the c-function and
+    // pop it directly into the sp to return to the program
     mov r0, sp
     push {lr}
     bl software_interrupt_handler
@@ -124,7 +126,7 @@ software_interrupt:
 prefetch_abort:
     // NOTE(Aurel): The registers are positioned in here as they are in the
     // struct. They however have to be pushed a little differently hence why
-    // they are loaded weirdly into the processor registors a little.
+    // they are loaded weirdly into the processor registers a little.
     push { sp }
     push { pc }
     //sub lr, #8 // TODO(Aurel): What is the offset? See documentation.
@@ -171,7 +173,7 @@ prefetch_abort:
 data_abort:
     // NOTE(Aurel): The registers are positioned in here as they are in the
     // struct. They however have to be pushed a little differently hence why
-    // they are loaded weirdly into the processor registors a little.
+    // they are loaded weirdly into the processor registers a little.
     push { sp }
     push { pc }
     //sub lr, #8 // TODO(Aurel): What is the offset? See documentation.
@@ -218,7 +220,7 @@ data_abort:
 irq:
     // NOTE(Aurel): The registers are positioned in here as they are in the
     // struct. They however have to be pushed a little differently hence why
-    // they are loaded weirdly into the processor registors a little.
+    // they are loaded weirdly into the processor registers a little.
     push { sp }
     push { pc }
     sub lr, #4
@@ -259,6 +261,8 @@ irq:
     // NOTE(Aurel): Give current stack pointer as first argument. It points
     // exactly to the end of where all the registers have been pushed to and is
     // therefor the location at which the struct registers should be placed.
+    // NOTE(Aurel): Save the lr before branching and linking the c-function and
+    // pop it directly into the sp to return to the program
     mov r0, sp
     push {lr}
     bl irq_handler
@@ -269,7 +273,7 @@ irq:
 fiq:
     // NOTE(Aurel): The registers are positioned in here as they are in the
     // struct. They however have to be pushed a little differently hence why
-    // they are loaded weirdly into the processor registors a little.
+    // they are loaded weirdly into the processor registers a little.
     push { sp }
     push { pc }
     sub lr, #8 // TODO(Aurel): What is the offset? See documentation.
@@ -310,6 +314,8 @@ fiq:
     // NOTE(Aurel): Give current stack pointer as first argument. It points
     // exactly to the end of where all the registers have been pushed to and is
     // therefor the location at which the struct registers should be placed.
+    // NOTE(Aurel): Save the lr before branching and linking the c-function and
+    // pop it directly into the sp to return to the program
     mov r0, sp
     push {lr}
     bl fiq_handler
