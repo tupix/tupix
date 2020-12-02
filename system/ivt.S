@@ -324,13 +324,12 @@ fiq:
 
 
 exc_cleanup_return:
-    mrs r0, spsr
-    msr cpsr, r0
+	// TODO: Debug
 
-    // TODO(Aurel): Maybe just increment to sp. Definitely needs a comment
-    pop {r0 - r9}
-    pop {r0 - r8}
-    pop {r0 - r12}
-
-    // jump back
-    mov pc, lr
+	// Throw away the 19 pushed mode-specific register
+	// 76 = 19 * 4
+	add sp, #76
+	// Restore the old register values
+	pop {r0 - r12}
+	// Return and change mode
+	movs pc, lr
