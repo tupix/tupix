@@ -67,6 +67,7 @@ _exitHyper:
 	msr spsr_hyp, r0
 	eret
 
+// TODO(Aurel): mask fiq bit in cpsr of all modes
 _init_sp:
     // supervisor mode
     mov sp, #0x8000000
