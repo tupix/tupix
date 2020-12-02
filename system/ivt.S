@@ -20,7 +20,7 @@ _ivt:
 
 not_used:
 reset:
-	// TODO: Crash?
+    b _start
 
 // TODO: subtract return-offset.
 undefined_instruction:
