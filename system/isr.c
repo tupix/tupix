@@ -73,6 +73,7 @@ void psr_flags_str(uint32 flags, char* str)
 		strncpy(str, "Uninitialized\0", 14);
 		break;
 	default:
+		// TODO(Aurel): This should never happen. Assert!
 		strncpy(str, "Unknown\0", 8);
 		break;
 	}
