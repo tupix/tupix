@@ -71,6 +71,8 @@ _exitHyper:
 _init_sp:
     // supervisor mode
     mov sp, #0x8000000
+	cpsid f
+	cpsie i
 
     ldr r0, =0x7FFFC00
     msr sp_und, r0
