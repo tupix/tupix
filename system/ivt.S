@@ -23,14 +23,14 @@ reset:
 	b _start
 
 undefined_instruction:
-	// NOTE(Aurel): The registers are positioned in here as they are in the
-	// struct. They however have to be pushed a little differently hence why
-	// they are loaded weirdly into the processor registers a little.
+	/*
+	 * NOTE(Aurel): The registers are positioned in here as they are in the
+	 * struct registers in isr.c. They however have to be pushed a little
+	 * differently hence why they are loaded weirdly into the processor
+	 * registers a little.
+	 */
 	push { sp }
 	push { pc }
-	// TODO(Aurel): What is the offset? See documentation.
-	// Maybe add 4 as we don't want to redo the undefined instruction
-	//sub lr, #8
 	push { lr }
 	push { r0 - r12 }
 
@@ -65,21 +65,24 @@ undefined_instruction:
 	mrs r2, spsr_fiq
 	push {r0 - r8}
 
-	// NOTE(Aurel): Give current stack pointer as first argument. It points
-	// exactly to the end of where all the registers have been pushed to and is
-	// therefor the location at which the struct registers should be placed.
+	/*
+	 * NOTE(Aurel): Give current stack pointer as first argument. It points
+	 * exactly to the end of where all the registers have been pushed to and is
+	 * therefor the location at which the struct registers should be placed.
+	 */
 	mov r0, sp
 	b undefined_instruction_handler
 
 software_interrupt:
-	// NOTE(Aurel): The registers are positioned in here as they are in the
-	// struct. They however have to be pushed a little differently hence why
-	// they are loaded weirdly into the processor registers a little.
+	/*
+	 * NOTE(Aurel): The registers are positioned in here as they are in the
+	 * struct registers in isr.c. They however have to be pushed a little
+	 * differently hence why they are loaded weirdly into the processor
+	 * registers a little.
+	 */
 	push { sp }
 	push { pc }
-	// TODO: Think about. Is there a case where we want to jump back to the same
-	// instruction?
-	// sub lr, #8
+	sub lr, #8 // TODO(Aurel): What is the offset? See documentation.
 	push { lr }
 	push { r0 - r12 }
 
@@ -114,20 +117,27 @@ software_interrupt:
 	mrs r2, spsr_fiq
 	push {r0 - r8}
 
-	// NOTE(Aurel): Give current stack pointer as first argument. It points
-	// exactly to the end of where all the registers have been pushed to and is
-	// therefor the location at which the struct registers should be placed.
-	// NOTE(Aurel): Save the lr before branching and linking the c-function and
-	// pop it directly into the sp to return to the program
+	/*
+	 * NOTE(Aurel): Give current stack pointer as first argument. It points
+	 * exactly to the end of where all the registers have been pushed to and is
+	 * therefor the location at which the struct registers should be placed.
+	 */
 	mov r0, sp
+	/*
+	 * NOTE(Aurel): Save the lr before branching and linking the c-function and
+	 * pop it directly into the sp to return to the program
+	 */
 	push {lr}
 	bl software_interrupt_handler
 	pop {pc}
 
 prefetch_abort:
-	// NOTE(Aurel): The registers are positioned in here as they are in the
-	// struct. They however have to be pushed a little differently hence why
-	// they are loaded weirdly into the processor registers a little.
+	/*
+	 * NOTE(Aurel): The registers are positioned in here as they are in the
+	 * struct registers in isr.c. They however have to be pushed a little
+	 * differently hence why they are loaded weirdly into the processor
+	 * registers a little.
+	 */
 	push { sp }
 	push { pc }
 	//sub lr, #8 // TODO(Aurel): What is the offset? See documentation.
@@ -165,16 +175,21 @@ prefetch_abort:
 	mrs r2, spsr_fiq
 	push {r0 - r8}
 
-	// NOTE(Aurel): Give current stack pointer as first argument. It points
-	// exactly to the end of where all the registers have been pushed to and is
-	// therefor the location at which the struct registers should be placed.
+	/*
+	 * NOTE(Aurel): Give current stack pointer as first argument. It points
+	 * exactly to the end of where all the registers have been pushed to and is
+	 * therefor the location at which the struct registers should be placed.
+	 */
 	mov r0, sp
 	b prefetch_abort_handler
 
 data_abort:
-	// NOTE(Aurel): The registers are positioned in here as they are in the
-	// struct. They however have to be pushed a little differently hence why
-	// they are loaded weirdly into the processor registers a little.
+	/*
+	 * NOTE(Aurel): The registers are positioned in here as they are in the
+	 * struct registers in isr.c. They however have to be pushed a little
+	 * differently hence why they are loaded weirdly into the processor
+	 * registers a little.
+	 */
 	push { sp }
 	push { pc }
 	//sub lr, #8 // TODO(Aurel): What is the offset? See documentation.
@@ -212,16 +227,21 @@ data_abort:
 	mrs r2, spsr_fiq
 	push {r0 - r8}
 
-	// NOTE(Aurel): Give current stack pointer as first argument. It points
-	// exactly to the end of where all the registers have been pushed to and is
-	// therefor the location at which the struct registers should be placed.
+	/*
+	 * NOTE(Aurel): Give current stack pointer as first argument. It points
+	 * exactly to the end of where all the registers have been pushed to and is
+	 * therefor the location at which the struct registers should be placed.
+	 */
 	mov r0, sp
 	b data_abort_handler
 
 irq:
-	// NOTE(Aurel): The registers are positioned in here as they are in the
-	// struct. They however have to be pushed a little differently hence why
-	// they are loaded weirdly into the processor registers a little.
+	/*
+	 * NOTE(Aurel): The registers are positioned in here as they are in the
+	 * struct registers in isr.c. They however have to be pushed a little
+	 * differently hence why they are loaded weirdly into the processor
+	 * registers a little.
+	 */
 	push { sp }
 	push { pc }
 	sub lr, #4
@@ -259,12 +279,16 @@ irq:
 	mrs r2, spsr_fiq
 	push {r0 - r8}
 
-	// NOTE(Aurel): Give current stack pointer as first argument. It points
-	// exactly to the end of where all the registers have been pushed to and is
-	// therefor the location at which the struct registers should be placed.
-	// NOTE(Aurel): Save the lr before branching and linking the c-function and
-	// pop it directly into the sp to return to the program
+	/*
+	 * NOTE(Aurel): Give current stack pointer as first argument. It points
+	 * exactly to the end of where all the registers have been pushed to and is
+	 * therefor the location at which the struct registers should be placed.
+	 */
 	mov r0, sp
+	/*
+	 * NOTE(Aurel): Save the lr before branching and linking the c-function and
+	 * pop it directly into the sp to return to the program
+	 */
 	push {lr}
 	bl irq_handler
 	pop {lr}
@@ -272,9 +296,12 @@ irq:
 
 // TODO: subtract return-offset.
 fiq:
-	// NOTE(Aurel): The registers are positioned in here as they are in the
-	// struct. They however have to be pushed a little differently hence why
-	// they are loaded weirdly into the processor registers a little.
+	/*
+	 * NOTE(Aurel): The registers are positioned in here as they are in the
+	 * struct registers in isr.c. They however have to be pushed a little
+	 * differently hence why they are loaded weirdly into the processor
+	 * registers a little.
+	 */
 	push { sp }
 	push { pc }
 	sub lr, #8 // TODO(Aurel): What is the offset? See documentation.
@@ -312,23 +339,28 @@ fiq:
 	mrs r2, spsr
 	push {r0 - r8}
 
-	// NOTE(Aurel): Give current stack pointer as first argument. It points
-	// exactly to the end of where all the registers have been pushed to and is
-	// therefor the location at which the struct registers should be placed.
-	// NOTE(Aurel): Save the lr before branching and linking the c-function and
-	// pop it directly into the sp to return to the program
+	/*
+	 * NOTE(Aurel): Give current stack pointer as first argument. It points
+	 * exactly to the end of where all the registers have been pushed to and is
+	 * therefor the location at which the struct registers should be placed.
+	 */
 	mov r0, sp
+	/*
+	 * NOTE(Aurel): Save the lr before branching and linking the c-function and
+	 * pop it directly into the sp to return to the program
+	 */
 	push {lr}
 	bl fiq_handler
 	pop {lr}
 	b exc_cleanup_return
 
-
 exc_cleanup_return:
 	// TODO: Debug
 
-	// Throw away the 19 pushed mode-specific register
-	// 76 = 19 * 4
+	/*
+	 * NOTE(Aurel): Throw away the 19 pushed mode-specific register
+	 * 19 * 4 = 76
+	 */
 	add sp, #76
 	// Restore the old register values
 	pop {r0 - r12}

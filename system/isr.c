@@ -1,10 +1,5 @@
 /* ISR - Interrupt Service Routine - Interrupt handler */
 
-/*
- * TODO: All of these might need to be assembler functions, I don't know yet,
- *       but at least the code compiles now
- */
-
 #include <std/io.h>
 #include <std/strings.h>
 #include <std/types.h>
@@ -37,7 +32,7 @@ enum psr_flags_idx_bitfield {
 
 void psr_flags_str(uint32 flags, char* str)
 {
-    // clang-format off
+	// clang-format off
 	str[0]	= IS_SET(flags, PSR_NEGATIVE)   ? 'N' : '_';
 	str[1]	= IS_SET(flags, PSR_ZERO)       ? 'Z' : '_';
 	str[2]	= IS_SET(flags, PSR_CARRY)      ? 'C' : '_';
@@ -49,7 +44,7 @@ void psr_flags_str(uint32 flags, char* str)
 	str[8]	= IS_SET(flags, PSR_MASK_FIQ)   ? 'F' : '_';
 	str[9]	= IS_SET(flags, PSR_THUMB_MODE) ? 'T' : '_';
 	str[10] = ' ';
-    // clang-format on
+	// clang-format on
 	str += 11;
 
 	switch ((enum cpsr_mode_bits)(flags & 0b11111)) {
@@ -179,13 +174,6 @@ void print_registers(volatile struct registers* reg, char* exc_str,
 			reg->und_sp, und_spsr_str, reg->und_spsr);
 	kprintf("\n");
 	kprintf("%s\n", exc_system_info_str);
-}
-
-void reset_handler(void* sp)
-{
-	volatile struct registers* reg = (struct registers*)sp;
-	print_registers(reg, "Reset", "System halted.", "");
-	// TODO(Aurel): Does anything have to happen?
 }
 
 void undefined_instruction_handler(void* sp)
