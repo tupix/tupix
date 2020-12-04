@@ -33,7 +33,7 @@ _tupix:
 	 */
 	ldr sp,=0x20000
 
-    bl _init_sp
+    bl _init_modes
 
     /* setzen, der ivt base-address im VBAR */
     ldr r0, =_ivt
@@ -69,7 +69,7 @@ _exitHyper:
 	eret
 
 // TODO(Aurel): mask fiq bit in cpsr of all modes
-_init_sp:
+_init_modes:
     // supervisor mode
     mov sp, #0x8000000
 	cpsid f
