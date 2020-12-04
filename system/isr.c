@@ -6,7 +6,7 @@
 #include <std/bits.h>
 #include <std/io.h>
 #include <std/strings.h>
-#include <std/types.h>
+#include <data/types.h>
 #include <std/util.h>
 
 extern bool DEBUG_ENABLED;

@@ -1,7 +1,7 @@
 #ifndef STD_UTIL_H
 #define STD_UTIL_H
 
-#include <std/types.h>
+#include <data/types.h>
 
 // NOTE: Taken from StackOverflow:
 // [see](https://stackoverflow.com/questions/3437404/min-and-max-in-c)
