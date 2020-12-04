@@ -89,15 +89,15 @@ struct ringbuffer {
 };
 
 static volatile struct uart* const uart = (struct uart*)UART_BASE;
-static struct ringbuffer* buffer;
+static volatile struct ringbuffer buffer;
 
 char uart_getchar()
 {
-	while (buffer->head == buffer->tail) {}
+	while (buffer.head == buffer.tail) {}
 
-	char c = buffer->buf[buffer->tail];
-	if (++(buffer->tail) >= buffer->size)
-		buffer->tail = 0;
+	char c = buffer.buf[buffer.tail];
+	if (++(buffer.tail) >= buffer.size)
+		buffer.tail = 0;
 	return c;
 }
 
@@ -108,13 +108,13 @@ int uart_buffer_char()
 
 	unsigned char c = (unsigned char)(uart->dr & 0xff);
 
-	buffer->buf[buffer->head] = c;
-	if (++(buffer->head) >= buffer->size) {
-		buffer->head = 0;
+	buffer.buf[buffer.head] = c;
+	if (++(buffer.head) >= buffer.size) {
+		buffer.head = 0;
 	}
-	if (buffer->head == buffer->tail) {
-		if (++(buffer->tail) >= buffer->size) {
-			buffer->tail = 0;
+	if (buffer.head == buffer.tail) {
+		if (++(buffer.tail) >= buffer.size) {
+			buffer.tail = 0;
 		}
 	}
 	return 0;
@@ -128,9 +128,9 @@ bool uart_is_interrupting()
 void init_uart()
 {
 	// Initialize ringbuffer
-	buffer->size = UART_INPUT_BUFFER_SIZE;
-	buffer->tail = 0;
-	buffer->head = 0;
+	buffer.size = UART_INPUT_BUFFER_SIZE;
+	buffer.tail = 0;
+	buffer.head = 0;
 
 	// Disable the UART.
 	CLEAR_BIT(uart->cr, CR_UARTEN);
