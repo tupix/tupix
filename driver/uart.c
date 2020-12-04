@@ -106,7 +106,7 @@ int uart_getchar(char* c)
 
 int uart_buffer_char()
 {
-	if (IS_SET(uart->fr, FR_RXFE) == false)
+	if (IS_SET(uart->fr, FR_RXFE))
 		return -1;
 
 	unsigned char c = (unsigned char)(uart->dr & 0xff);
@@ -120,6 +120,7 @@ int uart_buffer_char()
 			buffer->tail = 0;
 		}
 	}
+	return 0;
 }
 
 bool uart_is_interrupting()

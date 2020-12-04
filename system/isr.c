@@ -216,11 +216,14 @@ void irq_handler(void* sp)
 		kprintf("T");
 		reset_timer();
 	} else if (uart_is_interrupting()) {
-		uart_buffer_char();
+		if (uart_buffer_char() == -1)
+			return;
+
+		// TODO(Aurel): Usage code. Move somewhere else.
 		char c;
-		if (uart_getchar(&c) == 0) {
+		if (uart_getchar(&c) == 0)
 			kprintf("%c\n", c);
-		}
+
 	} else {
 		print_registers(reg, "Unknown Interrupt Request (IRQ)", "Continuing.",
 						"");
