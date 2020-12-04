@@ -1,6 +1,7 @@
 /* ISR - Interrupt Service Routine - Interrupt handler */
 
 #include <driver/timer.h>
+#include <driver/uart.h>
 #include <std/io.h>
 #include <std/strings.h>
 #include <std/types.h>
@@ -209,11 +210,20 @@ void data_abort_handler(void* sp)
 void irq_handler(void* sp)
 {
 	volatile struct registers* reg = (struct registers*)sp;
-	print_registers(reg, "Interrupt Request", "Continuing.", "");
 
 	// Reset triggered interrupts
 	if (l_timer_is_interrupting()) {
+		kprintf("T");
 		reset_timer();
+	} else if (uart_is_interrupting()) {
+		uart_buffer_char();
+		char c;
+		if (uart_getchar(&c) == 0) {
+			kprintf("%c\n", c);
+		}
+	} else {
+		print_registers(reg, "Unknown Interrupt Request (IRQ)", "Continuing.",
+						"");
 	}
 }
 
