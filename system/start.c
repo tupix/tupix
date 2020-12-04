@@ -8,10 +8,25 @@
 
 #include <std/io.h>
 
+#define BUSY_WAIT_N_CHARS 50
+
 bool DEBUG_ENABLED	  = false;
 bool SUB_ROUTINE_FLAG = false;
 
-void sub_routine();
+void sub_routine()
+{
+	SUB_ROUTINE_FLAG = true;
+	char c;
+	while (1) {
+		c = uart_getchar();
+
+		for (int i = 0; i < BUSY_WAIT_N_CHARS; ++i) {
+			kprintf("%c", c);
+			// We need a volatile counter so that the loop is not optimized out.
+			for (volatile int j = 0; j < BUSY_WAIT_COUNTER; ++j) {}
+		}
+	}
+}
 
 void start_kernel(void)
 {
@@ -51,23 +66,3 @@ void start_kernel(void)
 	}
 }
 
-void sub_routine()
-{
-	SUB_ROUTINE_FLAG = true;
-	char c;
-	while (1) {
-		c = uart_getchar();
-
-		// End sub_routine on EOF
-		if (c == 4) {
-			SUB_ROUTINE_FLAG = false;
-			return;
-		}
-
-		for (int i = 0; i < 50; ++i) {
-			kprintf("%c", c);
-			// We need a volatile counter so that the loop is not optimized out.
-			for (volatile int i = 0; i < BUSY_WAIT_COUNTER; ++i) {}
-		}
-	}
-}
