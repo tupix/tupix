@@ -45,6 +45,7 @@ bool check_format_str(const char* str)
 			case '%':
 				if (repeat)
 					return false;
+				break;
 			case 'x':
 			case 'i':
 			case 'u':
