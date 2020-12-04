@@ -112,7 +112,7 @@ void init_local_timer()
 #endif
 	// Enable timer, timer interrupt and set reload value in one step
 	uint32 val = 0;
-	val |= ((uint32)(L_TIMER_CLOCK_SPEED * LOCAL_TIMER_US) & 0x0ffffff);
+	val |= ((uint32)(L_TIMER_CLOCK_SPEED * LOCAL_TIMER_US) & 0x0fffffff);
 	SET_BIT(val, (uint32)L_TIMER_CTRL_STAT_TIMER_ENABLE);
 	SET_BIT(val, (uint32)L_TIMER_CTRL_STAT_INTERRUPT_ENABLE);
 	local_interrupt->ctrl_stat = val;
