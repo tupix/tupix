@@ -48,6 +48,8 @@ enum lcrh_wlen {
 	LCRH_WLEN_7 = 0b10,
 	LCRH_WLEN_6 = 0b01,
 	LCRH_WLEN_5 = 0b00,
+
+	LCRH_WLEN_VAL_LEN = 2, // The number of bits these values occupy
 };
 
 enum cr_bit_field {
@@ -84,7 +86,8 @@ void init_uart()
 	SET_BIT(uart->cr, (uint32)CR_RXE);
 	SET_BIT(uart->cr, (uint32)CR_TXE);
 
-	uart->lcrh |= (LCRH_WLEN_8 << LCRH_WLEN); // set word length
+	SET_BIT_TO(uart->lcrh, (uint32)LCRH_WLEN, LCRH_WLEN_8,
+			   (uint32)LCRH_WLEN_VAL_LEN); // set word length
 
 	CLEAR_BIT(uart->lcrh,
 			  (uint32)LCRH_FEN); // disable transmit and receive FIFO
