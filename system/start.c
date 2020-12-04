@@ -8,6 +8,7 @@ void start_kernel(void)
 	init_interrupt_controller();
 	init_uart();
 
+#if 0
 	while (1) {
 		char c = uart_getchar();
 		kprintf("%c %03i %03u %x\n", c, c, c, c);
@@ -31,4 +32,5 @@ void start_kernel(void)
 			break;
 		}
 	}
+#endif
 }
