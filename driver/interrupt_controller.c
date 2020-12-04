@@ -78,6 +78,8 @@ enum fiq_soure {
 	fiq_pwa0			  = 45,
 	fiq_i2c_spi_slv_int	  = 43,
 	fiq_aux_int			  = 29,
+
+	fiq_source_val_len = 7, // The number of bits these values occupy
 };
 
 enum fiq_control_bit_field {
@@ -93,7 +95,8 @@ void init_interrupt_controller()
 	// TODO: This is for the fast interrupt
 	// TODO: Maybe we can actually generate a regular iq for the timer
 	//set_bit(&(ir->fiq_control), FIQ_CONTROL_ENABLE);
-	//ir->fiq_control |= fiq_arm_timer; // FIQ should be Timer interrupt
+	//SET_BIT_TO(ir->fiq_control, (uint32)FIQ_CONTROL_SOURCE, fiq_arm_timer,
+	//		   (uint32)fiq_source_val_len); // FIQ should be Timer interrupt
 
 	CLEAR_BIT(ir->disable_irqs, (uint32)irq_uart_int);
 	SET_BIT(ir->enable_irqs, (uint32)irq_uart_int);

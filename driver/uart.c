@@ -48,6 +48,8 @@ enum lcrh_wlen {
 	LCRH_WLEN_7 = 0b10,
 	LCRH_WLEN_6 = 0b01,
 	LCRH_WLEN_5 = 0b00,
+
+	LCRH_WLEN_VAL_LEN = 2, // The number of bits these values occupy
 };
 
 enum cr_bit_field {
@@ -68,6 +70,8 @@ enum ifls_iflsel {
 	IFLS_IFLSEL_1_2 = 0b010,
 	IFLS_IFLSEL_3_4 = 0b011,
 	IFLS_IFLSEL_7_8 = 0b100,
+
+	IFLS_IFLSEL_VAL_LEN = 3, // The number of bits these values occupy
 };
 
 // clang-format off
@@ -99,12 +103,14 @@ void init_uart()
 	SET_BIT(uart->cr, (uint32)CR_TXE);
 
 	SET_BIT(uart->lcrh, (uint32)LCRH_FEN); // enable transmit and receive FIFO
-	uart->lcrh |= (LCRH_WLEN_8 << LCRH_WLEN); // set word length
+	SET_BIT_TO(uart->lcrh, (uint32)LCRH_WLEN, LCRH_WLEN_8,
+			   (uint32)LCRH_WLEN_VAL_LEN); // set word length
 
 	uart->imsc = 0; // clear all UART interrupt bits
 	SET_BIT(uart->imsc, (uint32)IMSC_RXIM);
 
-	uart->ifls |= (IFLS_IFLSEL_1_8 << IFLS_RXIFLSEL); // rx interrupt trigger
+	SET_BIT_TO(uart->ifls, (uint32)IFLS_RXIFLSEL, IFLS_IFLSEL_1_8,
+			   (uint32)IFLS_IFLSEL_VAL_LEN); // rx interrupt trigger
 
 	// Enable the UART.
 	SET_BIT(uart->cr, (uint32)CR_UARTEN);
