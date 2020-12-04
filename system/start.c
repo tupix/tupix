@@ -66,7 +66,8 @@ void sub_routine()
 
 		for (int i = 0; i < 50; ++i) {
 			kprintf("%c", c);
-			for (int i = 0; i < BUSY_WAIT_COUNTER; ++i) {}
+			// We need a volatile counter so that the loop is not optimized out.
+			for (volatile int i = 0; i < BUSY_WAIT_COUNTER; ++i) {}
 		}
 	}
 }
