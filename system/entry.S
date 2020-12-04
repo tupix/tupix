@@ -23,16 +23,20 @@ _loopCores:
 	tst r0, #3
 	bne .Lend
 
+.extern _ivt
 _tupix:
-	/* Wir brauchen einen validen Stack für Qemu.
-	 * Auf dem Pi wurde dieser zwar bereits durch U-Boot
-	 * gesetzt, schadet aber auch nicht
-	 */
-	ldr sp,=0x20000
+    bl _init_modes
+
+    /* setzen, der ivt base-address im VBAR */
+    ldr r0, =_ivt
+    mcr p15, 0, r0, c12, c0, 0
+
 	/* Zu c Code springen */
 	bl start_kernel
+
+/* endless loop waiting for interrupts */
 .Lend:
-	WFI
+	WFI // wait for interrupt
 	b .Lend
 
 _exitHyper:
@@ -55,3 +59,24 @@ _exitHyper:
 	orr r0, r0, #0x13	//Supervisormode
 	msr spsr_hyp, r0
 	eret
+
+_init_modes:
+	// Enable IRQ and disable FIQ
+	cpsid f
+	cpsie i
+
+    // supervisor sp
+    mov sp, #0x8000000
+    // Initialize other stack pointers
+    ldr r0, =0x7FFFC00
+    msr sp_und, r0
+    ldr r0, =0x7FFF800
+    msr sp_abt, r0
+    ldr r0, =0x7FFF400
+    msr sp_irq, r0
+    ldr r0, =0x7FFF000
+    msr sp_fiq, r0
+    ldr r0, =0x7FFEC00
+    msr sp_usr, r0
+
+    mov pc, lr

@@ -2,8 +2,8 @@
 
 #include <driver/uart.h>
 
+#include <data/types.h>
 #include <std/strings.h>
-#include <std/types.h>
 #include <std/util.h>
 
 #define MAX_NUM_LEN 20 // len("-9223372036854775808")
@@ -11,15 +11,18 @@
 void kprint(const char* s)
 {
 	while (*s)
-		kputchar(*(s++));
+		uart_putchar(*(s++));
 }
 
-inline void print_with_padding(const char* num_str, unsigned int len,
-							   unsigned int field_width, const char padding)
+/**
+ * Make sure you do not underflow field_width or len when calling.
+ */
+void print_with_padding(const char* num_str, unsigned int len,
+						unsigned int field_width, const char padding)
 {
 	unsigned int str_len = max(len, field_width);
 	for (unsigned int i = 0; i < str_len - len; ++i)
-		kputchar(padding);
+		uart_putchar(padding);
 	kprint(num_str);
 }
 
@@ -38,17 +41,19 @@ bool check_format_str(const char* str)
 					++cur_char;
 				repeat = true;
 				break;
+			case 'c':
+			case '%':
+				if (repeat)
+					return false;
+				break;
 			case 'x':
 			case 'i':
 			case 'u':
 			case 'p':
 			case 's':
-			case 'c': // TODO: check if repeat == true and error?
-			case '%':
 				repeat = false;
 				break;
 			default:
-				// NOTE: Error!
 				return false;
 			}
 		} while (repeat);
@@ -59,7 +64,7 @@ bool check_format_str(const char* str)
 unsigned int calc_field_width(const char* cur_char, char* padding,
 							  unsigned int* flag_len)
 {
-	*flag_len = 0;
+	*flag_len				 = 0;
 	unsigned int field_width = 0;
 
 	if (*cur_char >= '0' && *cur_char <= '9') {
@@ -88,18 +93,18 @@ unsigned int calc_field_width(const char* cur_char, char* padding,
 void kprintf(const char* format, ...)
 {
 	if (!check_format_str(format))
-		return;
+		return; // TODO: Error
 
 	va_list args;
 	va_start(args, format);
 
 	char padding;
-    const char* cur_char = format;
-    char num_str[MAX_NUM_LEN + 1]; /* MAX_NUM_LEN + len('\0') */
+	const char* cur_char = format;
+	char num_str[MAX_NUM_LEN + 1]; /* MAX_NUM_LEN + len('\0') */
 	unsigned int flags_len, field_width, len;
 	while (*cur_char) {
 		if (*(cur_char++) != '%') {
-			kputchar(*(cur_char - 1));
+			uart_putchar(*(cur_char - 1));
 			continue;
 		}
 
@@ -109,7 +114,7 @@ void kprintf(const char* format, ...)
 
 		switch (*cur_char) {
 		case 'c':
-			kputchar((unsigned char)va_arg(args, int));
+			uart_putchar((unsigned char)va_arg(args, int));
 			break;
 		case 's': {
 			const char* str = va_arg(args, const char*);
@@ -124,11 +129,11 @@ void kprintf(const char* format, ...)
 			ltostr(va_arg(args, int), 10, num_str, &len);
 			int offset = 0;
 			if (num_str[0] == '-') {
-				kputchar('-');
+				uart_putchar('-');
 				offset = 1;
 			}
 			print_with_padding(num_str + offset, len - offset,
-							   field_width - offset, padding);
+							   max((int)(field_width - offset), 0), padding);
 			break;
 		}
 		case 'u':
@@ -141,7 +146,7 @@ void kprintf(const char* format, ...)
 			print_with_padding(num_str, len, field_width, padding);
 			break;
 		case '%':
-			kputchar('%');
+			uart_putchar('%');
 			break;
 		}
 		++cur_char;

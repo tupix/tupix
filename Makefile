@@ -2,29 +2,29 @@
 # Kurzanleitung
 # =============
 #
-# make			-- Baut den Kernel.
+# make				-- Baut den Kernel.
 #
-# make all		-- Wie make
+# make all			-- Wie make
 #
 # make debug		-- Baut den Kernel mit debug flags
 #
 # make install		-- Baut den Kernel und transferiert ihn auf den Server.
-# 			   Das Board holt sich diesen Kernel beim nächsten Reset.
+# 			   		   Das Board holt sich diesen Kernel beim nächsten Reset.
 #
-# make qemu		-- Baut den Kernel und führt ihn unter QEMU aus
+# make qemu			-- Baut den Kernel und führt ihn unter QEMU aus
 #
 # make qemu_debug	-- Baut den Kernel und führt ihn unter QEMU mit debug
-# 			   Optionen aus. Zum debuggen in einem zweiten Terminal
-# 			   folgendes ausführen:
-# 			   $ arm-none-eabi-gdb kernel_debug
-# 			   $ target remote localhost:1234
+# 			   		   Optionen aus. Zum debuggen in einem zweiten Terminal
+# 			   		   folgendes ausführen:
+# 			   		   $ arm-none-eabi-gdb kernel_debug
+# 			   		   $ target remote localhost:1234
 #
 # make clean		-- Löscht alle erzeugten Dateien.
 #
 # make submission	-- Packt alles im Verzeichnis für die Abgabe zusammen
 #
-# make home		-- kopiert das fertige image nach $TFTP_PATH, für die
-#			   Arbeit zuhause einfach den Pfad eintragen
+# make home			-- kopiert das fertige image nach $TFTP_PATH, für die
+#			   		   Arbeit zuhause einfach den Pfad eintragen
 
 
 # Binäre Lsg (falls verwendet, ansonsten leer lassen)
@@ -65,6 +65,9 @@ endif
 # Seperates Target für Debugging
 OBJ_DEBUG = $(OBJ:.o=.o_d)
 
+# Seperates Target für Patch Dateien
+OBJ_PATCH = $(OBJ:.o=.orig) $(OBJ:.o=.rej)
+
 # Abgabe Dateien
 SUBMISSION_FILES = $(shell git ls-files | grep -Ev "(^|/)\." | grep -Ev "\.(tar\.gz|pdf)$$" | grep -v "format.sh")
 MATRIKEL_NR := $(shell awk '(NR > 1) && (NR < 3)  {ORS="+"; print prev} {prev=$$1} END { ORS=""; print $$1 }' matrikel_nr.txt )
@@ -75,7 +78,9 @@ LD = arm-none-eabi-ld
 OBJCOPY = arm-none-eabi-objcopy
 OBJDUMP = arm-none-eabi-objdump
 
+# TODO: If debug disable optimization
 CFLAGS = -Wall -Wextra -ffreestanding -mcpu=cortex-a7 -O2
+#CFLAGS = -Wall -Wextra -ffreestanding -mcpu=cortex-a7 -O0
 CFLAGS_DEBUG = $(CFLAGS) -ggdb
 CPPFLAGS = -Iinclude
 LDFLAGS = -T$(LSCRIPT)
@@ -152,6 +157,7 @@ clean:
 	rm -f kernel kernel_debug kernel.bin kernel.img kernel_dump.s
 	rm -f $(OBJ)
 	rm -f $(OBJ_DEBUG)
+	rm -f $(OBJ_PATCH)
 	rm -f $(DEP)
 	rm -f "$(MATRIKEL_NR).tar.gz"
 	$(MAKE) -C user clean

@@ -1,6 +1,10 @@
 # ignore submission
 *.tar.gz
 
+# patch files
+*.orig
+*.rej
+
 # compiler files
 *.d
 *.o
@@ -20,3 +24,4 @@ compile_flags.txt
 
 
 .vimrc
+.nvimrc

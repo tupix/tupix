@@ -1,6 +1,7 @@
 #ifndef STD_UTIL_H
+#define STD_UTIL_H
 
-#include <std/types.h>
+#include <data/types.h>
 
 // NOTE: Taken from StackOverflow:
 // [see](https://stackoverflow.com/questions/3437404/min-and-max-in-c)
@@ -18,13 +19,9 @@
 		_a < _b ? _a : _b;                                                     \
 	})
 
-unsigned int calc_digits(unsigned int n, unsigned int base);
+unsigned int calc_digits(unsigned long n, unsigned int base);
 
 char* ultostr(unsigned long n, unsigned int base, char* str, unsigned int* len);
 char* ltostr(long n, unsigned int base, char* str, unsigned int* len);
-bool is_set(volatile unsigned int word, unsigned char bitn);
-void set_bit(volatile unsigned int* word, unsigned char bitn);
-void clear_bit(volatile unsigned int* word, unsigned char bitn);
 
-#define STD_UTIL_H
-#endif
+#endif /* STD_UTIL_H */

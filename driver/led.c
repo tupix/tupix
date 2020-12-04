@@ -3,7 +3,7 @@
 #define GPF_BITS 3
 
 enum gpio_func {
-	gpio_input = 0x0,  // GPIO Pin is an input
+	gpio_input	= 0x0, // GPIO Pin is an input
 	gpio_output = 0x1, // GPIO Pin is an output
 };
 

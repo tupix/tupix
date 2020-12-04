@@ -1,8 +1,13 @@
-#ifndef DRI_UART_H
+#ifndef DRIVER_UART_H
+#define DRIVER_UART_H
+
+#include <data/types.h>
 
 void init_uart();
-void kputchar(unsigned char c);
-unsigned char kgetchar();
+void uart_putchar(unsigned char c);
+char uart_getchar();
 
-#define DRI_UART_H
-#endif
+int uart_buffer_char();
+bool uart_is_interrupting();
+
+#endif /* DRIVER_UART_H */

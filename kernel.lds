@@ -5,4 +5,3 @@ SECTIONS
 	.init : { *(.init) }
 	.text : { *(.text) }
 }
-
