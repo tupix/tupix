@@ -79,8 +79,8 @@ OBJCOPY = arm-none-eabi-objcopy
 OBJDUMP = arm-none-eabi-objdump
 
 # TODO: If debug disable optimization
-#CFLAGS = -Wall -Wextra -ffreestanding -mcpu=cortex-a7 -O2
-CFLAGS = -Wall -Wextra -ffreestanding -mcpu=cortex-a7 -O0
+CFLAGS = -Wall -Wextra -ffreestanding -mcpu=cortex-a7 -O2
+#CFLAGS = -Wall -Wextra -ffreestanding -mcpu=cortex-a7 -O0
 CFLAGS_DEBUG = $(CFLAGS) -ggdb
 CPPFLAGS = -Iinclude
 LDFLAGS = -T$(LSCRIPT)
