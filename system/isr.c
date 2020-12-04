@@ -195,6 +195,8 @@ void software_interrupt_handler(void* sp)
 {
 	volatile struct registers* reg = (struct registers*)sp;
 	print_registers(reg, "Software Interrupt", "Continuing.", "");
+	// TODO(Aurel): In the future, this should continue.
+	while (true) {}
 }
 
 void prefetch_abort_handler(void* sp)

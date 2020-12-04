@@ -82,6 +82,7 @@ software_interrupt:
 	 */
 	push { sp }
 	push { pc }
+	//sub lr, #4 // TODO(Aurel): In preperation for later.
 	push { lr }
 	push { r0 - r12 }
 
