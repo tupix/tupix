@@ -7,23 +7,24 @@
 
 struct interrupt_register {
 	uint32 irq_basic_pending; // which interrupts are pending
-	uint64 irq_pending;		  // which interrupts are pending in detail
+	//uint64 irq_pending; // which interrupts are pending in detail
+	uint32 irq_pending_l;
+	uint32 irq_pending_h;
 
 	/* NOTE: Only a single bit can be selected in FIQ control register. */
 	uint32 fiq_control; // which interrupt source can generate a FIQ.
 
-	// TODO(Aurel): Check with separate register
-	//uint64 enable_irqs;		   // enable an interrupt source
+	//uint64 enable_irqs; // enable an interrupt source
 	uint32 enable_irq_l;
 	uint32 enable_irq_h;
 	uint32 enable_basic_irqs; // enable an interrupt source
-	//uint64 disable_irqs;	   // disable an interrupt source
+	//uint64 disable_irqs; // disable an interrupt source
 	uint32 disable_irq_l;
 	uint32 disable_irq_h;
 	uint32 disable_basic_irqs; // disable an interrupt source
 };
 
-// The abbreviation IRQP stands for interrupt request (IRQ) pending
+// NOTE(Aurel): The abbreviation IRQP stands for interrupt request (IRQ) pending
 enum irq_basic_pending {
 	GPU_IRQ_62			   = 20,
 	GPU_IRQ_57			   = 19,
@@ -50,37 +51,7 @@ enum irq_basic_pending {
 
 // Bit field for irq_pending, enable_irqs and disable_irqs
 enum irq_table {
-	irq_uart_int		= 57, // UART
-	irq_pcm_int			= 55,
-	irq_spi_int			= 54,
-	irq_i2c_int			= 53,
-	irq_gpio_int		= 49,
-	irq_smi				= 48,
-	irq_pwa1			= 46,
-	irq_pwa0			= 45,
-	irq_i2c_spi_slv_int = 43,
-	irq_aux_int			= 29,
-};
-
-enum fiq_table {
-	fiq_ill_access_type_0 = 71,
-	fiq_ill_access_type_1 = 70,
-	fiq_gpu1_halted		  = 69,
-	fiq_gpu0_halted		  = 68,
-	fiq_arm_doorbell_1	  = 67,
-	fiq_arm_doorbell_0	  = 66,
-	fiq_arm_mailbox		  = 65,
-	fiq_arm_timer		  = 64,
-	fiq_uart_int		  = 57, // UART
-	fiq_pcm_int			  = 55,
-	fiq_spi_int			  = 54,
-	fiq_i2c_int			  = 53,
-	fiq_gpio_int		  = 49,
-	fiq_smi				  = 48,
-	fiq_pwa1			  = 46,
-	fiq_pwa0			  = 45,
-	fiq_i2c_spi_slv_int	  = 43,
-	fiq_aux_int			  = 29,
+	irq_uart_int = 57, // UART
 };
 
 enum fiq_control_bit_field {
@@ -93,11 +64,6 @@ static volatile struct interrupt_register* const ir =
 
 void init_interrupt_controller()
 {
-	// TODO: This is for the fast interrupt
-	// TODO: Maybe we can actually generate a regular iq for the timer
-	//set_bit(&(ir->fiq_control), FIQ_CONTROL_ENABLE);
-	//ir->fiq_control |= fiq_arm_timer; // FIQ should be Timer interrupt
-
 	CLEAR_BIT(ir->disable_irq_h, (uint32)(irq_uart_int - 32));
 	SET_BIT(ir->enable_irq_h, (uint32)(irq_uart_int - 32));
 }

@@ -56,20 +56,6 @@ enum cr_bit_field {
 	CR_UARTEN = 0, // UART enable
 };
 
-enum ifls_bit_field {
-	IFLS_RXIFLSEL = 3, // receive interrupt FIFO level select
-	IFLS_TXIFLSEL = 2, // transmit interrupt FIFO level select
-};
-
-// Possible values for the IFLS_*IFLSEL fields (1_8 => 1/8)
-enum ifls_iflsel {
-	IFLS_IFLSEL_1_8 = 0b000,
-	IFLS_IFLSEL_1_4 = 0b001,
-	IFLS_IFLSEL_1_2 = 0b010,
-	IFLS_IFLSEL_3_4 = 0b011,
-	IFLS_IFLSEL_7_8 = 0b100,
-};
-
 // clang-format off
 enum imsc_bit_field {
 	IMSC_OEIM = 10, // overrun error interrupt mask
