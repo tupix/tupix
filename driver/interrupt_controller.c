@@ -59,7 +59,7 @@ enum irq_table {
 	irq_aux_int			= 29,
 };
 
-enum fiq_table {
+enum fiq_soure {
 	fiq_ill_access_type_0 = 71,
 	fiq_ill_access_type_1 = 70,
 	fiq_gpu1_halted		  = 69,
