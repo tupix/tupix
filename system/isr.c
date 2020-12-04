@@ -3,10 +3,10 @@
 #include <driver/timer.h>
 #include <driver/uart.h>
 
+#include <data/types.h>
 #include <std/bits.h>
 #include <std/io.h>
 #include <std/strings.h>
-#include <data/types.h>
 #include <std/util.h>
 
 extern bool DEBUG_ENABLED;

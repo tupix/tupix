@@ -4,8 +4,8 @@
 
 #include <driver/BCM2836.h>
 
-#include <std/bits.h>
 #include <data/types.h>
+#include <std/bits.h>
 #include <std/util.h>
 
 #define UART_BASE (0x7E201000 - MMU_BASE_OFFSET)

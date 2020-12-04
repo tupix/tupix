@@ -1,7 +1,7 @@
 #include <config.h>
 
-#include <std/bits.h>
 #include <data/types.h>
+#include <std/bits.h>
 #include <std/util.h>
 
 #define L_TIMER_BASE 0x40000024

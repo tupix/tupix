@@ -8,11 +8,10 @@
 
 #include <std/io.h>
 
-#define BUSY_WAIT_N_CHARS 50
-
 bool DEBUG_ENABLED	  = false;
 bool SUB_ROUTINE_FLAG = false;
 
+#define BUSY_WAIT_N_CHARS 50
 void sub_routine()
 {
 	SUB_ROUTINE_FLAG = true;
@@ -65,4 +64,3 @@ void start_kernel(void)
 		}
 	}
 }
-

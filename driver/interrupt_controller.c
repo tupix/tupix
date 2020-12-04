@@ -1,7 +1,7 @@
 #include <driver/BCM2836.h>
 
-#include <std/bits.h>
 #include <data/types.h>
+#include <std/bits.h>
 #include <std/util.h>
 
 #define INTERRUPT_REGISTER_BASE (0x7E00B000 - MMU_BASE_OFFSET)
