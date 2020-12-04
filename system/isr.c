@@ -194,7 +194,7 @@ void undefined_instruction_handler(void* sp)
 void software_interrupt_handler(void* sp)
 {
 	volatile struct registers* reg = (struct registers*)sp;
-	print_registers(reg, "Software Interrupt", "System halted.", "");
+	print_registers(reg, "Software Interrupt", "Continuing.", "");
 }
 
 void prefetch_abort_handler(void* sp)
