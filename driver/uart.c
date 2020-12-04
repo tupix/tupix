@@ -126,7 +126,7 @@ bool uart_is_interrupting()
 
 void init_uart()
 {
-	// initialize ringbuffer
+	// Initialize ringbuffer
 	buffer->size = UART_INPUT_BUFFER_SIZE;
 	buffer->tail = 0;
 	buffer->head = 0;
@@ -153,10 +153,9 @@ void init_uart()
 	SET_BIT(uart->cr, (uint32)CR_UARTEN);
 }
 
-// TODO(Aurel): Stop checking, if FIFOs are full or empty
 void uart_putchar(unsigned char c)
 {
-	// wait until transmit FIFO is not full
+	// Wait until transmit FIFO is not full
 	while (IS_SET(uart->fr, FR_TXFF)) {}
 	uart->dr = c;
 }

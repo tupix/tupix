@@ -194,7 +194,6 @@ void software_interrupt_handler(void* sp)
 {
 	volatile struct registers* reg = (struct registers*)sp;
 	print_registers(reg, "Software Interrupt", "System halted.", "");
-	// TODO(Aurel): Does anything have to happen?
 }
 
 void prefetch_abort_handler(void* sp)
@@ -230,11 +229,4 @@ void irq_handler(void* sp)
 		return;
 	}
 	print_registers(reg, "Unknown Interrupt Request (IRQ)", "Continuing.", "");
-}
-
-void fiq_handler(void* sp)
-{
-	volatile struct registers* reg = (struct registers*)sp;
-	print_registers(reg, "Fast Interrupt Request", "Continuing.", "");
-	// TODO(Aurel): Does anything have to happen?
 }

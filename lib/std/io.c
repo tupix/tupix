@@ -41,17 +41,18 @@ bool check_format_str(const char* str)
 					++cur_char;
 				repeat = true;
 				break;
+			case 'c':
+			case '%':
+				if (repeat)
+					return false;
 			case 'x':
 			case 'i':
 			case 'u':
 			case 'p':
 			case 's':
-			case 'c': // TODO: check if repeat == true and error?
-			case '%':
 				repeat = false;
 				break;
 			default:
-				// NOTE: Error!
 				return false;
 			}
 		} while (repeat);
@@ -91,7 +92,7 @@ unsigned int calc_field_width(const char* cur_char, char* padding,
 void kprintf(const char* format, ...)
 {
 	if (!check_format_str(format))
-		return;
+		return; // TODO: Error
 
 	va_list args;
 	va_start(args, format);

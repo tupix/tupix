@@ -5,34 +5,6 @@
 #define L_TIMER_BASE 0x40000024
 #define L_TIMER_CLOCK_SPEED 38.4
 
-#if 0
-#define CORE_INTERRUPT_SOURCE 0x40000060
-
-enum core_interrupt_source_addr {
-	CORE_0_INTERRUPT_SOURCE = 0x40000060,
-	CORE_1_INTERRUPT_SOURCE = 0x40000064,
-	CORE_2_INTERRUPT_SOURCE = 0x40000068,
-	CORE_3_INTERRUPT_SOURCE = 0x4000006C,
-};
-
-enum interrupt_source_bit_field {
-	// 31 - 28 Reserved
-	INTERRUPT_SOURCE_PERIHPERAL		 = 12, // Currently not used
-	INTERRUPT_SOURCE_L_TIMER	 = 11,
-	INTERRUPT_SOURCE_AXI_OUTSTANDING = 10, // Core 0 only
-	INTERRUPT_SOURCE_PMU			 = 9,
-	INTERRUPT_SOURCE_GPU			 = 8, // Can be high in one core only
-	INTERRUPT_SOURCE_MAILBOX_3		 = 7,
-	INTERRUPT_SOURCE_MAILBOX_2		 = 6,
-	INTERRUPT_SOURCE_MAILBOX_1		 = 5,
-	INTERRUPT_SOURCE_MAILBOX_0		 = 4,
-	INTERRUPT_SOURCE_CNTVIRQ		 = 3,
-	INTERRUPT_SOURCE_CNTHPIRQ		 = 2,
-	INTERRUPT_SOURCE_CNTPNSIRQ		 = 1,
-	INTERRUPT_SOURCE_CNTPSIRQ		 = 0, // Physical timer -1
-};
-#endif
-
 struct local_interrupt {
 	uint32 routing;		 // routing
 	uint32 padding[3];	 //
@@ -109,7 +81,7 @@ void init_local_timer()
 	// Enable local timer interrupt
 	SET_BIT(local_interrupt->ctrl_stat,
 			(uint32)L_TIMER_CTRL_STAT_INTERRUPT_ENABLE);
-#endif
+#else
 	// Enable timer, timer interrupt and set reload value in one step
 	uint32 val = 0;
 	val |= ((uint32)(L_TIMER_CLOCK_SPEED * LOCAL_TIMER_US) & 0x0fffffff);
@@ -118,9 +90,5 @@ void init_local_timer()
 	local_interrupt->ctrl_stat = val;
 	// Tell timer about new value
 	SET_BIT(local_interrupt->clear_reload, (uint32)L_TIMER_RELOAD);
-#if 0
-	// Activate local timer in core 0
-	static volatile uint32* interrupt_source = (uint32*)CORE_0_INTERRUPT_SOURCE;
-	SET_BIT(*interrupt_source, INTERRUPT_SOURCE_L_TIMER);
 #endif
 }

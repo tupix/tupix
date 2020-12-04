@@ -19,7 +19,6 @@ void start_kernel(void)
 	char c;
 	while (1) {
 		c = uart_getchar();
-		kprintf("%c %03i %03u %x\n", c, c, c, c); // TODO: remove, only debug
 		switch (c) {
 		case 's':
 			// trigger Supervisor Call
@@ -34,7 +33,7 @@ void start_kernel(void)
 			asm("bkpt");
 			break;
 		case 'd':
-			DEBUG_ENABLED = true;
+			DEBUG_ENABLED = !DEBUG_ENABLED;
 			break;
 		case 'e':
 			sub_routine();

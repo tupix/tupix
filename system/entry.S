@@ -25,14 +25,6 @@ _loopCores:
 
 .extern _ivt
 _tupix:
-	/* 
-	 * TODO(Aurel): This is not needed anymore, I don't think.
-	 * Wir brauchen einen validen Stack für Qemu.
-	 * Auf dem Pi wurde dieser zwar bereits durch U-Boot
-	 * gesetzt, schadet aber auch nicht
-	 */
-	ldr sp,=0x20000
-
     bl _init_modes
 
     /* setzen, der ivt base-address im VBAR */
@@ -68,13 +60,14 @@ _exitHyper:
 	msr spsr_hyp, r0
 	eret
 
-// TODO(Aurel): mask fiq bit in cpsr of all modes
 _init_modes:
-    // supervisor mode
-    mov sp, #0x8000000
+	// Enable IRQ and disable FIQ
 	cpsid f
 	cpsie i
 
+    // supervisor sp
+    mov sp, #0x8000000
+    // Initialize other stack pointers
     ldr r0, =0x7FFFC00
     msr sp_und, r0
     ldr r0, =0x7FFF800
