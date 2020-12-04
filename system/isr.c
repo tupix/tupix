@@ -220,12 +220,8 @@ void irq_handler(void* sp)
 		return;
 	} else if (uart_is_interrupting()) {
 		if (uart_buffer_char() == -1)
+			// TODO(Aurel): Error handling
 			return;
-
-		// TODO(Aurel): Usage code. Move somewhere else.
-		char c;
-		if (uart_getchar(&c) == 0)
-			kprintf("%c\n", c);
 		return;
 	}
 	volatile struct registers* reg = (struct registers*)sp;

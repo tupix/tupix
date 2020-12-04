@@ -355,8 +355,6 @@ fiq:
 	b exc_cleanup_return
 
 exc_cleanup_return:
-	// TODO: Debug
-
 	/*
 	 * NOTE(Aurel): Throw away the 19 pushed mode-specific register
 	 * 19 * 4 = 76
