@@ -6,17 +6,20 @@
 #define INTERRUPT_REGISTER_BASE (0x7E00B000 - MMU_BASE_OFFSET)
 
 struct interrupt_register {
-	uint32 padding0[16]; // Addresses start at 0x200
-
 	uint32 irq_basic_pending; // which interrupts are pending
 	uint64 irq_pending;		  // which interrupts are pending in detail
 
 	/* NOTE: Only a single bit can be selected in FIQ control register. */
 	uint32 fiq_control; // which interrupt source can generate a FIQ.
 
-	uint64 enable_irqs;		   // enable an interrupt source
+	// TODO(Aurel): Check with separate register
+	//uint64 enable_irqs;		   // enable an interrupt source
+	uint32 enable_irq_l;
+	uint32 enable_irq_h;
 	uint32 enable_basic_irqs;  // enable an interrupt source
-	uint64 disable_irqs;	   // disable an interrupt source
+	//uint64 disable_irqs;	   // disable an interrupt source
+	uint32 disable_irq_l;
+	uint32 disable_irq_h;
 	uint32 disable_basic_irqs; // disable an interrupt source
 };
 
@@ -86,7 +89,7 @@ enum fiq_control_bit_field {
 };
 
 static volatile struct interrupt_register* const ir =
-		(struct interrupt_register*)INTERRUPT_REGISTER_BASE;
+		(struct interrupt_register*)(INTERRUPT_REGISTER_BASE + 0x200);
 
 void init_interrupt_controller()
 {
