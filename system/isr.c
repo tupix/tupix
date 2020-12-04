@@ -1,5 +1,6 @@
 /* ISR - Interrupt Service Routine - Interrupt handler */
 
+#include <driver/timer.h>
 #include <std/io.h>
 #include <std/strings.h>
 #include <std/types.h>
@@ -209,7 +210,11 @@ void irq_handler(void* sp)
 {
 	volatile struct registers* reg = (struct registers*)sp;
 	print_registers(reg, "Interrupt Request", "Continuing.", "");
-	// TODO(Aurel): Does anything have to happen?
+
+	// Reset triggered interrupts
+	if (l_timer_is_interrupting()) {
+		reset_timer();
+	}
 }
 
 void fiq_handler(void* sp)
