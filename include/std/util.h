@@ -50,6 +50,7 @@
 		__typeof__(value_len) _value_len = (value_len);                        \
 		if (_bit > (sizeof(__typeof__(bitfield)) * 8) - 1)                     \
 			break;                                                             \
+		/* Clear all touched bits before setting the value, see 3b38e6b. */    \
 		for (__typeof__(_value_len) i = _bit; i < _bit + _value_len; ++i)      \
 			CLEAR_BIT(*_bitfield, i);                                          \
 		*_bitfield |= _value << _bit;                                          \
