@@ -54,7 +54,7 @@ static volatile struct local_interrupt* const local_interrupt =
 
 void reset_timer()
 {
-	SET_BIT(local_interrupt->clear_reload, (uint32)L_TIMER_INTERRUPT_FLAG);
+	SET_BIT(local_interrupt->clear_reload, L_TIMER_INTERRUPT_FLAG);
 }
 
 bool l_timer_is_interrupting()
@@ -65,30 +65,18 @@ bool l_timer_is_interrupting()
 void init_local_timer()
 {
 	// Route local timer to core 0
-	SET_BIT_TO(local_interrupt->routing, (uint32)L_TIMER_ROUTING,
-			   L_TIMER_ROUTE_IRQ_0, (uint32)l_timer_routing_val_len);
-// TODO: SET_BIT_TO does not work.
-#if 0
-	// Enable local timer
-	SET_BIT(local_interrupt->ctrl_stat,
-			(uint32)L_TIMER_CTRL_STAT_TIMER_ENABLE);
-	// Set reload value
-	SET_BIT_TO(local_interrupt->ctrl_stat,
-			   (uint32)L_TIMER_CTRL_STAT_RELOAD_VAL, LOCAL_TIMER_US,
-			   (uint32)L_TIMER_CTRL_STAT_RELOAD_VAL_LEN);
-	// Tell timer about new value
-	SET_BIT(local_interrupt->clear_reload, (uint32)L_TIMER_RELOAD);
-	// Enable local timer interrupt
-	SET_BIT(local_interrupt->ctrl_stat,
-			(uint32)L_TIMER_CTRL_STAT_INTERRUPT_ENABLE);
-#else
-	// Enable timer, timer interrupt and set reload value in one step
+	SET_BIT_TO(local_interrupt->routing, L_TIMER_ROUTING, L_TIMER_ROUTE_IRQ_0,
+			   l_timer_routing_val_len);
 	uint32 val = 0;
-	val |= ((uint32)(L_TIMER_CLOCK_SPEED * LOCAL_TIMER_US) & 0x0fffffff);
-	SET_BIT(val, (uint32)L_TIMER_CTRL_STAT_TIMER_ENABLE);
-	SET_BIT(val, (uint32)L_TIMER_CTRL_STAT_INTERRUPT_ENABLE);
+	// Enable local timer
+	SET_BIT(val, L_TIMER_CTRL_STAT_TIMER_ENABLE);
+	// Set reload value
+	SET_BIT_TO(val, L_TIMER_CTRL_STAT_RELOAD_VAL,
+			   (uint32)(L_TIMER_CLOCK_SPEED * LOCAL_TIMER_US),
+			   L_TIMER_CTRL_STAT_RELOAD_VAL_LEN);
+	// Enable local timer interrupt
+	SET_BIT(val, L_TIMER_CTRL_STAT_INTERRUPT_ENABLE);
 	local_interrupt->ctrl_stat = val;
 	// Tell timer about new value
-	SET_BIT(local_interrupt->clear_reload, (uint32)L_TIMER_RELOAD);
-#endif
+	SET_BIT(local_interrupt->clear_reload, L_TIMER_RELOAD);
 }

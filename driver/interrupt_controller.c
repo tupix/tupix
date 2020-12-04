@@ -64,6 +64,6 @@ static volatile struct interrupt_register* const ir =
 
 void init_interrupt_controller()
 {
-	CLEAR_BIT(ir->disable_irq_h, (uint32)(irq_uart_int - 32));
-	SET_BIT(ir->enable_irq_h, (uint32)(irq_uart_int - 32));
+	CLEAR_BIT(ir->disable_irq_h, irq_uart_int - 32);
+	SET_BIT(ir->enable_irq_h, irq_uart_int - 32);
 }

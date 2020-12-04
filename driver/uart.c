@@ -132,25 +132,24 @@ void init_uart()
 	buffer->head = 0;
 
 	// Disable the UART.
-	CLEAR_BIT(uart->cr, (uint32)CR_UARTEN);
+	CLEAR_BIT(uart->cr, CR_UARTEN);
 	// Flush the transmit FIFO
-	CLEAR_BIT(uart->lcrh, (uint32)LCRH_FEN);
+	CLEAR_BIT(uart->lcrh, LCRH_FEN);
 
 	// Reprogram the UART
-	SET_BIT(uart->cr, (uint32)CR_RXE);
-	SET_BIT(uart->cr, (uint32)CR_TXE);
+	SET_BIT(uart->cr, CR_RXE);
+	SET_BIT(uart->cr, CR_TXE);
 
-	SET_BIT_TO(uart->lcrh, (uint32)LCRH_WLEN, LCRH_WLEN_8,
-			   (uint32)LCRH_WLEN_VAL_LEN); // set word length
+	SET_BIT_TO(uart->lcrh, LCRH_WLEN, LCRH_WLEN_8,
+			   LCRH_WLEN_VAL_LEN); // set word length
 
-	CLEAR_BIT(uart->lcrh,
-			  (uint32)LCRH_FEN); // disable transmit and receive FIFO
+	CLEAR_BIT(uart->lcrh, LCRH_FEN); // disable transmit and receive FIFO
 
-	uart->imsc = 0;							// clear all UART interrupt bits
-	SET_BIT(uart->imsc, (uint32)IMSC_RXIM); // enable receive interrupt
+	uart->imsc = 0;					// clear all UART interrupt bits
+	SET_BIT(uart->imsc, IMSC_RXIM); // enable receive interrupt
 
 	// Enable the UART.
-	SET_BIT(uart->cr, (uint32)CR_UARTEN);
+	SET_BIT(uart->cr, CR_UARTEN);
 }
 
 void uart_putchar(unsigned char c)

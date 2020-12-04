@@ -22,7 +22,7 @@
 // TODO: Error handling
 #define SET_BIT(bitfield, bit)                                                 \
 	do {                                                                       \
-		__typeof__(bit) _bit = (bit);                                          \
+		__typeof__(bitfield) _bit = (bit);                                     \
 		if (_bit > (sizeof(__typeof__(bitfield)) * 8) - 1)                     \
 			break;                                                             \
 		(bitfield) |= 1U << _bit;                                              \
@@ -31,7 +31,7 @@
 // TODO: Error handling
 #define CLEAR_BIT(bitfield, bit)                                               \
 	do {                                                                       \
-		__typeof__(bit) _bit = (bit);                                          \
+		__typeof__(bitfield) _bit = (bit);                                     \
 		if (_bit > (sizeof(__typeof__(bitfield)) * 8) - 1)                     \
 			break;                                                             \
 		(bitfield) &= ~(1U << _bit);                                           \
@@ -40,14 +40,14 @@
 // TODO: Error handling
 #define SET_BIT_TO(bitfield, bit, value, value_len)                            \
 	do {                                                                       \
-		__typeof__(bit) _bit	 = (bit);                                      \
-		__typeof__(value) _value = (value);                                    \
+		__typeof__(bitfield) _bit = (bit);                                     \
+		__typeof__(value) _value  = (value);                                   \
 		/*
 		 * Since `bitfield` should me modified, we have to create a pointer to
 		 * 'escape' the local context of the `do while`
 		 */                                                                     \
-		__typeof__(bitfield)* _bitfield	 = &(bitfield);                        \
-		__typeof__(value_len) _value_len = (value_len);                        \
+		__typeof__(bitfield)* _bitfield = &(bitfield);                         \
+		__typeof__(bitfield) _value_len = (value_len);                         \
 		if (_bit > (sizeof(__typeof__(bitfield)) * 8) - 1)                     \
 			break;                                                             \
 		/* Clear all touched bits before setting the value, see 3b38e6b. */    \
