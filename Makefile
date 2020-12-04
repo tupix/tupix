@@ -65,6 +65,9 @@ endif
 # Seperates Target für Debugging
 OBJ_DEBUG = $(OBJ:.o=.o_d)
 
+# Seperates Target für Patch Dateien
+OBJ_PATCH = $(OBJ:.o=.orig) $(OBJ:.o=.rej)
+
 # Abgabe Dateien
 SUBMISSION_FILES = $(shell git ls-files | grep -Ev "(^|/)\." | grep -Ev "\.(tar\.gz|pdf)$$" | grep -v "format.sh")
 MATRIKEL_NR := $(shell awk '(NR > 1) && (NR < 3)  {ORS="+"; print prev} {prev=$$1} END { ORS=""; print $$1 }' matrikel_nr.txt )
@@ -154,6 +157,7 @@ clean:
 	rm -f kernel kernel_debug kernel.bin kernel.img kernel_dump.s
 	rm -f $(OBJ)
 	rm -f $(OBJ_DEBUG)
+	rm -f $(OBJ_PATCH)
 	rm -f $(DEP)
 	rm -f "$(MATRIKEL_NR).tar.gz"
 	$(MAKE) -C user clean
