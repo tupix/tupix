@@ -98,18 +98,20 @@ void init_uart()
 	SET_BIT(uart->cr, (uint32)CR_RXE);
 	SET_BIT(uart->cr, (uint32)CR_TXE);
 
-	SET_BIT(uart->lcrh, (uint32)LCRH_FEN); // enable transmit and receive FIFO
 	uart->lcrh |= (LCRH_WLEN_8 << LCRH_WLEN); // set word length
 
-	uart->imsc = 0; // clear all UART interrupt bits
-	SET_BIT(uart->imsc, (uint32)IMSC_RXIM);
+	CLEAR_BIT(uart->lcrh,
+			  (uint32)LCRH_FEN); // disable transmit and receive FIFO
 
-	uart->ifls |= (IFLS_IFLSEL_1_8 << IFLS_RXIFLSEL); // rx interrupt trigger
+	uart->imsc = 0;							  // clear all UART interrupt bits
+	CLEAR_BIT(uart->imsc, (uint32)IMSC_TXIM); // disable transmit interrupt
+	SET_BIT(uart->imsc, (uint32)IMSC_RXIM);	  // enable receive interrupt
 
 	// Enable the UART.
 	SET_BIT(uart->cr, (uint32)CR_UARTEN);
 }
 
+// TODO(Aurel): Stop checking, if FIFOs are full or empty
 void uart_putchar(unsigned char c)
 {
 	// wait until transmit FIFO is not full
