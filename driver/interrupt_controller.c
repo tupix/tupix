@@ -8,18 +8,15 @@
 
 struct interrupt_register {
 	uint32 irq_basic_pending; // which interrupts are pending
-	//uint64 irq_pending; // which interrupts are pending in detail
 	uint32 irq_pending_l;
 	uint32 irq_pending_h;
 
 	/* NOTE: Only a single bit can be selected in FIQ control register. */
 	uint32 fiq_control; // which interrupt source can generate a FIQ.
 
-	//uint64 enable_irqs; // enable an interrupt source
 	uint32 enable_irq_l;
 	uint32 enable_irq_h;
 	uint32 enable_basic_irqs; // enable an interrupt source
-	//uint64 disable_irqs; // disable an interrupt source
 	uint32 disable_irq_l;
 	uint32 disable_irq_h;
 	uint32 disable_basic_irqs; // disable an interrupt source
