@@ -1,6 +1,8 @@
 #include <driver/uart.h>
 
 #include <driver/BCM2836.h>
+
+#include <std/types.h>
 #include <std/util.h>
 
 #define UART_BASE (0x7E201000 - MMU_BASE_OFFSET)
@@ -70,10 +72,52 @@ enum imsc_bit_field {
 	/* 2,3 unsupported, read as don't care */
 	IMSC_CTSMIM = 1, // nUARTCTS modem interrupt mask
 	/* 0 unsupported, read as don't care */
+
+enum mis_bit_field {
+	MIS_RXMIS = 4,
+};
+
+struct ringbuffer {
+	uint32 size;
+	uint32 tail, head;
+	bool full;
+	char buf[UART_INPUT_BUFFER_SIZE];
 };
 // clang-format on
 
 static volatile struct uart* const uart = (struct uart*)UART_BASE;
+static struct ringbuffer* buffer;
+
+int uart_getchar(char* c)
+{
+	if (buffer->head == buffer->tail)
+		return -1;
+
+	if (buffer->head == 0) {
+		buffer->head = buffer->size;
+	}
+	--(buffer->head);
+	*c = buffer->buf[buffer->head];
+	return 0;
+}
+
+int uart_buffer_char()
+{
+	if (IS_SET(uart->fr, FR_RXFE) == false)
+		return -1;
+
+	unsigned char c = (unsigned char)(uart->dr & 0xff);
+
+	buffer->buf[buffer->head] = c;
+	if (++(buffer->head) >= buffer->size) {
+		buffer->head = 0;
+	}
+	if (buffer->head == buffer->tail) {
+		if (++(buffer->tail) >= buffer->size) {
+			buffer->tail = 0;
+		}
+	}
+}
 
 void init_uart()
 {
@@ -105,11 +149,4 @@ void uart_putchar(unsigned char c)
 	// wait until transmit FIFO is not full
 	while (IS_SET(uart->fr, FR_TXFF)) {}
 	uart->dr = c;
-}
-
-unsigned char uart_getchar()
-{
-	// wait until receive FIFO is not empty
-	while (IS_SET(uart->fr, FR_RXFE)) {}
-	return (unsigned char)(uart->dr & 0xff);
 }
