@@ -23,10 +23,11 @@ _loopCores:
 	tst r0, #3
 	bne .Lend
 
-.extern _init_sp
 .extern _ivt
 _tupix:
-	/* Wir brauchen einen validen Stack für Qemu.
+	/* 
+	 * TODO(Aurel): This is not needed anymore, I don't think.
+	 * Wir brauchen einen validen Stack für Qemu.
 	 * Auf dem Pi wurde dieser zwar bereits durch U-Boot
 	 * gesetzt, schadet aber auch nicht
 	 */

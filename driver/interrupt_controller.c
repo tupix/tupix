@@ -16,7 +16,7 @@ struct interrupt_register {
 	//uint64 enable_irqs;		   // enable an interrupt source
 	uint32 enable_irq_l;
 	uint32 enable_irq_h;
-	uint32 enable_basic_irqs;  // enable an interrupt source
+	uint32 enable_basic_irqs; // enable an interrupt source
 	//uint64 disable_irqs;	   // disable an interrupt source
 	uint32 disable_irq_l;
 	uint32 disable_irq_h;
@@ -98,6 +98,6 @@ void init_interrupt_controller()
 	//set_bit(&(ir->fiq_control), FIQ_CONTROL_ENABLE);
 	//ir->fiq_control |= fiq_arm_timer; // FIQ should be Timer interrupt
 
-	CLEAR_BIT(ir->disable_irq_h, (uint32)(irq_uart_int-32));
-	SET_BIT(ir->enable_irq_h, (uint32)(irq_uart_int-32));
+	CLEAR_BIT(ir->disable_irq_h, (uint32)(irq_uart_int - 32));
+	SET_BIT(ir->enable_irq_h, (uint32)(irq_uart_int - 32));
 }

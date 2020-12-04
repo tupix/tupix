@@ -103,9 +103,8 @@ void init_uart()
 	CLEAR_BIT(uart->lcrh,
 			  (uint32)LCRH_FEN); // disable transmit and receive FIFO
 
-	uart->imsc = 0;							  // clear all UART interrupt bits
-	CLEAR_BIT(uart->imsc, (uint32)IMSC_TXIM); // disable transmit interrupt
-	SET_BIT(uart->imsc, (uint32)IMSC_RXIM);	  // enable receive interrupt
+	uart->imsc = 0;							// clear all UART interrupt bits
+	SET_BIT(uart->imsc, (uint32)IMSC_RXIM); // enable receive interrupt
 
 	// Enable the UART.
 	SET_BIT(uart->cr, (uint32)CR_UARTEN);
