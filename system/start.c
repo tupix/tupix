@@ -3,8 +3,10 @@
 #include <driver/timer.h>
 #include <driver/uart.h>
 #include <std/io.h>
-#include <system/isr.h>
 #include <system/regcheck.h>
+
+bool DEBUG_ENABLED	  = false;
+bool SUB_ROUTINE_FLAG = false;
 
 void sub_routine();
 
@@ -32,12 +34,10 @@ void start_kernel(void)
 			asm("bkpt");
 			break;
 		case 'd':
-			// trigger Data Abort
-			// TODO: trigger
+			DEBUG_ENABLED = true;
 			break;
 		case 'e':
 			sub_routine();
-			SUB_ROUTINE_FLAG = 0;
 			break;
 		case 'c':
 			register_checker();
@@ -51,13 +51,17 @@ void start_kernel(void)
 
 void sub_routine()
 {
-	SUB_ROUTINE_FLAG = 1;
+	SUB_ROUTINE_FLAG = true;
 	char c;
 	while (1) {
 		c = uart_getchar();
+
 		// End sub_routine on EOF
-		if (c == 4)
+		if (c == 4) {
+			SUB_ROUTINE_FLAG = false;
 			return;
+		}
+
 		for (int i = 0; i < 50; ++i) {
 			kprintf("%c", c);
 			for (int i = 0; i < BUSY_WAIT_COUNTER; ++i) {}

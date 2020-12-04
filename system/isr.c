@@ -2,13 +2,14 @@
 
 #include <driver/timer.h>
 #include <driver/uart.h>
+
 #include <std/io.h>
 #include <std/strings.h>
 #include <std/types.h>
 #include <std/util.h>
-#include <system/isr.h>
 
-bool SUB_ROUTINE_FLAG = false;
+extern bool DEBUG_ENABLED;
+extern bool SUB_ROUTINE_FLAG;
 
 enum cpsr_mode_bits {
 	USER		  = 0b10000,
@@ -212,6 +213,10 @@ void data_abort_handler(void* sp)
 
 void irq_handler(void* sp)
 {
+	volatile struct registers* reg = (struct registers*)sp;
+	if (DEBUG_ENABLED)
+		print_registers(reg, "Interrupt Request (IRQ)", "Continuing.", "");
+
 	// Reset triggered interrupts
 	if (l_timer_is_interrupting()) {
 		if (SUB_ROUTINE_FLAG)
@@ -224,7 +229,6 @@ void irq_handler(void* sp)
 			return;
 		return;
 	}
-	volatile struct registers* reg = (struct registers*)sp;
 	print_registers(reg, "Unknown Interrupt Request (IRQ)", "Continuing.", "");
 }
 
