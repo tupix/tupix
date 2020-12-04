@@ -84,7 +84,6 @@ enum mis_bit_field {
 struct ringbuffer {
 	uint32 size;
 	uint32 tail, head;
-	bool full;
 	char buf[UART_INPUT_BUFFER_SIZE];
 };
 
@@ -128,6 +127,11 @@ bool uart_is_interrupting()
 
 void init_uart()
 {
+	// initialize ringbuffer
+	buffer->size = UART_INPUT_BUFFER_SIZE;
+	buffer->tail = 0;
+	buffer->head = 0;
+
 	// Disable the UART.
 	CLEAR_BIT(uart->cr, (uint32)CR_UARTEN);
 	// Flush the transmit FIFO
