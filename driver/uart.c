@@ -89,15 +89,17 @@ struct ringbuffer {
 };
 
 static volatile struct uart* const uart = (struct uart*)UART_BASE;
-static struct ringbuffer* buffer;
+static volatile struct ringbuffer* buffer;
+
+// NOTE(Aurel): Do not increment var when using this macro.
+#define circle_forward(var, size) (var) = (var) + 1 >= (size) ? 0 : (var) + 1
 
 char uart_getchar()
 {
 	while (buffer->head == buffer->tail) {}
 
 	char c = buffer->buf[buffer->tail];
-	if (++(buffer->tail) >= buffer->size)
-		buffer->tail = 0;
+	circle_forward(buffer->tail, buffer->size);
 	return c;
 }
 
@@ -109,13 +111,9 @@ int uart_buffer_char()
 	unsigned char c = (unsigned char)(uart->dr & 0xff);
 
 	buffer->buf[buffer->head] = c;
-	if (++(buffer->head) >= buffer->size) {
-		buffer->head = 0;
-	}
+	circle_forward(buffer->head, buffer->size);
 	if (buffer->head == buffer->tail) {
-		if (++(buffer->tail) >= buffer->size) {
-			buffer->tail = 0;
-		}
+		circle_forward(buffer->tail, buffer->size);
 	}
 	return 0;
 }
