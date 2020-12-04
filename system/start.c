@@ -1,9 +1,12 @@
 #include <config.h>
+
 #include <driver/interrupt_controller.h>
 #include <driver/timer.h>
 #include <driver/uart.h>
-#include <std/io.h>
+
 #include <system/regcheck.h>
+
+#include <std/io.h>
 
 bool DEBUG_ENABLED	  = false;
 bool SUB_ROUTINE_FLAG = false;

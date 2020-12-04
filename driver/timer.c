@@ -1,4 +1,6 @@
 #include <config.h>
+
+#include <std/bits.h>
 #include <std/types.h>
 #include <std/util.h>
 

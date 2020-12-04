@@ -1,5 +1,6 @@
 #include <driver/BCM2836.h>
 
+#include <std/bits.h>
 #include <std/types.h>
 #include <std/util.h>
 

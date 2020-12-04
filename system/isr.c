@@ -3,6 +3,7 @@
 #include <driver/timer.h>
 #include <driver/uart.h>
 
+#include <std/bits.h>
 #include <std/io.h>
 #include <std/strings.h>
 #include <std/types.h>
