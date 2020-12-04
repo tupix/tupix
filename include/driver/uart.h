@@ -5,7 +5,7 @@
 
 void init_uart();
 void uart_putchar(unsigned char c);
-int uart_getchar(char* c);
+char uart_getchar();
 
 int uart_buffer_char();
 bool uart_is_interrupting();

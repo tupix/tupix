@@ -91,17 +91,15 @@ struct ringbuffer {
 static volatile struct uart* const uart = (struct uart*)UART_BASE;
 static struct ringbuffer* buffer;
 
-int uart_getchar(char* c)
+char uart_getchar()
 {
-	if (buffer->head == buffer->tail)
-		return -1;
+	while (buffer->head == buffer->tail) {}
 
 	if (buffer->head == 0) {
 		buffer->head = buffer->size;
 	}
 	--(buffer->head);
-	*c = buffer->buf[buffer->head];
-	return 0;
+	return buffer->buf[buffer->head];
 }
 
 int uart_buffer_char()

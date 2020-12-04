@@ -6,6 +6,9 @@
 #include <std/strings.h>
 #include <std/types.h>
 #include <std/util.h>
+#include <system/isr.h>
+
+bool SUB_ROUTINE_FLAG = false;
 
 enum cpsr_mode_bits {
 	USER		  = 0b10000,
@@ -209,12 +212,12 @@ void data_abort_handler(void* sp)
 
 void irq_handler(void* sp)
 {
-	volatile struct registers* reg = (struct registers*)sp;
-
 	// Reset triggered interrupts
 	if (l_timer_is_interrupting()) {
-		kprintf("T");
+		if (SUB_ROUTINE_FLAG)
+			kprintf("!\n");
 		reset_timer();
+		return;
 	} else if (uart_is_interrupting()) {
 		if (uart_buffer_char() == -1)
 			return;
@@ -223,11 +226,10 @@ void irq_handler(void* sp)
 		char c;
 		if (uart_getchar(&c) == 0)
 			kprintf("%c\n", c);
-
-	} else {
-		print_registers(reg, "Unknown Interrupt Request (IRQ)", "Continuing.",
-						"");
+		return;
 	}
+	volatile struct registers* reg = (struct registers*)sp;
+	print_registers(reg, "Unknown Interrupt Request (IRQ)", "Continuing.", "");
 }
 
 void fiq_handler(void* sp)
