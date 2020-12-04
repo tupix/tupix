@@ -1,5 +1,7 @@
 #include <driver/uart.h>
 
+#include <config.h>
+
 #include <driver/BCM2836.h>
 
 #include <std/types.h>
@@ -117,6 +119,11 @@ int uart_buffer_char()
 			buffer->tail = 0;
 		}
 	}
+}
+
+bool uart_is_interrupting()
+{
+	return IS_SET(uart->mis, MIS_RXMIS);
 }
 
 void init_uart()
