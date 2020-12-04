@@ -5,7 +5,7 @@
 #include <driver/BCM2836.h>
 
 #include <std/bits.h>
-#include <std/types.h>
+#include <data/types.h>
 #include <std/util.h>
 
 #define UART_BASE (0x7E201000 - MMU_BASE_OFFSET)
@@ -89,17 +89,17 @@ struct ringbuffer {
 };
 
 static volatile struct uart* const uart = (struct uart*)UART_BASE;
-static volatile struct ringbuffer* buffer;
-
+static volatile struct ringbuffer buffer;
+//
 // NOTE(Aurel): Do not increment var when using this macro.
 #define circle_forward(var, size) (var) = (var) + 1 >= (size) ? 0 : (var) + 1
 
 char uart_getchar()
 {
-	while (buffer->head == buffer->tail) {}
+	while (buffer.head == buffer.tail) {}
 
-	char c = buffer->buf[buffer->tail];
-	circle_forward(buffer->tail, buffer->size);
+	char c = buffer.buf[buffer.tail];
+	circle_forward(buffer.tail, buffer.size);
 	return c;
 }
 
@@ -110,10 +110,10 @@ int uart_buffer_char()
 
 	unsigned char c = (unsigned char)(uart->dr & 0xff);
 
-	buffer->buf[buffer->head] = c;
-	circle_forward(buffer->head, buffer->size);
-	if (buffer->head == buffer->tail) {
-		circle_forward(buffer->tail, buffer->size);
+	buffer.buf[buffer.head] = c;
+	circle_forward(buffer.head, buffer.size);
+	if (buffer.head == buffer.tail) {
+		circle_forward(buffer.tail, buffer.size);
 	}
 	return 0;
 }
@@ -126,9 +126,9 @@ bool uart_is_interrupting()
 void init_uart()
 {
 	// Initialize ringbuffer
-	buffer->size = UART_INPUT_BUFFER_SIZE;
-	buffer->tail = 0;
-	buffer->head = 0;
+	buffer.size = UART_INPUT_BUFFER_SIZE;
+	buffer.tail = 0;
+	buffer.head = 0;
 
 	// Disable the UART.
 	CLEAR_BIT(uart->cr, CR_UARTEN);

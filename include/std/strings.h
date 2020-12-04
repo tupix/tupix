@@ -1,7 +1,7 @@
 #ifndef STD_STRINGS_H
 #define STD_STRINGS_H
 
-#include <std/types.h>
+#include <data/types.h>
 
 unsigned int str_len(const char* str);
 char* strncpy(char* dest, const char* src, uint64 n);

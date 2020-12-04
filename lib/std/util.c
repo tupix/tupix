@@ -1,6 +1,6 @@
 #include "std/util.h"
 
-#include <std/types.h>
+#include <data/types.h>
 
 unsigned int calc_digits(unsigned long n, unsigned int base)
 {

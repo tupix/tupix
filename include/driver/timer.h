@@ -1,7 +1,7 @@
 #ifndef DRIVER_TIMER_H
 #define DRIVER_TIMER_H
 
-#include <std/types.h>
+#include <data/types.h>
 
 void reset_timer();
 bool l_timer_is_interrupting();

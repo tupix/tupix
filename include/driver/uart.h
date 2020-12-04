@@ -1,7 +1,7 @@
 #ifndef DRIVER_UART_H
 #define DRIVER_UART_H
 
-#include <std/types.h>
+#include <data/types.h>
 
 void init_uart();
 void uart_putchar(unsigned char c);

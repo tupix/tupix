@@ -3,7 +3,7 @@
 #include <driver/uart.h>
 
 #include <std/strings.h>
-#include <std/types.h>
+#include <data/types.h>
 #include <std/util.h>
 
 #define MAX_NUM_LEN 20 // len("-9223372036854775808")
