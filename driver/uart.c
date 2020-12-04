@@ -62,8 +62,8 @@ enum cr_bit_field {
 	CR_UARTEN = 0, // UART enable
 };
 
-// clang-format off
 enum imsc_bit_field {
+	// clang-format off
 	IMSC_OEIM = 10, // overrun error interrupt mask
 	IMSC_BEIM = 9,	// break error interrupt mask
 	IMSC_PEIM = 8,	// parity error interrupt mask
@@ -74,6 +74,8 @@ enum imsc_bit_field {
 	/* 2,3 unsupported, read as don't care */
 	IMSC_CTSMIM = 1, // nUARTCTS modem interrupt mask
 	/* 0 unsupported, read as don't care */
+	// clang-format on
+};
 
 enum mis_bit_field {
 	MIS_RXMIS = 4,
@@ -85,7 +87,6 @@ struct ringbuffer {
 	bool full;
 	char buf[UART_INPUT_BUFFER_SIZE];
 };
-// clang-format on
 
 static volatile struct uart* const uart = (struct uart*)UART_BASE;
 static struct ringbuffer* buffer;
