@@ -94,11 +94,10 @@ char uart_getchar()
 {
 	while (buffer->head == buffer->tail) {}
 
-	if (buffer->head == 0) {
-		buffer->head = buffer->size;
-	}
-	--(buffer->head);
-	return buffer->buf[buffer->head];
+	char c = buffer->buf[buffer->tail];
+	if (++(buffer->tail) >= buffer->size)
+		buffer->tail = 0;
+	return c;
 }
 
 int uart_buffer_char()
