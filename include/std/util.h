@@ -19,7 +19,7 @@
 		_a < _b ? _a : _b;                                                     \
 	})
 
-uint32 calc_digits(uint64 n, uint32 base);
+uint32 calc_digits(uint32 n, uint32 base);
 
 char* utostr(uint32 n, uint8 base, char* str, size_t* len);
 char* itostr(int32 n, uint8 base, char* str, size_t* len);

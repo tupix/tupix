@@ -2,7 +2,7 @@
 
 #include <data/types.h>
 
-uint32 calc_digits(uint64 n, uint32 base)
+uint32 calc_digits(uint32 n, uint32 base)
 {
 	// Start at 1 when n == 0
 	uint32 num = !n;
