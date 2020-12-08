@@ -13,4 +13,6 @@ typedef unsigned short uint16;
 typedef unsigned int uint32;
 typedef unsigned long long uint64;
 
+// TODO: size, ssize
+
 #endif /* STD_TYPES_H */
