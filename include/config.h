@@ -14,4 +14,6 @@
 /* Werte zum testen auf der Hardware */
 #define BUSY_WAIT_COUNTER 30000
 
+#define LOGGING_ENABLED
+
 #endif
