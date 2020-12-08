@@ -36,9 +36,8 @@ char* ultostr(unsigned long n, unsigned int base, char* str, unsigned int* len)
 
 		// ASCII digits and letters are not consecutive to each other which is why we have to differentiate
 		// between them and take a different offset.
-		if (cur_digit >= 10) {
-			// a is the 10th hex-digit
-			cur_digit -= 10;
+		if (cur_digit >= 0xa) {
+			cur_digit -= 0xa;
 			ascii_offset = 'a';
 		} else {
 			ascii_offset = '0';
@@ -52,7 +51,6 @@ char* ultostr(unsigned long n, unsigned int base, char* str, unsigned int* len)
 
 char* ltostr(long n, unsigned int base, char* str, unsigned int* len)
 {
-	char* result;
 	unsigned int offset = 0;
 	if (n < 0) {
 		*(str++) = '-';
@@ -61,7 +59,7 @@ char* ltostr(long n, unsigned int base, char* str, unsigned int* len)
 	}
 
 	// returns str + offset
-	result = ultostr(n, base, str, len) - offset;
+	char* result = ultostr(n, base, str, len) - offset;
 	*len += offset;
 
 	return result;

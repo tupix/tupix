@@ -1,6 +1,7 @@
 #include <config.h>
 
 #include <data/types.h>
+
 #include <std/bits.h>
 #include <std/util.h>
 
@@ -18,6 +19,7 @@ enum local_routing_bit_field {
 	// 3 - 31 Unused
 	L_TIMER_ROUTING = 0
 };
+
 enum local_timer_routing {
 	L_TIMER_ROUTE_IRQ_0 = 0b000,
 	L_TIMER_ROUTE_IRQ_1 = 0b001,

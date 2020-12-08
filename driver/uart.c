@@ -82,6 +82,7 @@ enum mis_bit_field {
 	MIS_RXMIS = 4,
 };
 
+// TODO: Move somewhere else.
 struct ringbuffer {
 	uint32 size;
 	uint32 tail, head;
@@ -90,7 +91,7 @@ struct ringbuffer {
 
 static volatile struct uart* const uart = (struct uart*)UART_BASE;
 static volatile struct ringbuffer buffer;
-//
+
 // NOTE(Aurel): Do not increment var when using this macro.
 #define circle_forward(var, size) (var) = (var) + 1 >= (size) ? 0 : (var) + 1
 
