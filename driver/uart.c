@@ -5,33 +5,34 @@
 #include <driver/BCM2836.h>
 
 #include <data/types.h>
+
 #include <std/bits.h>
 #include <std/util.h>
 
 #define UART_BASE (0x7E201000 - MMU_BASE_OFFSET)
 
 struct uart {
-	unsigned int dr;		   // data register
-	unsigned int rsrecr;	   //
-	unsigned int padding0[4];  //
-	unsigned int fr;		   // flag register
-	unsigned int padding1;	   //
-	unsigned int ilpr;		   // unused
-	unsigned int ibrd;		   //
-	unsigned int fbrd;		   //
-	unsigned int lcrh;		   // line control register
-	unsigned int cr;		   // control register
-	unsigned int ifls;		   // interrupt FIFO level select register
-	unsigned int imsc;		   // interrupt mask set/clear register
-	unsigned int ris;		   //
-	unsigned int mis;		   //
-	unsigned int icr;		   //
-	unsigned int dmacr;		   //
-	unsigned int padding2[13]; //
-	unsigned int itcr;		   //
-	unsigned int itip;		   //
-	unsigned int itop;		   //
-	unsigned int tdr;		   //
+	uint32 dr;			 // data register
+	uint32 rsrecr;		 //
+	uint32 padding0[4];	 //
+	uint32 fr;			 // flag register
+	uint32 padding1;	 //
+	uint32 ilpr;		 // unused
+	uint32 ibrd;		 //
+	uint32 fbrd;		 //
+	uint32 lcrh;		 // line control register
+	uint32 cr;			 // control register
+	uint32 ifls;		 // interrupt FIFO level select register
+	uint32 imsc;		 // interrupt mask set/clear register
+	uint32 ris;			 //
+	uint32 mis;			 //
+	uint32 icr;			 //
+	uint32 dmacr;		 //
+	uint32 padding2[13]; //
+	uint32 itcr;		 //
+	uint32 itip;		 //
+	uint32 itop;		 //
+	uint32 tdr;			 //
 };
 
 enum fr_bit_field {

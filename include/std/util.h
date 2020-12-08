@@ -19,9 +19,9 @@
 		_a < _b ? _a : _b;                                                     \
 	})
 
-unsigned int calc_digits(unsigned long n, unsigned int base);
+uint32 calc_digits(uint64 n, uint32 base);
 
-char* ultostr(unsigned long n, unsigned int base, char* str, unsigned int* len);
-char* ltostr(long n, unsigned int base, char* str, unsigned int* len);
+char* utostr(uint32 n, uint8 base, char* str, size_t* len);
+char* itostr(int32 n, uint8 base, char* str, size_t* len);
 
 #endif /* STD_UTIL_H */

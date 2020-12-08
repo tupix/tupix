@@ -2,10 +2,10 @@
 
 #include <data/types.h>
 
-unsigned int calc_digits(unsigned long n, unsigned int base)
+uint32 calc_digits(uint64 n, uint32 base)
 {
 	// Start at 1 when n == 0
-	unsigned int num = !n;
+	uint32 num = !n;
 
 	while (n) {
 		n /= base;
@@ -14,7 +14,7 @@ unsigned int calc_digits(unsigned long n, unsigned int base)
 	return num;
 }
 
-char* ultostr(unsigned long n, unsigned int base, char* str, unsigned int* len)
+char* utostr(uint32 n, uint8 base, char* str, size_t* len)
 {
 	if (base < 2 || base > 36)
 		return str; // TODO: ERROR
@@ -30,7 +30,8 @@ char* ultostr(unsigned long n, unsigned int base, char* str, unsigned int* len)
 		return str;
 	}
 
-	unsigned int cur_digit, ascii_offset;
+	size_t cur_digit;
+	char ascii_offset;
 	while (n) {
 		cur_digit = n % base;
 
@@ -49,9 +50,9 @@ char* ultostr(unsigned long n, unsigned int base, char* str, unsigned int* len)
 	return str;
 }
 
-char* ltostr(long n, unsigned int base, char* str, unsigned int* len)
+char* itostr(int32 n, uint8 base, char* str, size_t* len)
 {
-	unsigned int offset = 0;
+	size_t offset = 0;
 	if (n < 0) {
 		*(str++) = '-';
 		n *= -1;
@@ -59,7 +60,7 @@ char* ltostr(long n, unsigned int base, char* str, unsigned int* len)
 	}
 
 	// returns str + offset
-	char* result = ultostr(n, base, str, len) - offset;
+	char* result = utostr(n, base, str, len) - offset;
 	*len += offset;
 
 	return result;
