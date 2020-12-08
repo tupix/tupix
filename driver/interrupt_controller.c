@@ -49,7 +49,7 @@ enum irq_basic_pending {
 
 // Bit field for irq_pending, enable_irqs and disable_irqs
 enum irq_table {
-	irq_uart_int = 57, // UART
+	IRQ_UART_INT = 57, // UART
 };
 
 enum fiq_control_bit_field {
@@ -62,6 +62,6 @@ static volatile struct interrupt_register* const ir =
 
 void init_interrupt_controller()
 {
-	CLEAR_BIT(ir->disable_irq_h, irq_uart_int - 32);
-	SET_BIT(ir->enable_irq_h, irq_uart_int - 32);
+	CLEAR_BIT(ir->disable_irq_h, IRQ_UART_INT - 32);
+	SET_BIT(ir->enable_irq_h, IRQ_UART_INT - 32);
 }
