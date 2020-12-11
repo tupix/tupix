@@ -38,4 +38,3 @@ struct general_registers {
 };
 
 #endif /* ARCH_ARMV7_REGISTERS_H */
-
