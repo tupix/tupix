@@ -1,5 +1,7 @@
 /* ISR - Interrupt Service Routine - Interrupt handler */
 
+#include <arch/armv7/registers.h>
+
 #include <driver/timer.h>
 #include <driver/uart.h>
 
@@ -87,26 +89,16 @@ psr_flags_str(uint32 flags, char* str)
 	}
 }
 
+/*
+ * NOTE(Aurel): Do not change this, unless you know exactly what you are doing.
+ * In that case, also change all the asm exception handlers.
+ */
 struct registers {
-	uint32 fiq_lr;
-	uint32 fiq_sp;
-	uint32 fiq_spsr;
-
-	uint32 irq_lr;
-	uint32 irq_sp;
-	uint32 irq_spsr;
-
-	uint32 abt_lr;
-	uint32 abt_sp;
-	uint32 abt_spsr;
-
-	uint32 und_lr;
-	uint32 und_sp;
-	uint32 und_spsr;
-
-	uint32 svc_lr;
-	uint32 svc_sp;
-	uint32 svc_spsr;
+	struct mode_registers fiq;
+	struct mode_registers irq;
+	struct mode_registers abt;
+	struct mode_registers und;
+	struct mode_registers svc;
 
 	uint32 usr_lr;
 	uint32 usr_sp;
@@ -114,23 +106,7 @@ struct registers {
 	uint32 cpsr;
 	uint32 spsr;
 
-	uint32 r0;
-	uint32 r1;
-	uint32 r2;
-	uint32 r3;
-	uint32 r4;
-	uint32 r5;
-	uint32 r6;
-	uint32 r7;
-	uint32 r8;
-	uint32 r9;
-	uint32 r10;
-	uint32 r11;
-	uint32 r12;
-
-	uint32 lr;
-	uint32 pc;
-	uint32 sp;
+	struct general_registers gr;
 };
 
 void
@@ -146,24 +122,24 @@ print_registers(volatile struct registers* reg, char* exc_str,
 
 	psr_flags_str(reg->cpsr, und_cpsr_str);
 	psr_flags_str(reg->spsr, und_spsr_str);
-	psr_flags_str(reg->svc_spsr, svc_spsr_str);
-	psr_flags_str(reg->abt_spsr, abt_spsr_str);
-	psr_flags_str(reg->fiq_spsr, fiq_spsr_str);
-	psr_flags_str(reg->irq_spsr, irq_spsr_str);
-	psr_flags_str(reg->und_spsr, und_spsr_str);
+	psr_flags_str(reg->svc.spsr, svc_spsr_str);
+	psr_flags_str(reg->abt.spsr, abt_spsr_str);
+	psr_flags_str(reg->fiq.spsr, fiq_spsr_str);
+	psr_flags_str(reg->irq.spsr, irq_spsr_str);
+	psr_flags_str(reg->und.spsr, und_spsr_str);
 
 	kprintf("################################################################################\n");
-	kprintf("%s at address 0x%08x\n", exc_str, reg->lr);
+	kprintf("%s at address 0x%08x\n", exc_str, reg->gr.lr);
 	kprintf("%s\n", exc_extra_info_str);
 	kprintf(">>> register snapshot (current mode) <<<\n");
-	kprintf("R0: 0x%08x\tR8:  0x%08x\n", reg->r0, reg->r8);
-	kprintf("R1: 0x%08x\tR9:  0x%08x\n", reg->r1, reg->r9);
-	kprintf("R2: 0x%08x\tR10: 0x%08x\n", reg->r2, reg->r10);
-	kprintf("R3: 0x%08x\tR11: 0x%08x\n", reg->r3, reg->r11);
-	kprintf("R4: 0x%08x\tR12: 0x%08x\n", reg->r4, reg->r12);
-	kprintf("R5: 0x%08x\tSP:  0x%08x\n", reg->r5, reg->sp);
-	kprintf("R6: 0x%08x\tLR:  0x%08x\n", reg->r6, reg->lr);
-	kprintf("R7: 0x%08x\tPC:  0x%08x\n", reg->r7, reg->pc);
+	kprintf("R0: 0x%08x\tR8:  0x%08x\n", reg->gr.r0, reg->gr.r8);
+	kprintf("R1: 0x%08x\tR9:  0x%08x\n", reg->gr.r1, reg->gr.r9);
+	kprintf("R2: 0x%08x\tR10: 0x%08x\n", reg->gr.r2, reg->gr.r10);
+	kprintf("R3: 0x%08x\tR11: 0x%08x\n", reg->gr.r3, reg->gr.r11);
+	kprintf("R4: 0x%08x\tR12: 0x%08x\n", reg->gr.r4, reg->gr.r12);
+	kprintf("R5: 0x%08x\tSP:  0x%08x\n", reg->gr.r5, reg->gr.sp);
+	kprintf("R6: 0x%08x\tLR:  0x%08x\n", reg->gr.r6, reg->gr.lr);
+	kprintf("R7: 0x%08x\tPC:  0x%08x\n", reg->gr.r7, reg->gr.pc);
 	kprintf("\n");
 	kprintf(">>> status-register (current mode) <<<\n");
 	kprintf("CPSR: %s\t(0x%08x)\n", und_cpsr_str, reg->cpsr);
@@ -171,17 +147,17 @@ print_registers(volatile struct registers* reg, char* exc_str,
 	kprintf("\n");
 	kprintf(">>> registers (mode-specific) <<<\n");
 	kprintf("             LR         SP         SPSR\n");
-	kprintf("User/System: 0x%08x 0x%08x\n", reg->usr_lr, reg->und_sp);
-	kprintf("Supervisor:  0x%08x 0x%08x %s\t(0x%08x)\n", reg->svc_lr,
-			reg->svc_sp, svc_spsr_str, reg->svc_spsr);
-	kprintf("Abort:       0x%08x 0x%08x %s\t(0x%08x)\n", reg->abt_lr,
-			reg->abt_sp, abt_spsr_str, reg->abt_spsr);
-	kprintf("FIQ:         0x%08x 0x%08x %s\t(0x%08x)\n", reg->fiq_lr,
-			reg->fiq_sp, fiq_spsr_str, reg->fiq_spsr);
-	kprintf("IRQ:         0x%08x 0x%08x %s\t(0x%08x)\n", reg->irq_lr,
-			reg->irq_sp, irq_spsr_str, reg->irq_spsr);
-	kprintf("Undefined:   0x%08x 0x%08x %s\t(0x%08x)\n", reg->und_lr,
-			reg->und_sp, und_spsr_str, reg->und_spsr);
+	kprintf("User/System: 0x%08x 0x%08x\n", reg->usr_lr, reg->und.sp);
+	kprintf("Supervisor:  0x%08x 0x%08x %s\t(0x%08x)\n", reg->svc.lr,
+			reg->svc.sp, svc_spsr_str, reg->svc.spsr);
+	kprintf("Abort:       0x%08x 0x%08x %s\t(0x%08x)\n", reg->abt.lr,
+			reg->abt.sp, abt_spsr_str, reg->abt.spsr);
+	kprintf("FIQ:         0x%08x 0x%08x %s\t(0x%08x)\n", reg->fiq.lr,
+			reg->fiq.sp, fiq_spsr_str, reg->fiq.spsr);
+	kprintf("IRQ:         0x%08x 0x%08x %s\t(0x%08x)\n", reg->irq.lr,
+			reg->irq.sp, irq_spsr_str, reg->irq.spsr);
+	kprintf("Undefined:   0x%08x 0x%08x %s\t(0x%08x)\n", reg->und.lr,
+			reg->und.sp, und_spsr_str, reg->und.spsr);
 	kprintf("\n");
 	kprintf("%s\n", exc_system_info_str);
 }
