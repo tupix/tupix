@@ -4,6 +4,7 @@
 #include <driver/timer.h>
 #include <driver/uart.h>
 
+#include <system/assert.h>
 #include <system/regcheck.h>
 
 #include <std/io.h>
@@ -35,6 +36,7 @@ start_kernel(void)
 	init_uart();
 	init_local_timer();
 
+	ASSERTM(N_THREADS >= 32, "A minimum of 32 threads should be supported.");
 	char c;
 	while (1) {
 		c = uart_getchar();

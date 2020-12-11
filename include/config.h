@@ -17,3 +17,5 @@
 
 #define LOGGING_ENABLED
 
+// Number of Threads supported
+#define N_THREADS 32
