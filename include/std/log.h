@@ -1,6 +1,8 @@
 #ifndef STD_LOG_H
 #define STD_LOG_H
 
+#include <config.h>
+
 enum log_lvl {
 	ERROR,
 	WARNING,
@@ -11,7 +13,7 @@ enum log_lvl {
 // [Reference](https://stackoverflow.com/questions/1644868/define-macro-for-debug-printing-in-c)
 #define log(log_lvl, fmt, ...)                                                 \
 	do {                                                                       \
-		if (DEBUG_ENABLED) {                                                   \
+		if (LOGGING_ENABLED) {                                                 \
 			switch (log_lvl) {                                                 \
 			case ASSERT:                                                       \
 				kprintf("[ASSERT] ");                                          \

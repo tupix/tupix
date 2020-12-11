@@ -15,7 +15,7 @@
 #endif /* __QEMU__ */
 // clang-format on
 
-#define LOGGING_ENABLED
+#define LOGGING_ENABLED 1
 
 // Number of Threads supported
 #define N_THREADS 32
