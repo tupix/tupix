@@ -6,6 +6,7 @@
 
 #include <system/assert.h>
 #include <system/regcheck.h>
+#include <system/scheduler.h>
 
 #include <std/io.h>
 
@@ -37,8 +38,20 @@ start_kernel(void)
 	init_interrupt_controller();
 	init_uart();
 	init_local_timer();
+	init_scheduler();
 
 	ASSERTM(N_THREADS >= 32, "A minimum of 32 threads should be supported.");
+
+	/*
+	 * NOTE(Aurel): Simple demonstration of what the scheduler can do as of
+	 * right now and how to use it. Note the `init_scheduler` call a few lines up.
+	 */
+	schedule_thread(create_thread());
+	schedule_thread(create_thread());
+	schedule_thread(create_thread());
+	schedule_thread(create_thread());
+
+	start_scheduler();
 
 #if 0
 	char c;
