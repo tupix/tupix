@@ -60,7 +60,8 @@ enum fiq_control_bit_field {
 static volatile struct interrupt_register* const ir =
 		(struct interrupt_register*)(INTERRUPT_REGISTER_BASE + 0x200);
 
-void init_interrupt_controller()
+void
+init_interrupt_controller()
 {
 	CLEAR_BIT(ir->disable_irq_h, IRQ_UART_INT - 32);
 	SET_BIT(ir->enable_irq_h, IRQ_UART_INT - 32);

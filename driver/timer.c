@@ -56,17 +56,20 @@ enum local_timer_irq_clear_reload_bit_field {
 static volatile struct local_interrupt* const local_interrupt =
 		(struct local_interrupt*)L_TIMER_BASE;
 
-void reset_timer()
+void
+reset_timer()
 {
 	SET_BIT(local_interrupt->clear_reload, L_TIMER_INTERRUPT_FLAG);
 }
 
-bool l_timer_is_interrupting()
+bool
+l_timer_is_interrupting()
 {
 	return IS_SET(local_interrupt->ctrl_stat, L_TIMER_CTRL_STAT_INTERRUPT_FLAG);
 }
 
-void init_local_timer()
+void
+init_local_timer()
 {
 	// Route local timer to core 0
 	SET_BIT_TO(local_interrupt->routing, L_TIMER_ROUTING, L_TIMER_ROUTE_IRQ_0,

@@ -37,7 +37,8 @@ enum psr_flags_idx_bitfield {
 // NOTE(Aurel): 8 flags, 3 spaces, 10 chars for the mode name and '\0'
 #define PSR_STR_LEN (8 + 3 + 13 + 1)
 
-void psr_flags_str(uint32 flags, char* str)
+void
+psr_flags_str(uint32 flags, char* str)
 {
 	// clang-format off
 	str[0]	= IS_SET(flags, PSR_NEGATIVE)   ? 'N' : '_';
@@ -132,8 +133,9 @@ struct registers {
 	uint32 sp;
 };
 
-void print_registers(volatile struct registers* reg, char* exc_str,
-					 char* exc_system_info_str, char* exc_extra_info_str)
+void
+print_registers(volatile struct registers* reg, char* exc_str,
+				char* exc_system_info_str, char* exc_extra_info_str)
 {
 	char und_cpsr_str[PSR_STR_LEN];
 	char und_spsr_str[PSR_STR_LEN];
@@ -184,14 +186,16 @@ void print_registers(volatile struct registers* reg, char* exc_str,
 	kprintf("%s\n", exc_system_info_str);
 }
 
-void undefined_instruction_handler(void* sp)
+void
+undefined_instruction_handler(void* sp)
 {
 	volatile struct registers* reg = (struct registers*)sp;
 	print_registers(reg, "Undefined Instruction", "System halted.", "");
 	while (true) {}
 }
 
-void software_interrupt_handler(void* sp)
+void
+software_interrupt_handler(void* sp)
 {
 	volatile struct registers* reg = (struct registers*)sp;
 	print_registers(reg, "Software Interrupt", "Continuing.", "");
@@ -199,21 +203,24 @@ void software_interrupt_handler(void* sp)
 	while (true) {}
 }
 
-void prefetch_abort_handler(void* sp)
+void
+prefetch_abort_handler(void* sp)
 {
 	volatile struct registers* reg = (struct registers*)sp;
 	print_registers(reg, "Prefetch Abort", "System halted.", "");
 	while (true) {}
 }
 
-void data_abort_handler(void* sp)
+void
+data_abort_handler(void* sp)
 {
 	volatile struct registers* reg = (struct registers*)sp;
 	print_registers(reg, "Data Abort", "System halted.", "");
 	while (true) {}
 }
 
-void irq_handler(void* sp)
+void
+irq_handler(void* sp)
 {
 	volatile struct registers* reg = (struct registers*)sp;
 	if (DEBUG_ENABLED)

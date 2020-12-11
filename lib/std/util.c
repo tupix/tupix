@@ -2,7 +2,8 @@
 
 #include <data/types.h>
 
-uint32 calc_digits(uint32 n, uint32 base)
+uint32
+calc_digits(uint32 n, uint32 base)
 {
 	// Start at 1 when n == 0
 	uint32 num = !n;
@@ -14,7 +15,8 @@ uint32 calc_digits(uint32 n, uint32 base)
 	return num;
 }
 
-char* utostr(uint32 n, uint8 base, char* str, size_t* len)
+char*
+utostr(uint32 n, uint8 base, char* str, size_t* len)
 {
 	if (base < 2 || base > 36)
 		return str; // TODO: ERROR
@@ -50,7 +52,8 @@ char* utostr(uint32 n, uint8 base, char* str, size_t* len)
 	return str;
 }
 
-char* itostr(int32 n, uint8 base, char* str, size_t* len)
+char*
+itostr(int32 n, uint8 base, char* str, size_t* len)
 {
 	size_t offset = 0;
 	if (n < 0) {

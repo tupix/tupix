@@ -12,7 +12,8 @@ bool DEBUG_ENABLED	  = false;
 bool SUB_ROUTINE_FLAG = false;
 
 #define BUSY_WAIT_N_CHARS 50
-void sub_routine()
+void
+sub_routine()
 {
 	SUB_ROUTINE_FLAG = true;
 	char c;
@@ -27,7 +28,8 @@ void sub_routine()
 	}
 }
 
-void start_kernel(void)
+void
+start_kernel(void)
 {
 	init_interrupt_controller();
 	init_uart();

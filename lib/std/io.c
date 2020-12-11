@@ -8,7 +8,8 @@
 
 #define MAX_NUM_LEN 20 // len("-9223372036854775808")
 
-void kprint(const char* s)
+void
+kprint(const char* s)
 {
 	while (*s)
 		uart_putchar(*(s++));
@@ -17,8 +18,9 @@ void kprint(const char* s)
 /**
  * Make sure you do not underflow field_width or len when calling.
  */
-void print_with_padding(const char* num_str, size_t len, size_t field_width,
-						const char padding)
+void
+print_with_padding(const char* num_str, size_t len, size_t field_width,
+				   const char padding)
 {
 	size_t str_len = max(len, field_width);
 	for (size_t i = 0; i < str_len - len; ++i)
@@ -26,7 +28,8 @@ void print_with_padding(const char* num_str, size_t len, size_t field_width,
 	kprint(num_str);
 }
 
-bool check_format_str(const char* str)
+bool
+check_format_str(const char* str)
 {
 	const char* cur_char = str;
 	while (*cur_char) {
@@ -61,7 +64,8 @@ bool check_format_str(const char* str)
 	return true;
 }
 
-size_t calc_field_width(const char* cur_char, char* padding, size_t* flag_len)
+size_t
+calc_field_width(const char* cur_char, char* padding, size_t* flag_len)
 {
 	*flag_len		   = 0;
 	size_t field_width = 0;
@@ -89,7 +93,8 @@ size_t calc_field_width(const char* cur_char, char* padding, size_t* flag_len)
 	return field_width;
 }
 
-void kprintf(const char* format, ...)
+void
+kprintf(const char* format, ...)
 {
 	if (!check_format_str(format))
 		return; // TODO: Error

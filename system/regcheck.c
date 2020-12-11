@@ -6,7 +6,8 @@ void _check_registers(void);
 void _check_cpsr(void);
 void _check_spsr(void);
 
-void register_checker(void)
+void
+register_checker(void)
 {
 	unsigned int cpsr;
 	asm("mrs %0, cpsr" : "=r"(cpsr));

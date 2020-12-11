@@ -96,7 +96,8 @@ static volatile struct ringbuffer buffer;
 // NOTE(Aurel): Do not increment var when using this macro.
 #define circle_forward(var, size) (var) = (var) + 1 >= (size) ? 0 : (var) + 1
 
-char uart_getchar()
+char
+uart_getchar()
 {
 	while (buffer.head == buffer.tail) {}
 
@@ -105,7 +106,8 @@ char uart_getchar()
 	return c;
 }
 
-int uart_buffer_char()
+int
+uart_buffer_char()
 {
 	if (IS_SET(uart->fr, FR_RXFE))
 		return -1;
@@ -120,12 +122,14 @@ int uart_buffer_char()
 	return 0;
 }
 
-bool uart_is_interrupting()
+bool
+uart_is_interrupting()
 {
 	return IS_SET(uart->mis, MIS_RXMIS);
 }
 
-void init_uart()
+void
+init_uart()
 {
 	// Initialize ringbuffer
 	buffer.size = UART_INPUT_BUFFER_SIZE;
@@ -153,7 +157,8 @@ void init_uart()
 	SET_BIT(uart->cr, CR_UARTEN);
 }
 
-void uart_putchar(unsigned char c)
+void
+uart_putchar(unsigned char c)
 {
 	// Wait until transmit FIFO is not full
 	while (IS_SET(uart->fr, FR_TXFF)) {}

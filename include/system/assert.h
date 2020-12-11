@@ -16,7 +16,7 @@
 #define ASSERTM(condition, fmt, ...)                                           \
 	do {                                                                       \
 		if (!condition) {                                                      \
-			log(ASSERT, fmt, ##__VA_ARGS__);                                     \
+			log(ASSERT, fmt, ##__VA_ARGS__);                                   \
 			PANIC;                                                             \
 		}                                                                      \
 	} while (0)
