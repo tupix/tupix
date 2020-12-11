@@ -7,7 +7,7 @@
 
 #define ASSERT(condition)                                                      \
 	do {                                                                       \
-		if (!condition) {                                                      \
+		if (!(condition)) {                                                    \
 			log(ASSERT, "");                                                   \
 			PANIC;                                                             \
 		}                                                                      \
@@ -15,7 +15,7 @@
 
 #define ASSERTM(condition, fmt, ...)                                           \
 	do {                                                                       \
-		if (!condition) {                                                      \
+		if (!(condition)) {                                                    \
 			log(ASSERT, fmt, ##__VA_ARGS__);                                   \
 			PANIC;                                                             \
 		}                                                                      \
