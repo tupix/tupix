@@ -27,7 +27,7 @@ enum log_lvl {
 				kprintf("[LOG] ");                                             \
 			}                                                                  \
 			kprintf("%s:%d:%s(): ", __FILE__, __LINE__, __func__);             \
-			kprintf(fmt, __VA_ARGS__);                                         \
+			kprintf(fmt, ##__VA_ARGS__);                                         \
 			kprintf("\n");                                                     \
 		}                                                                      \
 	} while (0)

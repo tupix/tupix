@@ -13,10 +13,10 @@
 		}                                                                      \
 	} while (0)
 
-#define ASSERTM(condition, msg)                                                \
+#define ASSERTM(condition, fmt, ...)                                           \
 	do {                                                                       \
 		if (!condition) {                                                      \
-			log(ASSERT, "%s\n", msg);                                          \
+			log(ASSERT, fmt, ##__VA_ARGS__);                                     \
 			PANIC;                                                             \
 		}                                                                      \
 	} while (0)
