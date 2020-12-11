@@ -12,6 +12,7 @@
 bool DEBUG_ENABLED	  = false;
 bool SUB_ROUTINE_FLAG = false;
 
+#if 0
 #define BUSY_WAIT_N_CHARS 50
 void
 sub_routine()
@@ -28,6 +29,7 @@ sub_routine()
 		}
 	}
 }
+#endif
 
 void
 start_kernel(void)
@@ -37,6 +39,8 @@ start_kernel(void)
 	init_local_timer();
 
 	ASSERTM(N_THREADS >= 32, "A minimum of 32 threads should be supported.");
+
+#if 0
 	char c;
 	while (1) {
 		c = uart_getchar();
@@ -67,4 +71,5 @@ start_kernel(void)
 			break;
 		}
 	}
+#endif
 }
