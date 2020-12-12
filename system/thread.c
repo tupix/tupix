@@ -27,10 +27,8 @@ thread_create(void (*func)(void*), const void* args, uint32 args_size)
 void
 run(struct tcb* thread)
 {
-	log(LOG, "Running thread: %i.", thread->id);
-	for (uint32 i = 0; i < PRINT_N; ++i) {
-		kprintf("%i", thread->id);
+	for (uint32 i = 0;; ++i) {
+		log(LOG, "thread %i: %i", thread->id, i);
 		for (volatile uint32 i = 0; i < BUSY_WAIT_COUNTER_SCHEDULER; ++i) {}
 	}
-	kprintf("\n");
 }
