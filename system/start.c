@@ -51,8 +51,6 @@ start_kernel(void)
 	schedule_thread(create_thread());
 	schedule_thread(create_thread());
 
-	start_scheduler();
-
 #if 0
 	char c;
 	while (1) {
