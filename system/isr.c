@@ -207,6 +207,7 @@ irq_handler(void* sp)
 	// Reset triggered interrupts
 	if (l_timer_is_interrupting()) {
 		scheduler_cycle();
+		// TODO(Aurel): Should this happen before calling the scheduler?
 		reset_timer();
 		return;
 	} else if (uart_is_interrupting()) {
