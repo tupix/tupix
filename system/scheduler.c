@@ -14,6 +14,7 @@ struct thread_q {
 };
 
 static volatile struct thread_q waiting_q;
+static struct tcb running_thread;
 
 void
 init_scheduler()
@@ -59,8 +60,8 @@ schedule_thread(struct tcb thread)
 void
 scheduler_cycle()
 {
-	struct tcb cur_thread = dequeue();
-	if (cur_thread.id == 0) {
+	running_thread = dequeue();
+	if (running_thread.id == 0) {
 		// TODO(Aurel): Run default thread.
 	} else {
 		// TODO(Aurel): Change privileges to threads privileges. Currently the
@@ -69,7 +70,7 @@ scheduler_cycle()
 		// masking new IRQs. This is a problem with the context switching,
 		// which is not implemented yet, so I think there is nothing that I can
 		// do right now.
-		(*(cur_thread.callback))(&cur_thread);
-		queue(cur_thread);
+		(*(running_thread.callback))(&running_thread);
+		queue(running_thread);
 	}
 }
