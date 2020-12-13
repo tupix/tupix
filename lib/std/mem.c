@@ -16,3 +16,12 @@ memcpy(const void* src, void* dest, uint32 n)
 
 	return dest;
 }
+
+void*
+memset(void* mem, const unsigned char val, const size_t n)
+{
+	unsigned char* c_mem = (unsigned char*)mem;
+	for (size_t i = 0; i < n; ++i)
+		*(c_mem++) = val;
+	return mem;
+}
