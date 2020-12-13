@@ -14,7 +14,7 @@ struct thread_q {
 };
 
 static volatile struct thread_q waiting_q;
-static struct tcb running_thread;
+static struct tcb running_thread; // TODO: Make pointer and check if volatile
 
 void
 init_scheduler()
