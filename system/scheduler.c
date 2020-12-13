@@ -60,6 +60,9 @@ schedule_thread(struct tcb thread)
 void
 scheduler_cycle()
 {
+	if (running_thread.id)
+		queue(running_thread);
+
 	running_thread = dequeue();
 	if (running_thread.id == 0) {
 		// TODO(Aurel): Run default thread.
