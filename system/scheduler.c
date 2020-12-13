@@ -58,22 +58,20 @@ schedule_thread(struct tcb thread)
 }
 
 void
-scheduler_cycle()
+switch_context(struct general_registers* regs, struct tcb* cur)
 {
+	cur->regs = *regs;
+	*regs = running_thread.regs;
+	// TODO: lr of current thread? only of some mode is restored
+}
+
+void
+scheduler_cycle(struct general_registers* regs)
+{
+	struct tcb old_thread = running_thread;
 	if (running_thread.id)
 		queue(running_thread);
 
 	running_thread = dequeue();
-	if (running_thread.id == 0) {
-		// TODO(Aurel): Run default thread.
-	} else {
-		// TODO(Aurel): Change privileges to threads privileges. Currently the
-		// CPU-mode is not changed and we remain in the mode of the interrupt
-		// handler, the privileged mode where the I-bit of the CPSR is set, thus
-		// masking new IRQs. This is a problem with the context switching,
-		// which is not implemented yet, so I think there is nothing that I can
-		// do right now.
-		(*(running_thread.callback))(&running_thread);
-		queue(running_thread);
-	}
+	switch_context(regs, &old_thread);
 }

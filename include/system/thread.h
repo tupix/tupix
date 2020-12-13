@@ -10,12 +10,10 @@
 #include <std/log.h>
 
 struct tcb {
-	// TODO
 	uint32 id;
 	void (*callback)(void*);
-#if 0
 	struct general_registers regs;
-#endif
+	// TODO: Is there more we need?
 };
 
 struct tcb create_thread();

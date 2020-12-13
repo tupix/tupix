@@ -7,9 +7,11 @@ static uint32 thread_count;
 struct tcb
 create_thread()
 {
+	struct tcb thread = { 0 };
 	// NOTE(Aurel): thread_id 0 should be reserved for error codes. Thus
 	// pre-increment
-	struct tcb thread = { ++thread_count, (void*)&run };
+	thread.id		= ++thread_count;
+	thread.callback = (void*)&run;
 	log(LOG, "New thread: %i.", thread.id);
 	return thread;
 }
