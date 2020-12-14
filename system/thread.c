@@ -30,7 +30,7 @@ thread_create(void (*func)(void*), const void* args, uint32 args_size)
 
 	// TODO: What is the actual address?
 	void* thread_stack = THREAD_STACK_BASE + thread.id * THREAD_STACK_SIZE;
-	memcpy(args, thread_stack, args_size);
+	memcpy(thread_stack, args, args_size);
 
 	return thread;
 }

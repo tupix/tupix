@@ -7,7 +7,7 @@
  * Returns: `dest`
  */
 void*
-memcpy(const void* src, void* dest, uint32 n)
+memcpy(void* dest, const void* src, uint32 n)
 {
 	char* c_src	 = (char*)src;
 	char* c_dest = (char*)dest;
