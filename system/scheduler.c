@@ -70,6 +70,8 @@ schedule_thread(struct tcb* thread)
 		thread->id = 0;
 		return thread;
 	}
+	// TODO: What do we do if the threads stop being continues? For example when
+	// thread with id 1 exist. `count + 1` would exist then.
 	thread->id = waiting_q.count + 1;
 	log(LOG, "New thread: %i.", thread->id);
 	return queue(thread);
