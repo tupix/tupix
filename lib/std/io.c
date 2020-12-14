@@ -8,7 +8,7 @@
 
 #define MAX_NUM_LEN 20 // len("-9223372036854775808")
 
-void
+static void
 kprint(const char* s)
 {
 	while (*s)
@@ -18,7 +18,7 @@ kprint(const char* s)
 /**
  * Make sure you do not underflow field_width or len when calling.
  */
-void
+static void
 print_with_padding(const char* num_str, size_t len, size_t field_width,
 				   const char padding)
 {
@@ -28,7 +28,7 @@ print_with_padding(const char* num_str, size_t len, size_t field_width,
 	kprint(num_str);
 }
 
-bool
+static bool
 check_format_str(const char* str)
 {
 	const char* cur_char = str;
@@ -64,7 +64,7 @@ check_format_str(const char* str)
 	return true;
 }
 
-size_t
+static size_t
 calc_field_width(const char* cur_char, char* padding, size_t* flag_len)
 {
 	*flag_len		   = 0;
@@ -102,7 +102,7 @@ kprintf(const char* format, ...)
 	va_list args;
 	va_start(args, format);
 
-	char padding;
+	char padding		 = ' ';
 	const char* cur_char = format;
 	char num_str[MAX_NUM_LEN + 1]; /* MAX_NUM_LEN + len('\0') */
 	size_t flags_len, field_width, len;

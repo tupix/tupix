@@ -26,7 +26,7 @@ init_scheduler()
 // NOTE(Aurel): Do not increment var when using this macro.
 #define circle_forward(var, size) (var) = (var) + 1 >= (size) ? 0 : (var) + 1
 
-struct tcb*
+static struct tcb*
 queue(struct tcb* thread)
 {
 	if (waiting_q.count >= waiting_q.size) {
@@ -41,7 +41,7 @@ queue(struct tcb* thread)
 	return ret;
 }
 
-struct tcb
+static struct tcb
 dequeue()
 {
 	struct tcb thread = { 0 };
@@ -75,7 +75,7 @@ schedule_thread(struct tcb* thread)
 	return queue(thread);
 }
 
-void
+static void
 switch_context(struct general_registers* regs, struct tcb* cur)
 {
 	cur->regs = *regs;

@@ -7,11 +7,11 @@
  * Returns: `dest`
  */
 void*
-memcpy(void* dest, const void* src, uint32 n)
+memcpy(void* dest, const void* src, const size_t n)
 {
-	char* c_src	 = (char*)src;
-	char* c_dest = (char*)dest;
-	for (uint32 i = 0; i < n; ++i)
+	const char* c_src = (const char*)src;
+	char* c_dest	  = (char*)dest;
+	for (size_t i = 0; i < n; ++i)
 		c_dest[i] = c_src[i];
 
 	return dest;
