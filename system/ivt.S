@@ -125,7 +125,7 @@ software_interrupt:
 	mov r0, sp
 	/*
 	 * NOTE(Aurel): Save the lr before branching and linking the c-function and
-	 * pop it directly into the sp to return to the program
+	 * pop it directly into the pc to return to the program
 	 */
 	push {lr}
 	bl software_interrupt_handler

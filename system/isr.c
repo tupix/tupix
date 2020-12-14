@@ -5,6 +5,8 @@
 #include <driver/timer.h>
 #include <driver/uart.h>
 
+#include <system/scheduler.h>
+
 #include <data/types.h>
 #include <std/bits.h>
 #include <std/io.h>
@@ -204,8 +206,8 @@ irq_handler(void* sp)
 
 	// Reset triggered interrupts
 	if (l_timer_is_interrupting()) {
-		if (SUB_ROUTINE_FLAG)
-			kprintf("!\n");
+		scheduler_cycle((struct general_registers*)&(reg->gr));
+		// TODO(Aurel): Should this happen before calling the scheduler?
 		reset_timer();
 		return;
 	} else if (uart_is_interrupting()) {

@@ -10,17 +10,19 @@
 #include <std/log.h>
 
 struct tcb {
-	// TODO
 	uint32 id;
 	void (*callback)(void*);
-#if 0
 	struct general_registers regs;
-#endif
+	// TODO: Is there more we need?
 };
 
 struct tcb create_thread();
 #if 0
-void thread_create(void (*func)(void*), const void* args, uint32 args_size);
+#define THREAD_STACK_BASE // TODO
+#define THREAD_STACK_SIZE 4KB
+
+struct tcb thread_create(void (*func)(void*), const void* args,
+						 uint32 args_size);
 #endif
 
 void run(struct tcb* thread);

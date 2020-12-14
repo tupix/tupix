@@ -14,11 +14,13 @@ struct thread_q {
 };
 
 static volatile struct thread_q waiting_q;
+static struct tcb running_thread; // TODO: Make pointer and check if volatile
 
 void
 init_scheduler()
 {
-	waiting_q.size = N_THREADS;
+	memset((void*)&waiting_q, 0, sizeof(struct thread_q));
+	waiting_q.size = sizeof(waiting_q.threads) / sizeof(struct tcb);
 }
 
 // NOTE(Aurel): Do not increment var when using this macro.
@@ -38,7 +40,7 @@ queue(struct tcb thread)
 struct tcb
 dequeue()
 {
-	struct tcb thread = {};
+	struct tcb thread = { 0 };
 	if (waiting_q.head == waiting_q.tail) {
 		log(LOG, "Dequeued empty thread. Waiting queue empty.");
 		return thread;
@@ -57,16 +59,20 @@ schedule_thread(struct tcb thread)
 }
 
 void
-start_scheduler()
+switch_context(struct general_registers* regs, struct tcb* cur)
 {
-	while (true) {
-		struct tcb cur_thread = dequeue();
-		if (cur_thread.id == 0) {
-			// TODO(Aurel): Run default thread.
-			break;
-		} else {
-			(*(cur_thread.callback))(&cur_thread);
-			queue(cur_thread);
-		}
-	}
+	cur->regs = *regs;
+	*regs	  = running_thread.regs;
+	// TODO: lr of current thread? only of some mode is restored
+}
+
+void
+scheduler_cycle(struct general_registers* regs)
+{
+	struct tcb old_thread = running_thread;
+	if (running_thread.id)
+		queue(running_thread);
+
+	running_thread = dequeue();
+	switch_context(regs, &old_thread);
 }

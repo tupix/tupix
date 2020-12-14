@@ -7,7 +7,7 @@
  * Returns: `dest`
  */
 void*
-memcpy(const void* src, void* dest, uint32 n)
+memcpy(void* dest, const void* src, uint32 n)
 {
 	char* c_src	 = (char*)src;
 	char* c_dest = (char*)dest;
@@ -15,4 +15,13 @@ memcpy(const void* src, void* dest, uint32 n)
 		c_dest[i] = c_src[i];
 
 	return dest;
+}
+
+void*
+memset(void* mem, const unsigned char val, const size_t n)
+{
+	unsigned char* c_mem = (unsigned char*)mem;
+	for (size_t i = 0; i < n; ++i)
+		*(c_mem++) = val;
+	return mem;
 }

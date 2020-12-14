@@ -21,6 +21,6 @@
 void init_scheduler();
 
 void schedule_thread(struct tcb);
-void start_scheduler();
+void scheduler_cycle(struct general_registers* gr);
 
 #endif /* SYSTEM_SCHEDULER_H */

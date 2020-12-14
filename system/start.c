@@ -7,13 +7,15 @@
 #include <system/assert.h>
 #include <system/regcheck.h>
 #include <system/scheduler.h>
+#include <system/thread.h>
 
 #include <std/io.h>
 
-bool DEBUG_ENABLED	  = false;
-bool SUB_ROUTINE_FLAG = false;
+bool DEBUG_ENABLED = false;
 
 #if 0
+bool SUB_ROUTINE_FLAG = false;
+
 #define BUSY_WAIT_N_CHARS 50
 void
 sub_routine()
@@ -50,8 +52,6 @@ start_kernel(void)
 	schedule_thread(create_thread());
 	schedule_thread(create_thread());
 	schedule_thread(create_thread());
-
-	start_scheduler();
 
 #if 0
 	char c;
