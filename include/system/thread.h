@@ -20,9 +20,7 @@ struct tcb {
 	// TODO: Is there more we need?
 };
 
-struct tcb create_thread();
 void thread_create(void (*func)(void*), const void* args, size_t args_size);
 void dummy_run(void* stack);
-void run(struct tcb* thread);
 
 #endif /* SYSTEM_THREAD_H */

@@ -4,14 +4,6 @@
 #include <std/log.h>
 #include <std/mem.h>
 
-struct tcb
-create_thread()
-{
-	struct tcb thread = { 0 };
-	thread.callback	  = (void*)&run;
-	return thread;
-}
-
 void
 thread_create(void (*func)(void*), const void* args, size_t args_size)
 {
@@ -39,17 +31,9 @@ thread_create(void (*func)(void*), const void* args, size_t args_size)
 void
 dummy_run(void* stack)
 {
+	size_t id = *(size_t*)stack;
 	for (uint32 i = 0;; ++i) {
-		log(LOG, "dummy run");
-		for (volatile uint32 i = 0; i < BUSY_WAIT_COUNTER_SCHEDULER; ++i) {}
-	}
-}
-
-void
-run(struct tcb* thread)
-{
-	for (uint32 i = 0;; ++i) {
-		log(LOG, "thread %i: %i", thread->id, i);
+		log(LOG, "thread: %i: %i", id, i);
 		for (volatile uint32 i = 0; i < BUSY_WAIT_COUNTER_SCHEDULER; ++i) {}
 	}
 }
