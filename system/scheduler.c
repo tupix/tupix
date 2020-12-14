@@ -14,7 +14,7 @@ struct thread_q {
 };
 
 static volatile struct thread_q waiting_q;
-static struct tcb running_thread; // TODO: Make pointer and check if volatile
+static struct tcb running_thread = { 0 };
 
 void
 init_scheduler()
@@ -86,10 +86,19 @@ switch_context(struct general_registers* regs, struct tcb* cur)
 void
 scheduler_cycle(struct general_registers* regs)
 {
-	struct tcb old_thread = running_thread;
-	if (running_thread.id)
-		queue(&running_thread);
+	// Continue if no other threads are waiting.
+	if (!waiting_q.count) {
+		log(LOG, "No waiting threads. Thread %i continues", running_thread.id);
+		return;
+	}
 
-	running_thread = dequeue();
+	// NOTE: Dequeue before queueing as the other way around will not work when
+	// the queue is full.
+	struct tcb old_thread = running_thread;
+	running_thread		  = dequeue();
+	if (old_thread.id)
+		queue(&old_thread);
+	log(LOG, "New running thread: %i", running_thread.id);
+
 	// switch_context(regs, &old_thread);
 }
