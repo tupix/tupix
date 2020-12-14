@@ -7,6 +7,7 @@
 #include <system/assert.h>
 #include <system/regcheck.h>
 #include <system/scheduler.h>
+#include <system/thread.h>
 
 #include <std/io.h>
 
