@@ -61,7 +61,7 @@ void
 switch_context(struct general_registers* regs, struct tcb* cur)
 {
 	cur->regs = *regs;
-	*regs = running_thread.regs;
+	*regs	  = running_thread.regs;
 	// TODO: lr of current thread? only of some mode is restored
 }
 
