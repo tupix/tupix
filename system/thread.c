@@ -1,43 +1,50 @@
+#include <system/scheduler.h>
 #include <system/thread.h>
 
 #include <std/log.h>
 #include <std/mem.h>
 
-static uint32 thread_count = 0;
-
 struct tcb
 create_thread()
 {
 	struct tcb thread = { 0 };
-	// NOTE(Aurel): thread_id 0 should be reserved for error codes. Thus
-	// pre-increment
-	thread.id		= ++thread_count;
-	thread.callback = (void*)&run;
-	log(LOG, "New thread: %i.", thread.id);
+	thread.callback	  = (void*)&run;
 	return thread;
 }
 
-#if 0
-// TODO(Aurel): This should eventually be the actual call.
-struct tcb
-thread_create(void (*func)(void*), const void* args, uint32 args_size)
+void
+thread_create(void (*func)(void*), const void* args, size_t args_size)
 {
 	struct tcb thread = { 0 };
-	// NOTE: thread_id 0 is reserved for empty threads. Thus pre-increment.
-	thread.id		= ++thread_count;
-	thread.callback = func;
-	//thread.regs = TODO
+	thread.callback	  = func;
+	thread.regs.pc	  = (uint32)func;
+	// TODO: What else is there to be done?
 
-	// TODO: What is the actual address?
-	void* thread_stack = THREAD_STACK_BASE + thread.id * THREAD_STACK_SIZE;
-	memcpy(thread_stack, args, args_size);
+	struct tcb* scheduled_thread = schedule_thread(&thread);
+	if (scheduled_thread == &thread)
+		return; // Thread was not added to queue
 
-	return thread;
+	// All thread stacks are positioned on top of each other with stack for id 0
+	// at the very top.
+	void* thread_stack = (void*)(THREAD_STACK_BASE);
+	thread_stack -= scheduled_thread->id * THREAD_STACK_SIZE;
+	// Since the stack grows to the 'bottom', copy below it
+	memcpy(thread_stack - args_size, args, args_size);
+	// Update stack pointer
+	scheduled_thread->regs.sp = (uint32)(thread_stack - args_size);
 }
-#endif
 
 #define PRINT_N 10
 #define BUSY_WAIT_COUNTER_SCHEDULER 10000000
+void
+dummy_run(void* stack)
+{
+	for (uint32 i = 0;; ++i) {
+		log(LOG, "dummy run");
+		for (volatile uint32 i = 0; i < BUSY_WAIT_COUNTER_SCHEDULER; ++i) {}
+	}
+}
+
 void
 run(struct tcb* thread)
 {
