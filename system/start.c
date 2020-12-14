@@ -11,10 +11,11 @@
 
 #include <std/io.h>
 
-bool DEBUG_ENABLED	  = false;
-bool SUB_ROUTINE_FLAG = false;
+bool DEBUG_ENABLED = false;
 
 #if 0
+bool SUB_ROUTINE_FLAG = false;
+
 #define BUSY_WAIT_N_CHARS 50
 void
 sub_routine()
