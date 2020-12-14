@@ -2,7 +2,7 @@
 
 #include <std/log.h>
 
-static uint32 thread_count;
+static uint32 thread_count = 0;
 
 struct tcb
 create_thread()
