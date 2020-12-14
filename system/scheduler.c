@@ -19,7 +19,7 @@ static struct tcb running_thread; // TODO: Make pointer and check if volatile
 void
 init_scheduler()
 {
-	waiting_q.size = N_THREADS;
+	waiting_q.size = sizeof(waiting_q.threads) / sizeof(struct tcb);
 }
 
 // NOTE(Aurel): Do not increment var when using this macro.
