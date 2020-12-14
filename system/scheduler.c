@@ -19,6 +19,7 @@ static struct tcb running_thread; // TODO: Make pointer and check if volatile
 void
 init_scheduler()
 {
+	memset((void*)&waiting_q, 0, sizeof(struct thread_q));
 	waiting_q.size = sizeof(waiting_q.threads) / sizeof(struct tcb);
 }
 
