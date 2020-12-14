@@ -1,6 +1,7 @@
 #include <system/thread.h>
 
 #include <std/log.h>
+#include <std/mem.h>
 
 static uint32 thread_count = 0;
 
@@ -18,9 +19,20 @@ create_thread()
 
 #if 0
 // TODO(Aurel): This should eventually be the actual call.
-void
+struct tcb
 thread_create(void (*func)(void*), const void* args, uint32 args_size)
 {
+	struct tcb thread = { 0 };
+	// NOTE: thread_id 0 is reserved for empty threads. Thus pre-increment.
+	thread.id		= ++thread_count;
+	thread.callback = func;
+	//thread.regs = TODO
+
+	// TODO: What is the actual address?
+	void* thread_stack = THREAD_STACK_BASE + thread.id * THREAD_STACK_SIZE;
+	memcpy(args, thread_stack, args_size);
+
+	return thread;
 }
 #endif
 
