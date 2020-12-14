@@ -39,7 +39,7 @@ queue(struct tcb thread)
 struct tcb
 dequeue()
 {
-	struct tcb thread = {};
+	struct tcb thread = { 0 };
 	if (waiting_q.head == waiting_q.tail) {
 		log(LOG, "Dequeued empty thread. Waiting queue empty.");
 		return thread;
