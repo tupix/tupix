@@ -10,7 +10,7 @@
 #include <std/log.h>
 
 struct tcb {
-	uint32 id;
+	size_t id;
 	void (*callback)(void*);
 	struct general_registers regs;
 	// TODO: Is there more we need?

@@ -8,8 +8,8 @@
 #include <std/mem.h>
 
 struct thread_q {
-	uint32 size;
-	uint32 tail, head;
+	size_t size;
+	size_t tail, head;
 	struct tcb threads[N_THREADS];
 };
 
@@ -19,7 +19,7 @@ static struct tcb running_thread; // TODO: Make pointer and check if volatile
 void
 init_scheduler()
 {
-	memset((void*)&waiting_q, 0, sizeof(struct thread_q));
+	memset((void*)&waiting_q, 0, sizeof(waiting_q));
 	waiting_q.size = sizeof(waiting_q.threads) / sizeof(struct tcb);
 }
 
