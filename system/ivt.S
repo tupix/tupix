@@ -284,13 +284,8 @@ irq:
 	 * therefor the location at which the struct registers should be placed.
 	 */
 	mov r0, sp
-	/*
-	 * NOTE(Aurel): Save the lr before branching and linking the c-function and
-	 * pop it directly into the sp to return to the program
-	 */
-	push {lr}
 	bl irq_handler
-	pop {lr}
+
 	b exc_cleanup_return
 
 exc_cleanup_return:
@@ -301,7 +296,8 @@ exc_cleanup_return:
 	add sp, #76
 	// Restore the old register values
 	pop {r0 - r12}
-	// Throw away lr, pc and sp (3 * 4 = 12)
-	add sp, #12
+	pop {lr}
+	// Throw away pc and sp (2 * 4 = 8)
+	add sp, #8
 	// Return and change mode
 	movs pc, lr

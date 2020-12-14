@@ -74,5 +74,5 @@ scheduler_cycle(struct general_registers* regs)
 		queue(running_thread);
 
 	running_thread = dequeue();
-	switch_context(regs, &old_thread);
+	// switch_context(regs, &old_thread);
 }
