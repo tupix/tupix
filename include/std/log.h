@@ -3,6 +3,8 @@
 
 #include <config.h>
 
+#include <std/io.h>
+
 enum log_lvl {
 	ERROR,
 	WARNING,
