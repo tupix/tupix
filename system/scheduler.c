@@ -1,3 +1,5 @@
+#include <system/scheduler.h>
+
 #include <config.h>
 
 #include <data/types.h>

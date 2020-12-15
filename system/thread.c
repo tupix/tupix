@@ -1,5 +1,7 @@
-#include <system/scheduler.h>
 #include <system/thread.h>
+
+#include <data/types.h>
+#include <system/scheduler.h>
 
 #include <std/log.h>
 #include <std/mem.h>
