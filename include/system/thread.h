@@ -15,6 +15,7 @@
 
 struct tcb {
 	size_t id;
+	size_t index;
 	void (*callback)(void*);
 	struct general_registers regs;
 	// TODO: Is there more we need?
