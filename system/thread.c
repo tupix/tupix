@@ -27,7 +27,7 @@ thread_create(void (*func)(void*), const void* args, size_t args_size)
 }
 
 #define PRINT_N 10
-#define BUSY_WAIT_COUNTER_SCHEDULER 10000000
+#define BUSY_WAIT_COUNTER_SCHEDULER 50000000
 void
 dummy_run(void* stack)
 {
