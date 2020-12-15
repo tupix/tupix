@@ -9,9 +9,10 @@
 void
 thread_create(void (*func)(void*), const void* args, size_t args_size)
 {
-	struct tcb thread = { 0 };
-	thread.callback	  = func;
-	thread.regs.lr	  = (uint32)func;
+	struct tcb thread  = { 0 };
+	thread.callback	   = func;
+	thread.regs.lr	   = (uint32)func;
+	thread.initialized = false;
 	// TODO: What else is there to be done?
 
 	struct tcb* scheduled_thread = schedule_thread(&thread);
@@ -30,7 +31,8 @@ thread_create(void (*func)(void*), const void* args, size_t args_size)
 	// Update stack pointer
 	scheduled_thread->regs.sp = (uint32)thread_sp;
 	// Pass stack-pointer as argument
-	scheduled_thread->regs.r0 = scheduled_thread->regs.sp;
+	scheduled_thread->regs.r0	  = scheduled_thread->regs.sp;
+	scheduled_thread->initialized = true;
 }
 
 #define PRINT_N 10

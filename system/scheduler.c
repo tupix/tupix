@@ -53,6 +53,11 @@ dequeue()
 	}
 
 	thread = waiting_q.threads[waiting_q.tail];
+	if (!thread.initialized) {
+		log(LOG, "Thread not initialized. Returning null-thread.");
+		return null_thread;
+	}
+
 	circle_forward(waiting_q.tail, waiting_q.size);
 	--waiting_q.count;
 	log(LOG, "Dequeued thread %i.", thread.id);

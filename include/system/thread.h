@@ -18,6 +18,7 @@ struct tcb {
 	void (*callback)(void*);
 	struct general_registers regs;
 	// TODO: Is there more we need?
+	bool initialized;
 };
 
 void thread_create(void (*func)(void*), const void* args, size_t args_size);
