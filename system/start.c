@@ -10,6 +10,7 @@
 #include <system/thread.h>
 
 #include <std/io.h>
+#include <std/mem.h>
 
 bool DEBUG_ENABLED = false;
 
@@ -48,10 +49,10 @@ start_kernel(void)
 	 * NOTE(Aurel): Simple demonstration of what the scheduler can do as of
 	 * right now and how to use it. Note the `init_scheduler` call a few lines up.
 	 */
-	schedule_thread(create_thread());
-	schedule_thread(create_thread());
-	schedule_thread(create_thread());
-	schedule_thread(create_thread());
+	thread_create(&dummy_run, NULL, 0);
+	thread_create(&dummy_run, NULL, 0);
+	thread_create(&dummy_run, NULL, 0);
+	thread_create(&dummy_run, NULL, 0);
 
 #if 0
 	char c;

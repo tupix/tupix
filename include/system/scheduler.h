@@ -20,7 +20,7 @@
 
 void init_scheduler();
 
-void schedule_thread(struct tcb);
+struct tcb* schedule_thread(struct tcb* thread);
 void scheduler_cycle(struct general_registers* gr);
 
 #endif /* SYSTEM_SCHEDULER_H */

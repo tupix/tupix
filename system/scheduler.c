@@ -1,3 +1,5 @@
+#include <system/scheduler.h>
+
 #include <config.h>
 
 #include <data/types.h>
@@ -8,71 +10,118 @@
 #include <std/mem.h>
 
 struct thread_q {
-	uint32 size;
-	uint32 tail, head;
+	size_t size, count;
+	size_t tail, head;
 	struct tcb threads[N_THREADS];
 };
 
 static volatile struct thread_q waiting_q;
-static struct tcb running_thread; // TODO: Make pointer and check if volatile
+static struct tcb running_thread = { 0 };
+// TODO(Aurel): Initialize null-thread in some way?
+static const struct tcb null_thread = { 0 };
 
 void
 init_scheduler()
 {
-	memset((void*)&waiting_q, 0, sizeof(struct thread_q));
+	memset((void*)&waiting_q, 0, sizeof(waiting_q));
 	waiting_q.size = sizeof(waiting_q.threads) / sizeof(struct tcb);
 }
 
 // NOTE(Aurel): Do not increment var when using this macro.
 #define circle_forward(var, size) (var) = (var) + 1 >= (size) ? 0 : (var) + 1
 
-void
-queue(struct tcb thread)
+static struct tcb*
+queue(struct tcb* thread)
 {
-	waiting_q.threads[waiting_q.head] = thread;
-	log(LOG, "Queued thread %i.", thread.id);
-	circle_forward(waiting_q.head, waiting_q.size);
-	if (waiting_q.head == waiting_q.tail) {
-		circle_forward(waiting_q.tail, waiting_q.size);
+	if (waiting_q.count >= waiting_q.size) {
+		log(WARNING, "Thread queue full.");
+		return NULL;
 	}
+
+	waiting_q.threads[waiting_q.head] = *thread;
+	struct tcb* ret = (struct tcb*)waiting_q.threads + waiting_q.head;
+	circle_forward(waiting_q.head, waiting_q.size);
+	++(waiting_q.count);
+
+	log(LOG, "Queued thread %i.", thread->id);
+	return ret;
 }
 
-struct tcb
+static struct tcb
 dequeue()
 {
-	struct tcb thread = { 0 };
-	if (waiting_q.head == waiting_q.tail) {
-		log(LOG, "Dequeued empty thread. Waiting queue empty.");
-		return thread;
+	if (!waiting_q.count) {
+		log(LOG, "Thread queue empty. Returning null-thread.");
+		return null_thread;
 	}
 
-	thread = waiting_q.threads[waiting_q.tail];
+	struct tcb thread = waiting_q.threads[waiting_q.tail];
+	if (!thread.initialized) {
+		log(LOG, "Thread not initialized. Returning null-thread.");
+		return null_thread;
+	}
+
 	circle_forward(waiting_q.tail, waiting_q.size);
-	log(LOG, "Dequeued thread %i.", thread.id);
+	--(waiting_q.count);
+	log(LOG, "Popped thread %i.", thread.id);
 	return thread;
 }
 
-void
-schedule_thread(struct tcb thread)
+/*
+ * Put given thread into scheduled queue.
+ * The id of the thread is set in this function and a value of 0 indicates a
+ * full queue.
+ *
+ * @return NULL if there is no room for the new thread in the queue.
+ */
+struct tcb*
+schedule_thread(struct tcb* thread)
 {
-	queue(thread);
+	// TODO: What do we do if the threads stop being continues? For example when
+	// thread with id 1 exist. `count + 1` would exist then.
+	thread->id = waiting_q.count + 1;
+	log(LOG, "New thread: %i.", thread->id);
+	return queue(thread);
 }
 
-void
+static void
 switch_context(struct general_registers* regs, struct tcb* cur)
 {
 	cur->regs = *regs;
 	*regs	  = running_thread.regs;
-	// TODO: lr of current thread? only of some mode is restored
+	// TODO: Are we loosing the lr when overwriting it with the function pointer
+	// in thread_create? Do we need to safe the previous lr?
 }
 
 void
 scheduler_cycle(struct general_registers* regs)
 {
-	struct tcb old_thread = running_thread;
-	if (running_thread.id)
-		queue(running_thread);
+	// Continue if no other threads are waiting.
+	if (!waiting_q.count) {
+		log(LOG, "No waiting threads. Thread %i continues", running_thread.id);
+		return;
+	}
 
-	running_thread = dequeue();
-	switch_context(regs, &old_thread);
+	/*
+	 * NOTE: Pop before queuing as the other way around will not work when
+	 * the queue is full.
+	 */
+	struct tcb old_thread = running_thread;
+	running_thread		  = dequeue();
+
+	// Overwrite pointer with reference to thread in queue if the running thread
+	// was not a null thread.
+	if (old_thread.id) {
+		struct tcb* queued_old_thread = queue(&old_thread);
+		switch_context(regs, queued_old_thread);
+	} else {
+		// TODO(Aurel): Should we actually keep this thread alive?
+		/*
+		 * NOTE(Aurel): old_thread is thread id 0 which we create whenever
+		 * needed.
+		 */
+		switch_context(regs, &old_thread);
+	}
+
+	log(LOG, "New running thread: %i", running_thread.id);
 }

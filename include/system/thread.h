@@ -9,22 +9,19 @@
 #include <std/io.h>
 #include <std/log.h>
 
+// TODO: Do not hardcode (sp_usr - STACK_SIZE)
+#define THREAD_STACK_BASE 0x7FFE800
+#define THREAD_STACK_SIZE 0x400 // 4KB
+
 struct tcb {
-	uint32 id;
+	size_t id;
 	void (*callback)(void*);
 	struct general_registers regs;
 	// TODO: Is there more we need?
+	bool initialized;
 };
 
-struct tcb create_thread();
-#if 0
-#define THREAD_STACK_BASE // TODO
-#define THREAD_STACK_SIZE 4KB
-
-struct tcb thread_create(void (*func)(void*), const void* args,
-						 uint32 args_size);
-#endif
-
-void run(struct tcb* thread);
+void thread_create(void (*func)(void*), const void* args, size_t args_size);
+void dummy_run(void* stack);
 
 #endif /* SYSTEM_THREAD_H */
