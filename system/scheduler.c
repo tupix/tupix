@@ -17,6 +17,8 @@ struct thread_q {
 
 static volatile struct thread_q waiting_q;
 static struct tcb running_thread = { 0 };
+// TODO(Aurel): Initialize null-thread in some way?
+static const struct tcb null_thread = { 0 };
 
 void
 init_scheduler()
@@ -33,7 +35,7 @@ queue(struct tcb* thread)
 {
 	if (waiting_q.count >= waiting_q.size) {
 		log(WARNING, "Thread queue full.");
-		return thread;
+		return NULL;
 	}
 	waiting_q.threads[waiting_q.head] = *thread;
 	struct tcb* ret = (struct tcb*)waiting_q.threads + waiting_q.head;
@@ -46,13 +48,12 @@ queue(struct tcb* thread)
 static struct tcb
 dequeue()
 {
-	struct tcb thread = { 0 };
 	if (!waiting_q.count) {
-		log(LOG, "Thread queue empty. Returning nulled thread.");
-		return thread;
+		log(LOG, "Thread queue empty. Returning null-thread.");
+		return null_thread;
 	}
 
-	thread = waiting_q.threads[waiting_q.tail];
+	struct tcb thread = waiting_q.threads[waiting_q.tail];
 	if (!thread.initialized) {
 		log(LOG, "Thread not initialized. Returning null-thread.");
 		return null_thread;
@@ -68,15 +69,12 @@ dequeue()
  * Put given thread into scheduled queue.
  * The id of the thread is set in this function and a value of 0 indicates a
  * full queue.
+ *
+ * @return NULL if there is no room for the new thread in the queue.
  */
 struct tcb*
 schedule_thread(struct tcb* thread)
 {
-	if (waiting_q.count >= waiting_q.size) {
-		log(WARNING, "Thread queue full.");
-		thread->id = 0;
-		return thread;
-	}
 	// TODO: What do we do if the threads stop being continues? For example when
 	// thread with id 1 exist. `count + 1` would exist then.
 	thread->id = waiting_q.count + 1;

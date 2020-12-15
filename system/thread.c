@@ -16,7 +16,7 @@ thread_create(void (*func)(void*), const void* args, size_t args_size)
 	// TODO: What else is there to be done?
 
 	struct tcb* scheduled_thread = schedule_thread(&thread);
-	if (scheduled_thread == &thread)
+	if (!scheduled_thread)
 		return; // Thread was not added to queue
 
 	// All thread stacks are positioned on top of each other with stack for id 0
