@@ -20,11 +20,14 @@ static struct tcb running_thread = { 0 };
 // TODO(Aurel): Initialize null-thread in some way?
 static const struct tcb null_thread = { 0 };
 
+static uint32 tid_count;
+
 void
 init_scheduler()
 {
 	memset((void*)&waiting_q, 0, sizeof(waiting_q));
 	waiting_q.size = sizeof(waiting_q.threads) / sizeof(struct tcb);
+	tid_count = 0;
 }
 
 // NOTE(Aurel): Do not increment var when using this macro.
@@ -79,7 +82,7 @@ schedule_thread(struct tcb* thread)
 {
 	// TODO: What do we do if the threads stop being continues? For example when
 	// thread with id 1 exist. `count + 1` would exist then.
-	thread->id = waiting_q.count + 1;
+	thread->id = ++tid_count;
 	log(LOG, "New thread: %i.", thread->id);
 	return queue(thread);
 }
