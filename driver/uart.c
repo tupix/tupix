@@ -12,27 +12,27 @@
 #define UART_BASE (0x7E201000 - MMU_BASE_OFFSET)
 
 struct uart {
-	uint32 dr;			 // data register
-	uint32 rsrecr;		 //
-	uint32 padding0[4];	 //
-	uint32 fr;			 // flag register
-	uint32 padding1;	 //
-	uint32 ilpr;		 // unused
-	uint32 ibrd;		 //
-	uint32 fbrd;		 //
-	uint32 lcrh;		 // line control register
-	uint32 cr;			 // control register
-	uint32 ifls;		 // interrupt FIFO level select register
-	uint32 imsc;		 // interrupt mask set/clear register
-	uint32 ris;			 //
-	uint32 mis;			 //
-	uint32 icr;			 //
-	uint32 dmacr;		 //
+	uint32 dr;           // data register
+	uint32 rsrecr;       //
+	uint32 padding0[4];  //
+	uint32 fr;           // flag register
+	uint32 padding1;     //
+	uint32 ilpr;         // unused
+	uint32 ibrd;         //
+	uint32 fbrd;         //
+	uint32 lcrh;         // line control register
+	uint32 cr;           // control register
+	uint32 ifls;         // interrupt FIFO level select register
+	uint32 imsc;         // interrupt mask set/clear register
+	uint32 ris;          //
+	uint32 mis;          //
+	uint32 icr;          //
+	uint32 dmacr;        //
 	uint32 padding2[13]; //
-	uint32 itcr;		 //
-	uint32 itip;		 //
-	uint32 itop;		 //
-	uint32 tdr;			 //
+	uint32 itcr;         //
+	uint32 itip;         //
+	uint32 itop;         //
+	uint32 tdr;          //
 };
 
 enum fr_bit_field {
@@ -59,20 +59,20 @@ enum lcrh_wlen {
 };
 
 enum cr_bit_field {
-	CR_RXE	  = 9, // receive enable
-	CR_TXE	  = 8, // transmit enable
+	CR_RXE    = 9, // receive enable
+	CR_TXE    = 8, // transmit enable
 	CR_UARTEN = 0, // UART enable
 };
 
 enum imsc_bit_field {
 	// clang-format off
 	IMSC_OEIM = 10, // overrun error interrupt mask
-	IMSC_BEIM = 9,	// break error interrupt mask
-	IMSC_PEIM = 8,	// parity error interrupt mask
-	IMSC_FEIM = 7,	// framing error interrupt mask
-	IMSC_RTIM = 6,	// receive timeout mask
-	IMSC_TXIM = 5,	// transmit interrupt mask
-	IMSC_RXIM = 4,	// receive interrupt mask
+	IMSC_BEIM = 9,  // break error interrupt mask
+	IMSC_PEIM = 8,  // parity error interrupt mask
+	IMSC_FEIM = 7,  // framing error interrupt mask
+	IMSC_RTIM = 6,  // receive timeout mask
+	IMSC_TXIM = 5,  // transmit interrupt mask
+	IMSC_RXIM = 4,  // receive interrupt mask
 	/* 2,3 unsupported, read as don't care */
 	IMSC_CTSMIM = 1, // nUARTCTS modem interrupt mask
 	/* 0 unsupported, read as don't care */
@@ -148,11 +148,11 @@ init_uart()
 	SET_BIT(uart->cr, CR_TXE);
 
 	SET_BIT_TO(uart->lcrh, LCRH_WLEN, LCRH_WLEN_8,
-			   LCRH_WLEN_VAL_LEN); // set word length
+	           LCRH_WLEN_VAL_LEN); // set word length
 
 	CLEAR_BIT(uart->lcrh, LCRH_FEN); // disable transmit and receive FIFO
 
-	uart->imsc = 0;					// clear all UART interrupt bits
+	uart->imsc = 0;                 // clear all UART interrupt bits
 	SET_BIT(uart->imsc, IMSC_RXIM); // enable receive interrupt
 
 	// Enable the UART.

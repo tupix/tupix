@@ -10,7 +10,7 @@ void*
 memcpy(void* dest, const void* src, const size_t n)
 {
 	const char* c_src = (const char*)src;
-	char* c_dest	  = (char*)dest;
+	char* c_dest      = (char*)dest;
 	for (size_t i = 0; i < n; ++i)
 		c_dest[i] = c_src[i];
 

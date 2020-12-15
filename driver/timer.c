@@ -9,9 +9,9 @@
 #define L_TIMER_CLOCK_SPEED 38.4
 
 struct local_interrupt {
-	uint32 routing;		 // routing
-	uint32 padding[3];	 //
-	uint32 ctrl_stat;	 // control & status
+	uint32 routing;      // routing
+	uint32 padding[3];   //
+	uint32 ctrl_stat;    // control & status
 	uint32 clear_reload; // IRQ clear & reload (write-only)
 };
 
@@ -38,8 +38,8 @@ enum local_timer_control_status {
 	L_TIMER_CTRL_STAT_INTERRUPT_FLAG = 31, // Read-only
 	// 30 - Unused
 	L_TIMER_CTRL_STAT_INTERRUPT_ENABLE = 29,
-	L_TIMER_CTRL_STAT_TIMER_ENABLE	   = 28,
-	L_TIMER_CTRL_STAT_RELOAD_VAL	   = 0,
+	L_TIMER_CTRL_STAT_TIMER_ENABLE     = 28,
+	L_TIMER_CTRL_STAT_RELOAD_VAL       = 0,
 
 	// Number of bits the reload value occupies
 	L_TIMER_CTRL_STAT_RELOAD_VAL_LEN = 28,
@@ -48,7 +48,7 @@ enum local_timer_control_status {
 // Write-only
 enum local_timer_irq_clear_reload_bit_field {
 	L_TIMER_INTERRUPT_FLAG = 31,
-	L_TIMER_RELOAD		   = 30,
+	L_TIMER_RELOAD         = 30,
 	// 28, 29 not documented?
 	// 0 - 27 Unused
 };
@@ -73,14 +73,14 @@ init_local_timer()
 {
 	// Route local timer to core 0
 	SET_BIT_TO(local_interrupt->routing, L_TIMER_ROUTING, L_TIMER_ROUTE_IRQ_0,
-			   l_timer_routing_val_len);
+	           l_timer_routing_val_len);
 	uint32 val = 0;
 	// Enable local timer
 	SET_BIT(val, L_TIMER_CTRL_STAT_TIMER_ENABLE);
 	// Set reload value
 	SET_BIT_TO(val, L_TIMER_CTRL_STAT_RELOAD_VAL,
-			   (uint32)(L_TIMER_CLOCK_SPEED * LOCAL_TIMER_US),
-			   L_TIMER_CTRL_STAT_RELOAD_VAL_LEN);
+	           (uint32)(L_TIMER_CLOCK_SPEED * LOCAL_TIMER_US),
+	           L_TIMER_CTRL_STAT_RELOAD_VAL_LEN);
 	// Enable local timer interrupt
 	SET_BIT(val, L_TIMER_CTRL_STAT_INTERRUPT_ENABLE);
 	local_interrupt->ctrl_stat = val;

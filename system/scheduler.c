@@ -88,7 +88,7 @@ static void
 switch_context(struct general_registers* regs, struct tcb* cur)
 {
 	cur->regs = *regs;
-	*regs	  = running_thread.regs;
+	*regs     = running_thread.regs;
 	// TODO: Are we loosing the lr when overwriting it with the function pointer
 	// in thread_create? Do we need to safe the previous lr?
 }
@@ -107,7 +107,7 @@ scheduler_cycle(struct general_registers* regs)
 	 * the queue is full.
 	 */
 	struct tcb old_thread = running_thread;
-	running_thread		  = dequeue();
+	running_thread        = dequeue();
 
 	// Overwrite pointer with reference to thread in queue if the running thread
 	// was not a null thread.

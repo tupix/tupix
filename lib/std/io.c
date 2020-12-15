@@ -20,7 +20,7 @@ kprint(const char* s)
  */
 static void
 print_with_padding(const char* num_str, size_t len, size_t field_width,
-				   const char padding)
+                   const char padding)
 {
 	size_t str_len = max(len, field_width);
 	for (size_t i = 0; i < str_len - len; ++i)
@@ -67,7 +67,7 @@ check_format_str(const char* str)
 static size_t
 calc_field_width(const char* cur_char, char* padding, size_t* flag_len)
 {
-	*flag_len		   = 0;
+	*flag_len          = 0;
 	size_t field_width = 0;
 
 	if (*cur_char >= '0' && *cur_char <= '9') {
@@ -102,7 +102,7 @@ kprintf(const char* format, ...)
 	va_list args;
 	va_start(args, format);
 
-	char padding		 = ' ';
+	char padding         = ' ';
 	const char* cur_char = format;
 	char num_str[MAX_NUM_LEN + 1]; /* MAX_NUM_LEN + len('\0') */
 	size_t flags_len, field_width, len;
@@ -137,7 +137,7 @@ kprintf(const char* format, ...)
 				offset = 1;
 			}
 			print_with_padding(num_str + offset, len - offset,
-							   max((int32)(field_width - offset), 0), padding);
+			                   max((int32)(field_width - offset), 0), padding);
 			break;
 		}
 		case 'u':

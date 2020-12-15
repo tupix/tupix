@@ -17,20 +17,20 @@ extern bool DEBUG_ENABLED;
 extern bool SUB_ROUTINE_FLAG;
 
 enum cpsr_mode_bits {
-	USER		  = 0b10000,
-	FIQ			  = 0b10001,
-	IRQ			  = 0b10010,
-	SUPERVISOR	  = 0b10011,
-	ABORT		  = 0b10111,
-	UNDEFINED	  = 0b11011,
-	SYSTEM		  = 0b11111,
+	USER          = 0b10000,
+	FIQ           = 0b10001,
+	IRQ           = 0b10010,
+	SUPERVISOR    = 0b10011,
+	ABORT         = 0b10111,
+	UNDEFINED     = 0b11011,
+	SYSTEM        = 0b11111,
 	UNINITIALIZED = 0,
 };
 
 enum psr_flags_idx_bitfield {
 	PSR_NEGATIVE   = 31,
-	PSR_ZERO	   = 30,
-	PSR_CARRY	   = 29,
+	PSR_ZERO       = 30,
+	PSR_CARRY      = 29,
 	PSR_OVERFLOW   = 28,
 	PSR_ENDIANESS  = 9,
 	PSR_MASK_IRQ   = 7,
@@ -45,16 +45,16 @@ void
 psr_flags_str(uint32 flags, char* str)
 {
 	// clang-format off
-	str[0]	= IS_SET(flags, PSR_NEGATIVE)   ? 'N' : '_';
-	str[1]	= IS_SET(flags, PSR_ZERO)       ? 'Z' : '_';
-	str[2]	= IS_SET(flags, PSR_CARRY)      ? 'C' : '_';
-	str[3]	= IS_SET(flags, PSR_OVERFLOW)   ? 'V' : '_';
-	str[4]	= ' ';
-	str[5]	= IS_SET(flags, PSR_ENDIANESS)  ? 'E' : '_';
-	str[6]	= ' ';
-	str[7]	= IS_SET(flags, PSR_MASK_IRQ)   ? 'I' : '_';
-	str[8]	= IS_SET(flags, PSR_MASK_FIQ)   ? 'F' : '_';
-	str[9]	= IS_SET(flags, PSR_THUMB_MODE) ? 'T' : '_';
+	str[0]  = IS_SET(flags, PSR_NEGATIVE)   ? 'N' : '_';
+	str[1]  = IS_SET(flags, PSR_ZERO)       ? 'Z' : '_';
+	str[2]  = IS_SET(flags, PSR_CARRY)      ? 'C' : '_';
+	str[3]  = IS_SET(flags, PSR_OVERFLOW)   ? 'V' : '_';
+	str[4]  = ' ';
+	str[5]  = IS_SET(flags, PSR_ENDIANESS)  ? 'E' : '_';
+	str[6]  = ' ';
+	str[7]  = IS_SET(flags, PSR_MASK_IRQ)   ? 'I' : '_';
+	str[8]  = IS_SET(flags, PSR_MASK_FIQ)   ? 'F' : '_';
+	str[9]  = IS_SET(flags, PSR_THUMB_MODE) ? 'T' : '_';
 	str[10] = ' ';
 	// clang-format on
 	str += 11;
@@ -113,7 +113,7 @@ struct registers {
 
 void
 print_registers(volatile struct registers* reg, char* exc_str,
-				char* exc_system_info_str, char* exc_extra_info_str)
+                char* exc_system_info_str, char* exc_extra_info_str)
 {
 	char und_cpsr_str[PSR_STR_LEN];
 	char und_spsr_str[PSR_STR_LEN];
@@ -151,15 +151,15 @@ print_registers(volatile struct registers* reg, char* exc_str,
 	kprintf("             LR         SP         SPSR\n");
 	kprintf("User/System: 0x%08x 0x%08x\n", reg->usr_lr, reg->und.sp);
 	kprintf("Supervisor:  0x%08x 0x%08x %s\t(0x%08x)\n", reg->svc.lr,
-			reg->svc.sp, svc_spsr_str, reg->svc.spsr);
+	        reg->svc.sp, svc_spsr_str, reg->svc.spsr);
 	kprintf("Abort:       0x%08x 0x%08x %s\t(0x%08x)\n", reg->abt.lr,
-			reg->abt.sp, abt_spsr_str, reg->abt.spsr);
+	        reg->abt.sp, abt_spsr_str, reg->abt.spsr);
 	kprintf("FIQ:         0x%08x 0x%08x %s\t(0x%08x)\n", reg->fiq.lr,
-			reg->fiq.sp, fiq_spsr_str, reg->fiq.spsr);
+	        reg->fiq.sp, fiq_spsr_str, reg->fiq.spsr);
 	kprintf("IRQ:         0x%08x 0x%08x %s\t(0x%08x)\n", reg->irq.lr,
-			reg->irq.sp, irq_spsr_str, reg->irq.spsr);
+	        reg->irq.sp, irq_spsr_str, reg->irq.spsr);
 	kprintf("Undefined:   0x%08x 0x%08x %s\t(0x%08x)\n", reg->und.lr,
-			reg->und.sp, und_spsr_str, reg->und.spsr);
+	        reg->und.sp, und_spsr_str, reg->und.spsr);
 	kprintf("\n");
 	kprintf("%s\n", exc_system_info_str);
 }
