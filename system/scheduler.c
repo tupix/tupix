@@ -37,10 +37,12 @@ queue(struct tcb* thread)
 		log(WARNING, "Thread queue full.");
 		return NULL;
 	}
+
 	waiting_q.threads[waiting_q.head] = *thread;
 	struct tcb* ret = (struct tcb*)waiting_q.threads + waiting_q.head;
 	circle_forward(waiting_q.head, waiting_q.size);
-	++waiting_q.count;
+	++(waiting_q.count);
+
 	log(LOG, "Queued thread %i.", thread->id);
 	return ret;
 }
@@ -60,8 +62,8 @@ dequeue()
 	}
 
 	circle_forward(waiting_q.tail, waiting_q.size);
-	--waiting_q.count;
-	log(LOG, "Dequeued thread %i.", thread.id);
+	--(waiting_q.count);
+	log(LOG, "Popped thread %i.", thread.id);
 	return thread;
 }
 
@@ -87,7 +89,8 @@ switch_context(struct general_registers* regs, struct tcb* cur)
 {
 	cur->regs = *regs;
 	*regs	  = running_thread.regs;
-	// TODO: lr of current thread? only of same mode is restored
+	// TODO: Are we loosing the lr when overwriting it with the function pointer
+	// in thread_create? Do we need to safe the previous lr?
 }
 
 void
@@ -99,16 +102,26 @@ scheduler_cycle(struct general_registers* regs)
 		return;
 	}
 
-	// NOTE: Dequeue before queueing as the other way around will not work when
-	// the queue is full.
-	struct tcb running_thread_backup = running_thread;
-	struct tcb* old_thread			 = &running_thread_backup;
-	running_thread					 = dequeue();
+	/*
+	 * NOTE: Pop before queuing as the other way around will not work when
+	 * the queue is full.
+	 */
+	struct tcb old_thread = running_thread;
+	running_thread		  = dequeue();
+
 	// Overwrite pointer with reference to thread in queue if the running thread
 	// was not a null thread.
-	if (old_thread->id)
-		old_thread = queue(old_thread);
+	if (old_thread.id) {
+		struct tcb* queued_old_thread = queue(&old_thread);
+		switch_context(regs, queued_old_thread);
+	} else {
+		// TODO(Aurel): Should we actually keep this thread alive?
+		/*
+		 * NOTE(Aurel): old_thread is thread id 0 which we create whenever
+		 * needed.
+		 */
+		switch_context(regs, &old_thread);
+	}
 
-	switch_context(regs, old_thread);
 	log(LOG, "New running thread: %i", running_thread.id);
 }
