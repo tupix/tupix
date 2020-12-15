@@ -114,6 +114,8 @@ uart_buffer_char()
 
 	unsigned char c = (unsigned char)(uart->dr & 0xff);
 
+	// TODO(Aurel): Check if full and discard new char if so.
+
 	buffer.buf[buffer.head] = c;
 	circle_forward(buffer.head, buffer.size);
 	if (buffer.head == buffer.tail) {
