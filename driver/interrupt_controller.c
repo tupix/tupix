@@ -65,4 +65,6 @@ init_interrupt_controller()
 {
 	CLEAR_BIT(ir->disable_irq_h, IRQ_UART_INT - 32);
 	SET_BIT(ir->enable_irq_h, IRQ_UART_INT - 32);
+	// NOTE(Aurel): The UART is not initialized yet.
+	// log(LOG, "Interrupt controller initialized.");
 }

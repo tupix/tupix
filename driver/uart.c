@@ -8,6 +8,7 @@
 
 #include <std/bits.h>
 #include <std/util.h>
+#include <std/log.h>
 
 #define UART_BASE (0x7E201000 - MMU_BASE_OFFSET)
 
@@ -157,6 +158,7 @@ init_uart()
 
 	// Enable the UART.
 	SET_BIT(uart->cr, CR_UARTEN);
+	log(LOG, "UART initialized.");
 }
 
 void

@@ -3,6 +3,7 @@
 #include <data/types.h>
 
 #include <std/bits.h>
+#include <std/log.h>
 #include <std/util.h>
 
 #define L_TIMER_BASE 0x40000024
@@ -86,4 +87,5 @@ init_local_timer()
 	local_interrupt->ctrl_stat = val;
 	// Tell timer about new value
 	SET_BIT(local_interrupt->clear_reload, L_TIMER_RELOAD);
+	log(LOG, "Local timer initialized.");
 }
