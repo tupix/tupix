@@ -96,11 +96,14 @@ scheduler_cycle(struct general_registers* regs)
 
 	// NOTE: Dequeue before queueing as the other way around will not work when
 	// the queue is full.
-	struct tcb old_thread = running_thread;
-	running_thread		  = dequeue();
-	if (old_thread.id)
-		queue(&old_thread);
-	log(LOG, "New running thread: %i", running_thread.id);
+	struct tcb running_thread_backup = running_thread;
+	struct tcb* old_thread			 = &running_thread_backup;
+	running_thread					 = dequeue();
+	// Overwrite pointer with reference to thread in queue if the running thread
+	// was not a null thread.
+	if (old_thread->id)
+		old_thread = queue(old_thread);
 
-	// switch_context(regs, &old_thread);
+	switch_context(regs, old_thread);
+	log(LOG, "New running thread: %i", running_thread.id);
 }

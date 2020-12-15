@@ -9,7 +9,7 @@ thread_create(void (*func)(void*), const void* args, size_t args_size)
 {
 	struct tcb thread = { 0 };
 	thread.callback	  = func;
-	thread.regs.pc	  = (uint32)func;
+	thread.regs.lr	  = (uint32)func;
 	// TODO: What else is there to be done?
 
 	struct tcb* scheduled_thread = schedule_thread(&thread);
