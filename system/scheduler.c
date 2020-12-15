@@ -3,6 +3,7 @@
 #include <config.h>
 
 #include <data/types.h>
+#include <system/assert.h>
 #include <system/thread.h>
 
 #include <std/io.h>
@@ -34,22 +35,29 @@ init_queue(struct index_queue* q)
 #define circle_forward(var, size) (var) = (var) + 1 >= (size) ? 0 : (var) + 1
 
 size_t
-push(struct index_queue* q, size_t i)
+push_index(struct index_queue* q, size_t index)
 {
-	// TODO(Aurel): Error handling.
+	ASSERTM(q, "Invalid index_queue.");
+	ASSERTM(index <= (sizeof(threads) / sizeof(*threads)),
+	        "Index %i out of bounds.", index);
+	ASSERTM(index > 0, "Index %i not valid (negative).", index);
+
+	// queue is full
 	if (q->count >= q->size)
 		return 0;
 
-	q->indices[q->tail] = i;
+	q->indices[q->tail] = index;
 	circle_forward(q->tail, q->size);
 	++(q->count);
-	return i;
+	return index;
 }
 
 size_t
-pop(struct index_queue* q)
+pop_index(struct index_queue* q)
 {
-	// TODO(Aurel): Error handling.
+	ASSERTM(q, "Invalid index_queue.");
+
+	// queue is empty
 	if (q->count == 0)
 		return 0;
 
@@ -62,7 +70,9 @@ pop(struct index_queue* q)
 struct tcb*
 push_thread(struct tcb* thread)
 {
-	if (push(&thread_indices_q, thread->index))
+	ASSERTM(thread != &(threads[0]), "Trying to push null-thread.");
+
+	if (push_index(&thread_indices_q, thread->index))
 		return &(threads[thread->index]);
 
 	log(WARNING, "Thread queue full.");
@@ -72,12 +82,18 @@ push_thread(struct tcb* thread)
 struct tcb*
 pop_thread()
 {
-	size_t index = pop(&thread_indices_q);
-	if (index)
-		return &(threads[index]);
+	size_t index = pop_index(&thread_indices_q);
+	if (!index) {
+		log(LOG, "Thread queue empty.");
+		return NULL;
+	}
 
-	log(WARNING, "Thread queue empty.");
-	return NULL;
+	if (!(threads[index].initialized)) {
+		log(LOG, "Thread not initialized. Returning null-thread.");
+		return NULL;
+	}
+
+	return &(threads[index]);
 }
 
 void
@@ -86,7 +102,7 @@ init_scheduler()
 	init_queue(&thread_indices_q);
 	init_queue(&free_indices_q);
 	for (size_t i = 0; i < N_THREADS; ++i)
-		push(&free_indices_q, i + 1);
+		push_index(&free_indices_q, i + 1);
 
 	// TODO(Aurel): Initialize null-thread in some way?
 	// NOTE(Aurel): null-thread
@@ -112,12 +128,12 @@ schedule_thread(struct tcb* thread)
 	// thread with id 1 exist. `count + 1` would exist then.
 	thread->id = ++tid_count;
 
-	thread->index          = pop(&free_indices_q);
+	thread->index          = pop_index(&free_indices_q);
 	threads[thread->index] = *thread;
 	push_thread(thread);
 
 	log(LOG, "New thread: %i.", thread->id);
-	return (struct tcb*)(&threads) + thread->index;
+	return (struct tcb*)&(threads[thread->index]);
 }
 
 static void
@@ -132,9 +148,10 @@ switch_context(struct general_registers* regs, struct tcb* cur)
 void
 scheduler_cycle(struct general_registers* regs)
 {
+	log(LOG, "[SCHEDULER] Cycling...");
 	// Continue if no other threads are waiting.
 	if (!thread_indices_q.count) {
-		log(LOG, "No waiting threads. Thread %i continues", running_thread.id);
+		log(LOG, "No waiting threads. Thread %i continues", running_thread->id);
 		return;
 	}
 
@@ -152,44 +169,6 @@ scheduler_cycle(struct general_registers* regs)
 			return;
 
 	switch_context(regs, old_thread);
-	log(LOG, "New running thread: %i", running_thread.id);
+
+	log(LOG, "Running thread: %i", running_thread->id);
 }
-
-#if 0
-static struct tcb*
-push(struct tcb* thread)
-{
-	if (thread_indices_q.count >= thread_indices_q.size) {
-		log(WARNING, "Thread queue full.");
-		return NULL;
-	}
-
-	threads[index] = *thread;
-	struct tcb* ret = (struct tcb*)waiting_q.threads + waiting_q.head;
-	circle_forward(waiting_q.head, waiting_q.size);
-	++(waiting_q.count);
-
-	log(LOG, "Queued thread %i.", thread->id);
-	return ret;
-}
-
-static struct tcb
-pop()
-{
-	if (!waiting_q.count) {
-		log(LOG, "Thread queue empty. Returning null-thread.");
-		return null_thread;
-	}
-
-	struct tcb thread = waiting_q.threads[waiting_q.tail];
-	if (!thread.initialized) {
-		log(LOG, "Thread not initialized. Returning null-thread.");
-		return null_thread;
-	}
-
-	circle_forward(waiting_q.tail, waiting_q.size);
-	--(waiting_q.count);
-	log(LOG, "Popped thread %i.", thread.id);
-	return thread;
-}
-#endif
