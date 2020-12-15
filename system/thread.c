@@ -18,12 +18,17 @@ thread_create(void (*func)(void*), const void* args, size_t args_size)
 
 	// All thread stacks are positioned on top of each other with stack for id 0
 	// at the very top.
-	void* thread_stack = (void*)(THREAD_STACK_BASE);
-	thread_stack -= scheduled_thread->id * THREAD_STACK_SIZE;
+	void* thread_sp = (void*)(THREAD_STACK_BASE);
+	thread_sp -= scheduled_thread->id * THREAD_STACK_SIZE;
 	// Since the stack grows to the 'bottom', copy below it
-	memcpy(thread_stack - args_size, args, args_size);
+	memcpy((thread_sp -= args_size), args, args_size);
+	// Copy thread id onto stack for now too, as dummy_run uses it.
+	thread_sp -= sizeof(scheduled_thread->id);
+	memcpy(thread_sp, &scheduled_thread->id, sizeof(scheduled_thread->id));
 	// Update stack pointer
-	scheduled_thread->regs.sp = (uint32)(thread_stack - args_size);
+	scheduled_thread->regs.sp = (uint32)thread_sp;
+	// Pass stack-pointer as argument
+	scheduled_thread->regs.r0 = scheduled_thread->regs.sp;
 }
 
 #define PRINT_N 10
