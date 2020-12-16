@@ -1,6 +1,8 @@
 #ifndef SYSTEM_SCHEDULER_H
 #define SYSTEM_SCHEDULER_H
 
+#include <arch/armv7/registers.h>
+
 #include <data/types.h>
 #include <system/thread.h>
 

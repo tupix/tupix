@@ -1,5 +1,7 @@
 #include <system/scheduler.h>
 
+#include <arch/armv7/registers.h>
+
 #include <config.h>
 
 #include <data/types.h>
