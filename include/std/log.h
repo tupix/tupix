@@ -10,6 +10,7 @@ enum log_lvl {
 	WARNING,
 	LOG,
 	ASSERT,
+	DEBUG,
 };
 
 // [Reference](https://stackoverflow.com/questions/1644868/define-macro-for-debug-printing-in-c)
@@ -17,6 +18,9 @@ enum log_lvl {
 	do {                                                                       \
 		if (LOGGING_ENABLED) {                                                 \
 			switch (log_lvl) {                                                 \
+			case DEBUG:                                                        \
+				kprintf("[DEBUG] ");                                           \
+				break;                                                         \
 			case ASSERT:                                                       \
 				kprintf("[ASSERT] ");                                          \
 				break;                                                         \

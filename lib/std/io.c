@@ -50,6 +50,7 @@ check_format_str(const char* str)
 					return false;
 				break;
 			case 'x':
+			case 'd':
 			case 'i':
 			case 'u':
 			case 'p':
@@ -129,6 +130,7 @@ kprintf(const char* format, ...)
 			utostr(va_arg(args, uint32), 16, num_str, &len);
 			print_with_padding(num_str, len, field_width, padding);
 			break;
+		case 'd':
 		case 'i': {
 			itostr(va_arg(args, int32), 10, num_str, &len);
 			uint32 offset = 0;

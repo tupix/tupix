@@ -22,7 +22,7 @@ thread_create(void (*func)(void*), const void* args, size_t args_size)
 	// All thread stacks are positioned on top of each other with stack for id 0
 	// at the very top.
 	void* thread_sp = (void*)(THREAD_STACK_BASE);
-	thread_sp -= scheduled_thread->id * THREAD_STACK_SIZE;
+	thread_sp -= scheduled_thread->index * THREAD_STACK_SIZE;
 
 	// Since the stack grows to the 'bottom', copy below it
 	thread_sp -= args_size;
