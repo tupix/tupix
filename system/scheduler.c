@@ -196,18 +196,28 @@ schedule_thread(struct tcb* thread)
 }
 
 static void
-switch_context(struct general_registers* regs, struct tcb* old, struct tcb* new)
+switch_context(struct registers* regs, struct tcb* old, struct tcb* new)
 {
-	if (old)
-		old->regs = *regs;
-	if (new)
-		*regs = new->regs;
+	if (old) {
+		old->regs = regs->gr;
+		old->regs.lr = regs->usr_lr;
+		old->regs.sp = regs->usr_sp;
+		old->regs.pc = regs->gr.lr;
+		old->cpsr = regs->spsr;
+	}
+	if (new) {
+		regs->gr = new->regs;
+		regs->usr_lr = new->regs.lr;
+		regs->usr_sp = new->regs.sp;
+		regs->gr.lr = new->regs.pc;
+		regs->spsr = new->cpsr;
+	}
 	// TODO: Are we loosing the lr when overwriting it with the function pointer
 	// in thread_create? Do we need to safe the previous lr?
 }
 
 void
-scheduler_cycle(struct general_registers* regs)
+scheduler_cycle(struct registers* regs)
 {
 	log(LOG, "Cycling...");
 	// Continue if no other threads are waiting.

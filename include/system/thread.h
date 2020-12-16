@@ -17,7 +17,7 @@ struct tcb {
 	size_t id, index;
 	void (*callback)(void*);
 	struct general_registers regs;
-	// TODO: Is there more we need?
+	uint32 cpsr;
 	bool initialized;
 };
 

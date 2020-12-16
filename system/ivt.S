@@ -293,7 +293,20 @@ exc_cleanup_return:
 	 * NOTE(Aurel): Throw away the 19 pushed mode-specific register
 	 * 19 * 4 = 76
 	 */
-	add sp, #76
+	// Throw away all mode-specific register except for usr
+	// #{fiq, irq, abt, und, svc} * 3 * 4 = 15 * 4 = 60
+	add sp, #60
+
+	// Restore usr register
+	pop {r0}
+	msr lr_usr, r0
+	pop {r1}
+	msr sp_usr, r1
+
+	// Throw away cpsr and spsr
+	// TODO: Keep?
+	add sp, #8
+
 	// Restore the old register values
 	pop {r0 - r12}
 	pop {lr}
