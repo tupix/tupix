@@ -41,9 +41,9 @@ start_kernel(void)
 	init_interrupt_controller();
 	init_uart();
 	init_local_timer();
-	init_scheduler();
 
 	ASSERTM(N_THREADS >= 32, "A minimum of 32 threads should be supported.");
+	init_scheduler();
 
 	/*
 	 * NOTE(Aurel): Simple demonstration of what the scheduler can do as of

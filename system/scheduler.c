@@ -24,27 +24,36 @@ static struct tcb* running_thread;
 
 static uint32 tid_count;
 
-void
+/*
+ * Null the struct but set the size
+ */
+static void
 init_queue(struct index_queue* q)
 {
-	memset((void*)q, 0, sizeof(*q));
+	memset(q, 0, sizeof(*q));
 	q->size = sizeof(q->indices) / sizeof(*(q->indices));
 }
 
 // NOTE(Aurel): Do not increment var when using this macro.
 #define circle_forward(var, size) (var) = (var) + 1 >= (size) ? 0 : (var) + 1
 
-size_t
+/*
+ * Push index to index_queue.
+ *
+ * @return 0 if queue is full and -1 on any other fatal error.
+ */
+static ssize_t
 push_index(struct index_queue* q, size_t index)
 {
-	ASSERTM(q, "Invalid index_queue.");
-	ASSERTM(index <= (sizeof(threads) / sizeof(*threads)),
-	        "Index %i out of bounds.", index);
-	ASSERTM(index > 0, "Index %i not valid (negative).", index);
-
-	// queue is full
-	if (q->count >= q->size)
+	if (!q) {
+		log(WARNING, "Invalid index_queue (NULL)");
+		return -1;
+	} else if (index <= 0 || index > q->size) {
+		log(WARNING, "Index %i out of bounds", index);
+		return -1;
+	} else if (q->count >= q->size) {
 		return 0;
+	}
 
 	q->indices[q->tail] = index;
 	circle_forward(q->tail, q->size);
@@ -52,14 +61,20 @@ push_index(struct index_queue* q, size_t index)
 	return index;
 }
 
-size_t
+/*
+ * Pop index from index_queue.
+ *
+ * @return 0 if queue is empty and -1 on any other fatal error.
+ */
+static ssize_t
 pop_index(struct index_queue* q)
 {
-	ASSERTM(q, "Invalid index_queue.");
-
-	// queue is empty
-	if (q->count == 0)
+	if (!q) {
+		log(WARNING, "Invalid index_queue (NULL)");
+		return -1;
+	} else if (!q->count) {
 		return 0;
+	}
 
 	size_t index = q->indices[q->head];
 	circle_forward(q->head, q->size);
@@ -67,29 +82,57 @@ pop_index(struct index_queue* q)
 	return index;
 }
 
-struct tcb*
+/*
+ * Push thread onto thread queue.
+ *
+ * @return NULL on errors.
+ */
+static struct tcb*
 push_thread(struct tcb* thread)
 {
-	ASSERTM(thread != &(threads[0]), "Trying to push null-thread.");
-
-	if (push_index(&thread_indices_q, thread->index))
-		return &(threads[thread->index]);
-
-	log(WARNING, "Thread queue full.");
-	return NULL;
-}
-
-struct tcb*
-pop_thread()
-{
-	size_t index = pop_index(&thread_indices_q);
-	if (!index) {
-		log(LOG, "Thread queue empty.");
+	if (!thread) {
+		log(WARNING, "Invalid thread (NULL)");
+		return NULL;
+	} else if (thread == &(threads[0])) {
+		log(WARNING, "Trying to push null-thread");
 		return NULL;
 	}
 
-	if (!(threads[index].initialized)) {
-		log(LOG, "Thread not initialized. Returning null-thread.");
+	// Push thread
+	ssize_t index = push_index(&thread_indices_q, thread->index);
+	if (!index) {
+		log(WARNING, "Thread queue full");
+		return NULL;
+	} else if (0 > index) {
+		return NULL; // Other error
+	}
+
+	return &(threads[thread->index]);
+}
+
+static struct tcb*
+pop_thread()
+{
+	ssize_t index;
+	size_t i;
+	for (i = 0; i < thread_indices_q.count; ++i) {
+		index = pop_index(&thread_indices_q);
+		if (!index) {
+			log(WARNING, "Thread queue empty");
+			return NULL;
+		} else if (0 > index) {
+			return NULL; // Other error
+		}
+
+		if (threads[index].initialized) {
+			break;
+		} else {
+			log(LOG, "Thread not initialized; getting next one");
+			push_index(&thread_indices_q, index);
+		}
+	}
+	if (i >= thread_indices_q.count) {
+		log(WARNING, "No thread is initialized, returning null-thread");
 		return NULL;
 	}
 
@@ -97,21 +140,27 @@ pop_thread()
 }
 
 void
+endless_loop()
+{
+	while (1) {}
+}
+
+void
 init_scheduler()
 {
 	init_queue(&thread_indices_q);
 	init_queue(&free_indices_q);
-	for (size_t i = 0; i < N_THREADS; ++i)
+	tid_count = 0;
+	// Mark all indices as free
+	for (size_t i = 0; i < free_indices_q.size; ++i)
 		push_index(&free_indices_q, i + 1);
 
-	// TODO(Aurel): Initialize null-thread in some way?
-	// NOTE(Aurel): null-thread
 	struct tcb null_thread = { 0 };
+	null_thread.regs.lr    = (uint32)&endless_loop; // TODO: Use .Lend label?
 	threads[0]             = null_thread;
-
-	running_thread = &(threads[0]);
-	tid_count      = 0;
-	log(LOG, "[SCHEDULER] Initialized");
+	running_thread         = &(threads[0]);
+	// TODO: Switch context?
+	log(LOG, "Initialized");
 }
 
 /*
@@ -119,28 +168,38 @@ init_scheduler()
  * The id of the thread is set in this function and a value of 0 indicates a
  * full queue.
  *
- * @return NULL if there is no room for the new thread in the queue.
+ * @return NULL if the thread could not be pushed.
  */
 struct tcb*
 schedule_thread(struct tcb* thread)
 {
-	// TODO: What do we do if the threads stop being continues? For example when
-	// thread with id 1 exist. `count + 1` would exist then.
-	thread->id = ++tid_count;
-
-	thread->index          = pop_index(&free_indices_q);
-	threads[thread->index] = *thread;
-	push_thread(thread);
-
-	log(LOG, "New thread: %i.", thread->id);
-	return (struct tcb*)&(threads[thread->index]);
+	ssize_t index = pop_index(&free_indices_q);
+	if (!index) {
+		log(WARNING, "No available thread indices");
+		return NULL;
+	} else if (0 > index) {
+		return NULL; // Other error
+	}
+	thread->id                = ++tid_count;
+	thread->index             = index;
+	threads[thread->index]    = *thread;
+	struct tcb* queued_thread = push_thread(thread);
+	if (queued_thread) {
+		log(LOG, "New thread: %i.", queued_thread->id);
+	} else {
+		// Make index available again
+		push_index(&free_indices_q, index);
+	}
+	return queued_thread;
 }
 
 static void
-switch_context(struct general_registers* regs, struct tcb* cur)
+switch_context(struct general_registers* regs, struct tcb* old, struct tcb* new)
 {
-	cur->regs = *regs;
-	*regs     = running_thread->regs;
+	if (old)
+		old->regs = *regs;
+	if (new)
+		*regs = new->regs;
 	// TODO: Are we loosing the lr when overwriting it with the function pointer
 	// in thread_create? Do we need to safe the previous lr?
 }
@@ -148,7 +207,7 @@ switch_context(struct general_registers* regs, struct tcb* cur)
 void
 scheduler_cycle(struct general_registers* regs)
 {
-	log(LOG, "[SCHEDULER] Cycling...");
+	log(LOG, "Cycling...");
 	// Continue if no other threads are waiting.
 	if (!thread_indices_q.count) {
 		log(LOG, "No waiting threads. Thread %i continues", running_thread->id);
@@ -161,14 +220,22 @@ scheduler_cycle(struct general_registers* regs)
 	 */
 	struct tcb* old_thread = running_thread;
 	running_thread         = pop_thread();
+	if (!running_thread) {
+		log(WARNING, "Cannot pop thread. Thread %i continues", old_thread->id);
+		running_thread = old_thread;
+		return;
+	}
 
-	// Overwrite pointer with reference to thread in queue if the running thread
-	// was not a null thread.
-	if (old_thread->id)
-		if (!push_thread(old_thread))
-			return;
-
-	switch_context(regs, old_thread);
+	if (old_thread->id) {
+		if (!push_thread(old_thread)) {
+			log(ERROR, "Could not push old thread back. Losing the thread!");
+			return; // TODO: PANIC?
+		}
+		switch_context(regs, old_thread, running_thread);
+	} else {
+		// Only set register values, do not modify null-thread
+		switch_context(regs, NULL, running_thread);
+	}
 
 	log(LOG, "Running thread: %i", running_thread->id);
 }
