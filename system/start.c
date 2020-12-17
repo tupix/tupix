@@ -15,27 +15,6 @@
 
 bool DEBUG_ENABLED = false;
 
-#if 0
-bool SUB_ROUTINE_FLAG = false;
-
-#define BUSY_WAIT_N_CHARS 50
-void
-sub_routine()
-{
-	SUB_ROUTINE_FLAG = true;
-	char c;
-	while (1) {
-		c = uart_getchar();
-
-		for (int i = 0; i < BUSY_WAIT_N_CHARS; ++i) {
-			kprintf("%c", c);
-			// We need a volatile counter so that the loop is not optimized out.
-			for (volatile int j = 0; j < BUSY_WAIT_COUNTER; ++j) {}
-		}
-	}
-}
-#endif
-
 void
 start_kernel(void)
 {
@@ -56,36 +35,4 @@ start_kernel(void)
 	thread_create(&dummy_run, NULL, 0);
 
 	switch_to_usermode();
-#if 0
-	char c;
-	while (1) {
-		c = uart_getchar();
-		switch (c) {
-		case 's':
-			// trigger Supervisor Call
-			asm("svc #0");
-			break;
-		case 'u':
-			// trigger Undefined Instruction
-			asm("udf");
-			break;
-		case 'p':
-			// trigger Prefetch Abort
-			asm("bkpt");
-			break;
-		case 'd':
-			DEBUG_ENABLED = !DEBUG_ENABLED;
-			break;
-		case 'e':
-			sub_routine();
-			break;
-		case 'c':
-			register_checker();
-			break;
-		default:
-			// Do nothing
-			break;
-		}
-	}
-#endif
 }

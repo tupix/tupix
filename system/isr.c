@@ -194,6 +194,26 @@ irq_handler(void* sp)
 		if (uart_buffer_char() == -1)
 			// TODO(Aurel): Error handling
 			return;
+
+		char c = uart_getchar();
+		log(LOG, "Pressed %c %i %x", c, c, c);
+		switch (c) {
+		case 'S':
+			// Trigger Supervisor Call
+			asm("svc #0");
+			break;
+		case 'P':
+			// Trigger Prefetch Abort
+			asm("bkpt");
+			break;
+		case 'A':
+			// TODO: Trigger Data Abort
+			break;
+		case 'U':
+			// Trigger Undefined Instruction
+			asm("udf");
+			break;
+		}
 		return;
 	}
 	print_registers(reg, "Unknown Interrupt Request (IRQ)", "Continuing.", "");
