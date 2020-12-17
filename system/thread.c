@@ -49,7 +49,8 @@ dummy_run(void* stack)
 {
 	size_t id = *(size_t*)stack;
 	for (uint32 i = 0; i < 8; ++i) {
-		log(LOG, "thread: %i: %i", id, i);
+		log(DEBUG, "thread %i: %i", id, i);
+		// We need a volatile counter so that the loop is not optimized out.
 		for (volatile uint32 i = 0; i < BUSY_WAIT_COUNTER_SCHEDULER; ++i) {}
 	}
 }
