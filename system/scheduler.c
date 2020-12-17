@@ -7,6 +7,7 @@
 #include <data/types.h>
 #include <system/assert.h>
 #include <system/thread.h>
+#include <system/entry.h>
 
 #include <std/io.h>
 #include <std/log.h>
@@ -142,12 +143,6 @@ pop_thread()
 }
 
 void
-endless_loop()
-{
-	while (1) {}
-}
-
-void
 init_scheduler()
 {
 	init_queue(&thread_indices_q);
@@ -158,7 +153,7 @@ init_scheduler()
 		push_index(&free_indices_q, i + 1);
 
 	struct tcb null_thread = { 0 };
-	null_thread.regs.lr    = (uint32)&endless_loop; // TODO: Use .Lend label?
+	null_thread.regs.pc    = (uint32)&endless_loop;
 	threads[0]             = null_thread;
 	running_thread         = &(threads[0]);
 	// TODO: Switch context?

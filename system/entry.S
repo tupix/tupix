@@ -35,6 +35,8 @@ _tupix:
 	bl start_kernel
 
 /* endless loop waiting for interrupts */
+.global endless_loop
+endless_loop:
 .Lend:
 	WFI // wait for interrupt
 	b .Lend

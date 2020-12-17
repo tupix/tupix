@@ -7,7 +7,6 @@
 #include <system/thread.h>
 
 void init_scheduler();
-void endless_loop();
 
 struct tcb* schedule_thread(struct tcb* thread);
 void scheduler_cycle(struct registers* regs);

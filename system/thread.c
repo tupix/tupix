@@ -2,6 +2,7 @@
 
 #include <data/types.h>
 #include <system/scheduler.h>
+#include <system/entry.h>
 
 #include <std/log.h>
 #include <std/mem.h>
