@@ -6,6 +6,7 @@
 void init_uart();
 void uart_putchar(unsigned char c);
 char uart_getchar();
+char uart_peekchar();
 
 int uart_buffer_char();
 bool uart_is_interrupting();

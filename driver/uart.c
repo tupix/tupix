@@ -97,6 +97,10 @@ static volatile struct ringbuffer buffer;
 // NOTE(Aurel): Do not increment var when using this macro.
 #define circle_forward(var, size) (var) = (var) + 1 >= (size) ? 0 : (var) + 1
 
+/*
+ * Pop next buffered character from uart queue. This will block until at least
+ * one character is available.
+ */
 char
 uart_getchar()
 {
@@ -107,6 +111,20 @@ uart_getchar()
 	return c;
 }
 
+/*
+ * Get next buffered character from uart queue without popping it. This will
+ * block until at least one character is available.
+ */
+char
+uart_peekchar()
+{
+	while (buffer.head == buffer.tail) {}
+	return buffer.buf[buffer.tail];
+}
+
+/*
+ * Put received character into queue.
+ */
 int
 uart_buffer_char()
 {
