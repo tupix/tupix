@@ -25,14 +25,5 @@ start_kernel(void)
 	ASSERTM(N_THREADS >= 32, "A minimum of 32 threads should be supported.");
 	init_scheduler();
 
-	/*
-	 * NOTE(Aurel): Simple demonstration of what the scheduler can do as of
-	 * right now and how to use it. Note the `init_scheduler` call a few lines up.
-	 */
-	thread_create(&dummy_run, NULL, 0);
-	thread_create(&dummy_run, NULL, 0);
-	thread_create(&dummy_run, NULL, 0);
-	thread_create(&dummy_run, NULL, 0);
-
 	switch_to_usermode();
 }
