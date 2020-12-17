@@ -9,9 +9,11 @@
 void
 thread_create(void (*func)(void*), const void* args, size_t args_size)
 {
-	struct tcb thread  = { 0 };
-	thread.callback    = func;
-	thread.regs.lr     = (uint32)func;
+	struct tcb thread = { 0 };
+	thread.callback   = func;
+	thread.regs.pc    = (uint32)func;
+	thread.regs.lr    = (uint32)&endless_loop;
+	// thread.cpsr = spsr;
 	thread.initialized = false;
 	// TODO: What else is there to be done?
 
@@ -46,7 +48,7 @@ void
 dummy_run(void* stack)
 {
 	size_t id = *(size_t*)stack;
-	for (uint32 i = 0;; ++i) {
+	for (uint32 i = 0; i < 8; ++i) {
 		log(LOG, "thread: %i: %i", id, i);
 		for (volatile uint32 i = 0; i < BUSY_WAIT_COUNTER_SCHEDULER; ++i) {}
 	}

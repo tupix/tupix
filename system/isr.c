@@ -91,26 +91,6 @@ psr_flags_str(uint32 flags, char* str)
 	}
 }
 
-/*
- * NOTE(Aurel): Do not change this, unless you know exactly what you are doing.
- * In that case, also change all the asm exception handlers.
- */
-struct registers {
-	struct mode_registers fiq;
-	struct mode_registers irq;
-	struct mode_registers abt;
-	struct mode_registers und;
-	struct mode_registers svc;
-
-	uint32 usr_lr;
-	uint32 usr_sp;
-
-	uint32 cpsr;
-	uint32 spsr;
-
-	struct general_registers gr;
-};
-
 void
 print_registers(volatile struct registers* reg, char* exc_str,
                 char* exc_system_info_str, char* exc_extra_info_str)
@@ -206,7 +186,7 @@ irq_handler(void* sp)
 
 	// Reset triggered interrupts
 	if (l_timer_is_interrupting()) {
-		scheduler_cycle((struct general_registers*)&(reg->gr));
+		scheduler_cycle((struct registers*)reg); // Discard volatile
 		// TODO(Aurel): Should this happen before calling the scheduler?
 		reset_timer();
 		return;
