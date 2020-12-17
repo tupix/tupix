@@ -15,10 +15,11 @@ user_thread(void* x)
 {
 	size_t id = *(size_t*)x;
 	x += sizeof(id);
-	char c = *(char*)x;
+	uint32 c = *(uint32*)x;
 	x += sizeof(c);
 	for (size_t i = 0; i < PRINT_N; ++i) {
 		log(DEBUG, "thread %i: %c", id, c);
+		kprintf("%c", c);
 		// We need a volatile counter so that the loop is not optimized out.
 		for (volatile uint32 i = 0; i < BUSY_WAIT_COUNTER; ++i) {}
 	}
