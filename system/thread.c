@@ -1,11 +1,30 @@
+#include "std/io.h"
 #include <system/thread.h>
 
 #include <data/types.h>
-#include <system/scheduler.h>
 #include <system/entry.h>
+#include <system/scheduler.h>
 
 #include <std/log.h>
 #include <std/mem.h>
+
+// TODO: Own header and source file?
+#define PRINT_N 10
+void
+user_thread(void* x)
+{
+	size_t id = *(size_t*)x;
+	x += sizeof(id);
+	char c = *(char*)x;
+	x += sizeof(c);
+	for (size_t i = 0; i < PRINT_N; ++i) {
+		log(DEBUG, "thread %i: %c", id, c);
+		// We need a volatile counter so that the loop is not optimized out.
+		for (volatile uint32 i = 0; i < BUSY_WAIT_COUNTER; ++i) {}
+	}
+	log(DEBUG, "thread %i: done", id);
+	return;
+}
 
 void
 thread_create(void (*func)(void*), const void* args, size_t args_size)
@@ -41,17 +60,4 @@ thread_create(void (*func)(void*), const void* args, size_t args_size)
 	// Pass stack-pointer as argument
 	scheduled_thread->regs.r0     = scheduled_thread->regs.sp;
 	scheduled_thread->initialized = true;
-}
-
-#define PRINT_N 10
-#define BUSY_WAIT_COUNTER_SCHEDULER 50000000
-void
-dummy_run(void* stack)
-{
-	size_t id = *(size_t*)stack;
-	for (uint32 i = 0; i < 8; ++i) {
-		log(DEBUG, "thread %i: %i", id, i);
-		// We need a volatile counter so that the loop is not optimized out.
-		for (volatile uint32 i = 0; i < BUSY_WAIT_COUNTER_SCHEDULER; ++i) {}
-	}
 }

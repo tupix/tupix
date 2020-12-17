@@ -6,11 +6,9 @@
 
 #include <system/assert.h>
 #include <system/ivt.h>
-#include <system/regcheck.h>
 #include <system/scheduler.h>
 #include <system/thread.h>
 
-#include <std/io.h>
 #include <std/mem.h>
 
 bool DEBUG_ENABLED = false;

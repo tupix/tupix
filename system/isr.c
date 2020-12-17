@@ -1,5 +1,6 @@
 /* ISR - Interrupt Service Routine - Interrupt handler */
 
+#include "system/thread.h"
 #include <arch/armv7/registers.h>
 
 #include <driver/timer.h>
@@ -212,7 +213,11 @@ irq_handler(void* sp)
 			// Trigger Undefined Instruction
 			asm("udf");
 			break;
+		default:
+			break;
 		}
+
+		thread_create(&user_thread, &c, sizeof(c));
 	} else {
 		print_registers(reg, "Unknown Interrupt Request (IRQ)", "Continuing.", "");
 	}

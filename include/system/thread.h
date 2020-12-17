@@ -21,7 +21,7 @@ struct tcb {
 	bool initialized;
 };
 
+void user_thread(void* x);
 void thread_create(void (*func)(void*), const void* args, size_t args_size);
-void dummy_run(void* stack);
 
 #endif /* SYSTEM_THREAD_H */
