@@ -21,6 +21,7 @@ struct tcb {
 	bool initialized;
 };
 
+void* get_stack_pointer(const size_t index);
 void user_thread(void* x);
 void thread_create(void (*func)(void*), const void* args, size_t args_size);
 

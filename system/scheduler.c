@@ -157,6 +157,7 @@ init_scheduler()
 
 	struct tcb null_thread = { 0 };
 	null_thread.regs.pc    = (uint32)&endless_loop;
+	null_thread.regs.sp    = (uint32)get_stack_pointer(null_thread.index);
 	threads[0]             = null_thread;
 	running_thread         = &(threads[0]);
 	// TODO: Switch context?

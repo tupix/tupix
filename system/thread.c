@@ -8,6 +8,16 @@
 #include <std/log.h>
 #include <std/mem.h>
 
+void*
+get_stack_pointer(const size_t index)
+{
+	// All thread stacks are positioned on top of each other with stack for id 0
+	// at the very top.
+	void* stack = (void*)(THREAD_STACK_BASE);
+	stack -= index * THREAD_STACK_SIZE;
+	return stack;
+}
+
 // TODO: Own header and source file?
 #define PRINT_N 10
 void
@@ -42,10 +52,7 @@ thread_create(void (*func)(void*), const void* args, size_t args_size)
 	if (!scheduled_thread)
 		return; // Thread was not added to queue
 
-	// All thread stacks are positioned on top of each other with stack for id 0
-	// at the very top.
-	void* thread_sp = (void*)(THREAD_STACK_BASE);
-	thread_sp -= scheduled_thread->index * THREAD_STACK_SIZE;
+	void* thread_sp = get_stack_pointer(scheduled_thread->index);
 
 	// Since the stack grows to the 'bottom', copy below it
 	thread_sp -= args_size;
