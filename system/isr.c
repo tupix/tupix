@@ -189,14 +189,13 @@ irq_handler(void* sp)
 		scheduler_cycle((struct registers*)reg); // Discard volatile
 		// TODO(Aurel): Should this happen before calling the scheduler?
 		reset_timer();
-		return;
 	} else if (uart_is_interrupting()) {
-		if (uart_buffer_char() == -1)
-			// TODO(Aurel): Error handling
+		if (-1 == uart_buffer_char()) {
+			log(ERROR, "Could not buffer new char");
 			return;
-
-		char c = uart_getchar();
-		log(LOG, "Pressed %c %i %x", c, c, c);
+		}
+		char c = uart_peekchar();
+		log(LOG, "Pressed %c 0x%02x %i ", c, c, c);
 		switch (c) {
 		case 'S':
 			// Trigger Supervisor Call
@@ -214,7 +213,7 @@ irq_handler(void* sp)
 			asm("udf");
 			break;
 		}
-		return;
+	} else {
+		print_registers(reg, "Unknown Interrupt Request (IRQ)", "Continuing.", "");
 	}
-	print_registers(reg, "Unknown Interrupt Request (IRQ)", "Continuing.", "");
 }
