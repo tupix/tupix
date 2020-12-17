@@ -134,7 +134,10 @@ pop_thread()
 			push_index(&thread_indices_q, index);
 		}
 	}
-	if (i >= thread_indices_q.count) {
+	// NOTE: Through a successful pop the count would decrease. Thus we need
+	// 'greater' and not 'greater or equal' for the case that we pop the last
+	// thread in the queue.
+	if (i > thread_indices_q.count) {
 		log(WARNING, "No thread is initialized, returning null-thread");
 		return NULL;
 	}
