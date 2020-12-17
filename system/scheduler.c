@@ -248,4 +248,5 @@ scheduler_cycle(struct registers* regs)
 	}
 
 	log(LOG, "Running thread: %i", running_thread->id);
+	kprintf("!");
 }

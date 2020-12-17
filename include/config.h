@@ -17,7 +17,7 @@
 
 #define LOGGING_ENABLED 1
 // See `include/std/log.h`
-#define LOGGING_LEVEL 99
+#define LOGGING_LEVEL 2
 
 // Number of Threads supported
 #define N_THREADS 32

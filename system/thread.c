@@ -21,7 +21,7 @@ user_thread(void* x)
 		log(DEBUG, "thread %i: %c", id, c);
 		kprintf("%c", c);
 		// We need a volatile counter so that the loop is not optimized out.
-		for (volatile uint32 i = 0; i < BUSY_WAIT_COUNTER; ++i) {}
+		for (volatile uint32 i = 0; i < BUSY_WAIT_COUNTER * 10; ++i) {}
 	}
 	log(DEBUG, "thread %i: done", id);
 	return;
