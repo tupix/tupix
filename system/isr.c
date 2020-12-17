@@ -195,7 +195,7 @@ irq_handler(void* sp)
 			log(ERROR, "Could not buffer new char");
 			return;
 		}
-		char c = uart_peekchar();
+		char c = uart_getchar();
 		log(LOG, "Pressed %c 0x%02x %i ", c, c, c);
 		switch (c) {
 		case 'S':
