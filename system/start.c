@@ -5,6 +5,7 @@
 #include <driver/uart.h>
 
 #include <system/assert.h>
+#include <system/ivt.h>
 #include <system/regcheck.h>
 #include <system/scheduler.h>
 #include <system/thread.h>
@@ -54,6 +55,7 @@ start_kernel(void)
 	thread_create(&dummy_run, NULL, 0);
 	thread_create(&dummy_run, NULL, 0);
 
+	switch_to_usermode();
 #if 0
 	char c;
 	while (1) {

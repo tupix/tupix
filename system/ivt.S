@@ -314,3 +314,11 @@ exc_cleanup_return:
 	add sp, #8
 	// Return and change mode
 	movs pc, lr
+
+
+.global switch_to_usermode
+switch_to_usermode:
+	mov r0, #0x10
+	msr spsr_cxsf, r0
+	ldr lr, =endless_loop
+	movs pc, lr
