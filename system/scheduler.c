@@ -6,8 +6,8 @@
 
 #include <data/types.h>
 #include <system/assert.h>
-#include <system/thread.h>
 #include <system/entry.h>
+#include <system/thread.h>
 
 #include <std/io.h>
 #include <std/log.h>

@@ -220,6 +220,7 @@ irq_handler(void* sp)
 		uint32 aligned_c = (uint32)c;
 		thread_create(&user_thread, &aligned_c, sizeof(aligned_c));
 	} else {
-		print_registers(reg, "Unknown Interrupt Request (IRQ)", "Continuing.", "");
+		print_registers(reg, "Unknown Interrupt Request (IRQ)", "Continuing.",
+		                "");
 	}
 }
