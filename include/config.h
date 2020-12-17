@@ -16,6 +16,8 @@
 // clang-format on
 
 #define LOGGING_ENABLED 1
+// See `include/std/log.h`
+#define LOGGING_LEVEL 99
 
 // Number of Threads supported
 #define N_THREADS 32
