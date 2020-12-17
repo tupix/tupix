@@ -119,9 +119,8 @@ uart_buffer_char()
 
 	buffer.buf[buffer.head] = c;
 	circle_forward(buffer.head, buffer.size);
-	if (buffer.head == buffer.tail) {
+	if (buffer.head == buffer.tail)
 		circle_forward(buffer.tail, buffer.size);
-	}
 	return 0;
 }
 

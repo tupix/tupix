@@ -199,18 +199,18 @@ static void
 switch_context(struct registers* regs, struct tcb* old, struct tcb* new)
 {
 	if (old) {
-		old->regs = regs->gr;
+		old->regs    = regs->gr;
 		old->regs.lr = regs->usr_lr;
 		old->regs.sp = regs->usr_sp;
 		old->regs.pc = regs->gr.lr;
-		old->cpsr = regs->spsr;
+		old->cpsr    = regs->spsr;
 	}
 	if (new) {
-		regs->gr = new->regs;
+		regs->gr     = new->regs;
 		regs->usr_lr = new->regs.lr;
 		regs->usr_sp = new->regs.sp;
-		regs->gr.lr = new->regs.pc;
-		regs->spsr = new->cpsr;
+		regs->gr.lr  = new->regs.pc;
+		regs->spsr   = new->cpsr;
 	}
 	// TODO: Are we loosing the lr when overwriting it with the function pointer
 	// in thread_create? Do we need to safe the previous lr?
