@@ -4,6 +4,7 @@
 #include <data/types.h>
 #include <system/entry.h>
 #include <system/scheduler.h>
+#include <system/ivt.h>
 
 #include <std/log.h>
 #include <std/mem.h>
@@ -45,7 +46,7 @@ thread_create(void (*func)(void*), const void* args, size_t args_size)
 		struct tcb thread = { 0 };
 		thread.callback   = func;
 		thread.regs.pc    = (uint32)func;
-		thread.regs.lr    = (uint32)&endless_loop;
+		thread.regs.lr    = (uint32)&kill_current_thread;
 		// thread.cpsr = spsr;
 		thread.initialized = false;
 		// TODO: What else is there to be done?
