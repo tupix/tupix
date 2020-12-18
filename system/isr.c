@@ -151,7 +151,7 @@ bool
 user_interrupted(uint32 spsr)
 {
 	// TODO: Do not hardcode
-	uint32 bitmask = 0xf;
+	uint32 bitmask = 0x1f;
 	return (spsr & bitmask) == 0x10;
 }
 
