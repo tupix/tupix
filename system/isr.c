@@ -17,9 +17,6 @@
 #include <std/strings.h>
 #include <std/util.h>
 
-extern bool DEBUG_ENABLED;
-extern bool SUB_ROUTINE_FLAG;
-
 enum cpsr_mode_bits {
 	USER          = 0b10000,
 	FIQ           = 0b10001,
@@ -203,9 +200,6 @@ data_abort_handler(volatile struct registers* reg)
 void
 irq_handler(volatile struct registers* reg)
 {
-	if (DEBUG_ENABLED)
-		print_registers(reg, "Interrupt Request (IRQ)", "Continuing.", "");
-
 	// Reset triggered interrupts
 	if (l_timer_is_interrupting()) {
 		kprintf("!");
