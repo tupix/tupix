@@ -231,6 +231,7 @@ switch_context(struct registers* regs, struct tcb* old, struct tcb* new)
 		regs->gr.lr  = new->regs.pc;
 		regs->spsr   = new->cpsr;
 	}
+	kprintf("\n");
 }
 
 void
@@ -267,7 +268,6 @@ scheduler_cycle(struct registers* regs)
 	}
 
 	log(LOG, "Running thread: %i", running_thread->id);
-	kprintf("!");
 }
 
 void
