@@ -1,5 +1,7 @@
 /* ISR - Interrupt Service Routine - Interrupt handler */
 
+#include <system/isr.h>
+
 #include <arch/armv7/registers.h>
 
 #include <driver/timer.h>
@@ -16,9 +18,6 @@
 #include <std/io.h>
 #include <std/strings.h>
 #include <std/util.h>
-
-extern bool DEBUG_ENABLED;
-extern bool SUB_ROUTINE_FLAG;
 
 enum cpsr_mode_bits {
 	USER          = 0b10000,
@@ -203,9 +202,6 @@ data_abort_handler(volatile struct registers* reg)
 void
 irq_handler(volatile struct registers* reg)
 {
-	if (DEBUG_ENABLED)
-		print_registers(reg, "Interrupt Request (IRQ)", "Continuing.", "");
-
 	// Reset triggered interrupts
 	if (l_timer_is_interrupting()) {
 		kprintf("!");
@@ -220,19 +216,16 @@ irq_handler(volatile struct registers* reg)
 		log(LOG, "Pressed %c 0x%02x %i ", c, c, c);
 		switch (c) {
 		case 'S':
-			// Trigger Supervisor Call
-			asm("svc #0");
+			trigger_exception(SUPERVISOR_CALL);
 			break;
 		case 'P':
-			// Trigger Prefetch Abort
-			asm("bkpt");
+			trigger_exception(PREFETCH_ABORT);
 			break;
 		case 'A':
-			// TODO: Trigger Data Abort
+			trigger_exception(DATA_ABORT);
 			break;
 		case 'U':
-			// Trigger Undefined Instruction
-			asm("udf");
+			trigger_exception(UNDEFINED_INSTRUCTION);
 			break;
 		default:
 			break;
@@ -243,5 +236,26 @@ irq_handler(volatile struct registers* reg)
 	} else {
 		print_registers(reg, "Unknown Interrupt Request (IRQ)", "Continuing.",
 		                "");
+	}
+}
+
+void
+trigger_exception(enum exception exc)
+{
+	switch (exc) {
+	case SUPERVISOR_CALL:
+		asm("svc #0");
+		break;
+	case PREFETCH_ABORT:
+		asm("bkpt");
+		break;
+	case DATA_ABORT:
+		// TODO
+		break;
+	case UNDEFINED_INSTRUCTION:
+		asm("udf");
+		break;
+	default:
+		break;
 	}
 }
