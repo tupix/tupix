@@ -119,7 +119,7 @@ push_thread(struct tcb* thread)
 static struct tcb*
 pop_thread()
 {
-	if(!thread_indices_q.count) {
+	if (!thread_indices_q.count) {
 		log(WARNING, "thread_indices_q is empty.");
 		return NULL;
 	}
@@ -213,6 +213,10 @@ schedule_thread(struct tcb* thread)
 static void
 switch_context(struct registers* regs, struct tcb* old, struct tcb* new)
 {
+	if (!regs) {
+		log(ERROR, "regs points to NULL");
+		return;
+	}
 	if (old) {
 		old->regs    = regs->gr;
 		old->regs.lr = regs->usr_lr;
@@ -227,8 +231,6 @@ switch_context(struct registers* regs, struct tcb* old, struct tcb* new)
 		regs->gr.lr  = new->regs.pc;
 		regs->spsr   = new->cpsr;
 	}
-	// TODO: Are we loosing the lr when overwriting it with the function pointer
-	// in thread_create? Do we need to safe the previous lr?
 }
 
 void
