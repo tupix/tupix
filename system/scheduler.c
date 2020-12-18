@@ -24,6 +24,7 @@ static struct index_queue free_indices_q;
 
 static struct tcb threads[N_THREADS + 1];
 static struct tcb* running_thread;
+static struct tcb* null_thread;
 
 static uint32 tid_count;
 
@@ -145,6 +146,17 @@ pop_thread()
 	return &(threads[index]);
 }
 
+struct tcb*
+init_null_thread()
+{
+	struct tcb null_thread_init = { 0 };
+	null_thread_init.regs.pc    = (uint32)&endless_loop;
+	null_thread_init.regs.sp =
+			(uint32)get_stack_pointer(null_thread_init.index);
+	threads[0] = null_thread_init;
+	return &(threads[0]);
+}
+
 void
 init_scheduler()
 {
@@ -155,11 +167,8 @@ init_scheduler()
 	for (size_t i = 0; i < free_indices_q.size; ++i)
 		push_index(&free_indices_q, i + 1);
 
-	struct tcb null_thread = { 0 };
-	null_thread.regs.pc    = (uint32)&endless_loop;
-	null_thread.regs.sp    = (uint32)get_stack_pointer(null_thread.index);
-	threads[0]             = null_thread;
-	running_thread         = &(threads[0]);
+	null_thread    = init_null_thread();
+	running_thread = null_thread;
 	// TODO: Switch context?
 	log(LOG, "Initialized");
 }
