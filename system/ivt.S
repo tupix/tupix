@@ -127,9 +127,14 @@ software_interrupt:
 	 * NOTE(Aurel): Save the lr before branching and linking the c-function and
 	 * pop it directly into the pc to return to the program
 	 */
-	push {lr}
+	// push {lr}
 	bl software_interrupt_handler
-	pop {pc}
+	// pop {pc}
+	// Since kill_current_thread pushes the register again and then calls the
+	// cleanup, the stuff from before is never removed from the stack.
+	// TODO: Remove!!!! This is just temporarily anyway, use syscalls!
+	add sp, #140
+	b kill_current_thread
 
 prefetch_abort:
 	/*
