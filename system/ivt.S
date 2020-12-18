@@ -71,7 +71,11 @@ undefined_instruction:
 	 * therefor the location at which the struct registers should be placed.
 	 */
 	mov r0, sp
-	b undefined_instruction_handler
+	bl undefined_instruction_handler
+	// Since kill_current_thread pushes the register again and then calls the
+	// cleanup, the stuff from before is never removed from the stack.
+	add sp, #140
+	b kill_current_thread
 
 software_interrupt:
 	/*
@@ -127,9 +131,11 @@ software_interrupt:
 	 * NOTE(Aurel): Save the lr before branching and linking the c-function and
 	 * pop it directly into the pc to return to the program
 	 */
-	push {lr}
 	bl software_interrupt_handler
-	pop {pc}
+	// Since kill_current_thread pushes the register again and then calls the
+	// cleanup, the stuff from before is never removed from the stack.
+	add sp, #140
+	b kill_current_thread
 
 prefetch_abort:
 	/*
@@ -180,7 +186,11 @@ prefetch_abort:
 	 * therefor the location at which the struct registers should be placed.
 	 */
 	mov r0, sp
-	b prefetch_abort_handler
+	bl prefetch_abort_handler
+	// Since kill_current_thread pushes the register again and then calls the
+	// cleanup, the stuff from before is never removed from the stack.
+	add sp, #140
+	b kill_current_thread
 
 data_abort:
 	/*
@@ -231,7 +241,11 @@ data_abort:
 	 * therefor the location at which the struct registers should be placed.
 	 */
 	mov r0, sp
-	b data_abort_handler
+	bl data_abort_handler
+	// Since kill_current_thread pushes the register again and then calls the
+	// cleanup, the stuff from before is never removed from the stack.
+	add sp, #140
+	b kill_current_thread
 
 irq:
 	/*
@@ -288,6 +302,23 @@ irq:
 
 	b exc_cleanup_return
 
+.globl kill_current_thread
+kill_current_thread:
+	// 18 current registers
+	// 17 mode specific registers
+	// (18 + 17) * 4 = 140
+	sub sp, #140
+
+	/*
+	 * NOTE(Aurel): Give current stack pointer as first argument. It points
+	 * exactly to the end of where all the registers have been pushed to and is
+	 * therefor the location at which the struct registers should be placed.
+	 */
+	mov r0, sp
+	bl _kill_current_thread
+
+	b exc_cleanup_return
+
 exc_cleanup_return:
 	/*
 	 * NOTE(Aurel): Throw away the 19 pushed mode-specific register
@@ -303,9 +334,11 @@ exc_cleanup_return:
 	pop {r1}
 	msr sp_usr, r1
 
-	// Throw away cpsr and spsr
-	// TODO: Keep?
-	add sp, #8
+	// Throw away cpsr
+	add sp, #4
+	// Restore spsr. This is moved into the cpsr below
+	pop {r0}
+	msr spsr, r0
 
 	// Restore the old register values
 	pop {r0 - r12}

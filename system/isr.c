@@ -1,12 +1,15 @@
 /* ISR - Interrupt Service Routine - Interrupt handler */
 
-#include "system/thread.h"
 #include <arch/armv7/registers.h>
 
 #include <driver/timer.h>
 #include <driver/uart.h>
 
+#include <system/calls.h>
+#include <system/entry.h>
 #include <system/scheduler.h>
+#include <system/thread.h>
+#include <system/user_thread.h>
 
 #include <data/types.h>
 #include <std/bits.h>
@@ -145,43 +148,56 @@ print_registers(volatile struct registers* reg, char* exc_str,
 	kprintf("%s\n", exc_system_info_str);
 }
 
-void
-undefined_instruction_handler(void* sp)
+bool
+user_interrupted(uint32 spsr)
 {
-	volatile struct registers* reg = (struct registers*)sp;
+	// TODO: Do not hardcode
+	uint32 bitmask = 0x1f;
+	return (spsr & bitmask) == 0x10;
+}
+
+// TODO: Update "System halted" and "Continuing" as we kill threads now
+void
+undefined_instruction_handler(volatile struct registers* reg)
+{
 	print_registers(reg, "Undefined Instruction", "System halted.", "");
-	while (true) {}
+	if (!user_interrupted(reg->spsr))
+		endless_loop();
 }
 
 void
-software_interrupt_handler(void* sp)
+software_interrupt_handler(volatile struct registers* reg)
 {
-	volatile struct registers* reg = (struct registers*)sp;
-	print_registers(reg, "Software Interrupt", "Continuing.", "");
-	// TODO(Aurel): In the future, this should continue.
-	while (true) {}
+	if (!user_interrupted(reg->spsr)) {
+		print_registers(reg, "Software Interrupt", "System halted.", "");
+		endless_loop();
+	} else if (get_syscall_id(reg->gr.lr) != 1) {
+		// Syscall-id 1 means that the thread returned. Then we want no register
+		// snapshot.
+		print_registers(reg, "Software Interrupt", "Killing thread.", "");
+	}
+	log(LOG, "Syscall with id %i called.", get_syscall_id(reg->gr.lr));
 }
 
 void
-prefetch_abort_handler(void* sp)
+prefetch_abort_handler(volatile struct registers* reg)
 {
-	volatile struct registers* reg = (struct registers*)sp;
 	print_registers(reg, "Prefetch Abort", "System halted.", "");
-	while (true) {}
+	if (!user_interrupted(reg->spsr))
+		endless_loop();
 }
 
 void
-data_abort_handler(void* sp)
+data_abort_handler(volatile struct registers* reg)
 {
-	volatile struct registers* reg = (struct registers*)sp;
 	print_registers(reg, "Data Abort", "System halted.", "");
-	while (true) {}
+	if (!user_interrupted(reg->spsr))
+		endless_loop();
 }
 
 void
-irq_handler(void* sp)
+irq_handler(volatile struct registers* reg)
 {
-	volatile struct registers* reg = (struct registers*)sp;
 	if (DEBUG_ENABLED)
 		print_registers(reg, "Interrupt Request (IRQ)", "Continuing.", "");
 

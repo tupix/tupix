@@ -1,14 +1,16 @@
 #include <system/scheduler.h>
 
-#include <arch/armv7/registers.h>
-
 #include <config.h>
 
-#include <data/types.h>
+#include <arch/armv7/registers.h>
+
+#include <driver/timer.h>
+
 #include <system/assert.h>
 #include <system/entry.h>
 #include <system/thread.h>
 
+#include <data/types.h>
 #include <std/io.h>
 #include <std/log.h>
 #include <std/mem.h>
@@ -24,6 +26,7 @@ static struct index_queue free_indices_q;
 
 static struct tcb threads[N_THREADS + 1];
 static struct tcb* running_thread;
+static struct tcb* null_thread;
 
 static uint32 tid_count;
 
@@ -116,6 +119,11 @@ push_thread(struct tcb* thread)
 static struct tcb*
 pop_thread()
 {
+	if (!thread_indices_q.count) {
+		log(WARNING, "thread_indices_q is empty.");
+		return NULL;
+	}
+
 	ssize_t index;
 	size_t i;
 	for (i = 0; i < thread_indices_q.count; ++i) {
@@ -145,6 +153,17 @@ pop_thread()
 	return &(threads[index]);
 }
 
+struct tcb*
+init_null_thread()
+{
+	struct tcb null_thread_init = { 0 };
+	null_thread_init.regs.pc    = (uint32)&endless_loop;
+	null_thread_init.regs.sp =
+			(uint32)get_stack_pointer(null_thread_init.index);
+	threads[0] = null_thread_init;
+	return &(threads[0]);
+}
+
 void
 init_scheduler()
 {
@@ -155,11 +174,8 @@ init_scheduler()
 	for (size_t i = 0; i < free_indices_q.size; ++i)
 		push_index(&free_indices_q, i + 1);
 
-	struct tcb null_thread = { 0 };
-	null_thread.regs.pc    = (uint32)&endless_loop;
-	null_thread.regs.sp    = (uint32)get_stack_pointer(null_thread.index);
-	threads[0]             = null_thread;
-	running_thread         = &(threads[0]);
+	null_thread    = init_null_thread();
+	running_thread = null_thread;
 	// TODO: Switch context?
 	log(LOG, "Initialized");
 }
@@ -197,6 +213,10 @@ schedule_thread(struct tcb* thread)
 static void
 switch_context(struct registers* regs, struct tcb* old, struct tcb* new)
 {
+	if (!regs) {
+		log(ERROR, "regs points to NULL");
+		return;
+	}
 	if (old) {
 		old->regs    = regs->gr;
 		old->regs.lr = regs->usr_lr;
@@ -211,8 +231,6 @@ switch_context(struct registers* regs, struct tcb* old, struct tcb* new)
 		regs->gr.lr  = new->regs.pc;
 		regs->spsr   = new->cpsr;
 	}
-	// TODO: Are we loosing the lr when overwriting it with the function pointer
-	// in thread_create? Do we need to safe the previous lr?
 }
 
 void
@@ -226,7 +244,7 @@ scheduler_cycle(struct registers* regs)
 	}
 
 	/*
-	 * NOTE: Pop before queuing as the other way around will not work when
+	 * NOTE: Pop before pushing as the other way around will not work when
 	 * the queue is full.
 	 */
 	struct tcb* old_thread = running_thread;
@@ -250,4 +268,20 @@ scheduler_cycle(struct registers* regs)
 
 	log(LOG, "Running thread: %i", running_thread->id);
 	kprintf("!");
+}
+
+void
+_kill_current_thread(void* sp)
+{
+	struct tcb* current_thread = running_thread;
+	running_thread             = pop_thread();
+	if (!running_thread)
+		running_thread = null_thread;
+
+	volatile struct registers* new_regs = (struct registers*)sp;
+	// discard volatile
+	switch_context((struct registers*)new_regs, NULL, running_thread);
+
+	push_index(&free_indices_q, current_thread->index);
+	reset_timer();
 }
