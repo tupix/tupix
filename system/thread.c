@@ -3,8 +3,8 @@
 
 #include <data/types.h>
 #include <system/entry.h>
-#include <system/scheduler.h>
 #include <system/ivt.h>
+#include <system/scheduler.h>
 
 #include <std/log.h>
 #include <std/mem.h>
@@ -41,6 +41,7 @@ user_thread(void* x)
 void
 exit_thread()
 {
+	// TODO: Disable timer?
 	asm("svc #0");
 }
 
