@@ -4,4 +4,3 @@
 void user_thread(void* x);
 
 #endif /* USER_THREAD_H */
-
