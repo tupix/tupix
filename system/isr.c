@@ -5,6 +5,7 @@
 #include <driver/timer.h>
 #include <driver/uart.h>
 
+#include <system/calls.h>
 #include <system/entry.h>
 #include <system/scheduler.h>
 #include <system/thread.h>
@@ -167,9 +168,15 @@ undefined_instruction_handler(volatile struct registers* reg)
 void
 software_interrupt_handler(volatile struct registers* reg)
 {
-	print_registers(reg, "Software Interrupt", "Continuing.", "");
-	if (!user_interrupted(reg->spsr))
+	if (!user_interrupted(reg->spsr)) {
+		print_registers(reg, "Software Interrupt", "System halted.", "");
 		endless_loop();
+	} else if (get_syscall_id(reg->gr.lr) != 1) {
+		// Syscall-id 1 means that the thread returned. Then we want no register
+		// snapshot.
+		print_registers(reg, "Software Interrupt", "Killing thread.", "");
+	}
+	log(LOG, "Syscall with id %i called.", get_syscall_id(reg->gr.lr));
 }
 
 void
