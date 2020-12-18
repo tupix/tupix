@@ -2,8 +2,8 @@
 
 #include <data/types.h>
 
-#include <std/log.h>
 #include <std/io.h>
+#include <std/log.h>
 
 #define PRINT_N 10
 void
@@ -22,4 +22,3 @@ user_thread(void* x)
 	log(DEBUG, "thread %i: done", id);
 	return;
 }
-
