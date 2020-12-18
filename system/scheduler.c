@@ -231,6 +231,7 @@ switch_context(struct registers* regs, struct tcb* old, struct tcb* new)
 		regs->gr.lr  = new->regs.pc;
 		regs->spsr   = new->cpsr;
 	}
+	kprintf("\n");
 }
 
 void
@@ -267,7 +268,22 @@ scheduler_cycle(struct registers* regs)
 	}
 
 	log(LOG, "Running thread: %i", running_thread->id);
-	kprintf("!");
+}
+
+void
+_kill_current_thread(void* sp)
+{
+	struct tcb* current_thread = running_thread;
+	running_thread             = pop_thread();
+	if (!running_thread)
+		running_thread = null_thread;
+
+	volatile struct registers* new_regs = (struct registers*)sp;
+	// discard volatile
+	switch_context((struct registers*)new_regs, NULL, running_thread);
+
+	push_index(&free_indices_q, current_thread->index);
+	reset_timer();
 }
 
 void

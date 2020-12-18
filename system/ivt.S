@@ -303,6 +303,23 @@ kill_current_thread:
 	bl _kill_current_thread
 	b exc_cleanup_return
 
+.globl kill_current_thread
+kill_current_thread:
+	// 18 current registers
+	// 17 mode specific registers
+	// (18 + 17) * 4 = 140
+	sub sp, #140
+
+	/*
+	 * NOTE(Aurel): Give current stack pointer as first argument. It points
+	 * exactly to the end of where all the registers have been pushed to and is
+	 * therefor the location at which the struct registers should be placed.
+	 */
+	mov r0, sp
+	bl _kill_current_thread
+
+	b exc_cleanup_return
+
 exc_cleanup_return:
 	/*
 	 * NOTE(Aurel): Throw away all mode-specific register except for usr

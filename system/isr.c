@@ -203,6 +203,7 @@ irq_handler(volatile struct registers* reg)
 
 	// Reset triggered interrupts
 	if (l_timer_is_interrupting()) {
+		kprintf("!");
 		scheduler_cycle((struct registers*)reg); // Discard volatile
 		// TODO(Aurel): Should this happen before calling the scheduler?
 		reset_timer();
