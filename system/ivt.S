@@ -320,9 +320,11 @@ exc_cleanup_return:
 	pop {r1}
 	msr sp_usr, r1
 
-	// Throw away cpsr and spsr
-	// TODO: Keep?
-	add sp, #8
+	// Throw away cpsr
+	add sp, #4
+	// Restore spsr. This is moved into the cpsr below
+	pop {r0}
+	msr spsr, r0
 
 	// Restore the old register values
 	pop {r0 - r12}
