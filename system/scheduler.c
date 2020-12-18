@@ -1,15 +1,16 @@
 #include <system/scheduler.h>
 
+#include <config.h>
+
 #include <arch/armv7/registers.h>
 
-#include <config.h>
 #include <driver/timer.h>
 
-#include <data/types.h>
 #include <system/assert.h>
-#include <system/thread.h>
 #include <system/entry.h>
+#include <system/thread.h>
 
+#include <data/types.h>
 #include <std/io.h>
 #include <std/log.h>
 #include <std/mem.h>
@@ -118,6 +119,11 @@ push_thread(struct tcb* thread)
 static struct tcb*
 pop_thread()
 {
+	if(!thread_indices_q.count) {
+		log(WARNING, "thread_indices_q is empty.");
+		return NULL;
+	}
+
 	ssize_t index;
 	size_t i;
 	for (i = 0; i < thread_indices_q.count; ++i) {
@@ -236,7 +242,7 @@ scheduler_cycle(struct registers* regs)
 	}
 
 	/*
-	 * NOTE: Pop before queuing as the other way around will not work when
+	 * NOTE: Pop before pushing as the other way around will not work when
 	 * the queue is full.
 	 */
 	struct tcb* old_thread = running_thread;
