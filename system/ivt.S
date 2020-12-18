@@ -303,18 +303,7 @@ kill_current_thread:
 	mov r0, sp
 	bl _kill_current_thread
 
-	b exc_cleanup_return_usr_mode
-
-// TODO(Aurel): Turn this into an if-body inside exc_cleanup_return
-exc_cleanup_return_usr_mode:
-	add sp, #60
-
-	// Restore usr register
-	pop {r0}
-	mov lr, r0
-	pop {r1}
-	mov sp, r1
-	b continue
+	b exc_cleanup_return
 
 exc_cleanup_return:
 	/*
@@ -325,13 +314,12 @@ exc_cleanup_return:
 	// #{fiq, irq, abt, und, svc} * 3 * 4 = 15 * 4 = 60
 	add sp, #60
 
-	// TODO(Aurel): Check if we are in user mode and do not use this code if so.
 	// Restore usr register
 	pop {r0}
 	msr lr_usr, r0
 	pop {r1}
 	msr sp_usr, r1
-continue:
+
 	// Throw away cpsr and spsr
 	// TODO: Keep?
 	add sp, #8
