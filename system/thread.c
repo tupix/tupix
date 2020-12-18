@@ -50,10 +50,6 @@ thread_create(void (*func)(void*), const void* args, size_t args_size)
 	thread_sp -= args_size;
 	memcpy(thread_sp, args, args_size);
 
-	// Copy thread id onto stack for now too, as dummy_run uses it.
-	thread_sp -= sizeof(scheduled_thread->id);
-	memcpy(thread_sp, &scheduled_thread->id, sizeof(scheduled_thread->id));
-
 	// Update stack pointer
 	scheduled_thread->regs.sp = (uint32)thread_sp;
 
