@@ -208,11 +208,11 @@ irq_handler(volatile struct registers* reg)
 		// TODO(Aurel): Should this happen before calling the scheduler?
 		reset_timer();
 	} else if (uart_is_interrupting()) {
-		if (-1 == uart_buffer_char()) {
+		if (!uart_push_char()) {
 			log(ERROR, "Could not buffer new char");
 			return;
 		}
-		char c = uart_getchar();
+		char c = uart_pop_char();
 		log(LOG, "Pressed %c 0x%02x %i ", c, c, c);
 		switch (c) {
 		case 'S':

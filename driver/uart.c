@@ -6,8 +6,11 @@
 
 #include <data/types.h>
 
+#include <system/assert.h>
+
 #include <std/bits.h>
 #include <std/log.h>
+#include <std/mem.h>
 #include <std/util.h>
 
 #define UART_BASE (0x7E201000 - MMU_BASE_OFFSET)
@@ -84,15 +87,8 @@ enum mis_bit_field {
 	MIS_RXMIS = 4,
 };
 
-// TODO: Move somewhere else.
-struct ringbuffer {
-	uint32 size;
-	uint32 tail, head;
-	char buf[UART_INPUT_BUFFER_SIZE];
-};
-
 static volatile struct uart* const uart = (struct uart*)UART_BASE;
-static volatile struct ringbuffer buffer;
+static struct uart_queue queue;
 
 // NOTE(Aurel): Do not increment var when using this macro.
 #define circle_forward(var, size) (var) = (var) + 1 >= (size) ? 0 : (var) + 1
@@ -102,12 +98,11 @@ static volatile struct ringbuffer buffer;
  * one character is available.
  */
 char
-uart_getchar()
+uart_pop_char()
 {
-	while (buffer.head == buffer.tail) {}
-
-	char c = buffer.buf[buffer.tail];
-	circle_forward(buffer.tail, buffer.size);
+	char c = uart_peek_char();
+	circle_forward(queue.head, queue.size);
+	--(queue.count);
 	return c;
 }
 
@@ -116,30 +111,36 @@ uart_getchar()
  * block until at least one character is available.
  */
 char
-uart_peekchar()
+uart_peek_char()
 {
-	while (buffer.head == buffer.tail) {}
-	return buffer.buf[buffer.tail];
+	while (!queue.count) {}
+
+	return queue.chars[queue.head];
 }
 
 /*
  * Put received character into queue.
  */
-int
-uart_buffer_char()
+bool
+uart_push_char()
 {
-	if (IS_SET(uart->fr, FR_RXFE))
-		return -1;
+	if (IS_SET(uart->fr, FR_RXFE)) {
+		log(WARNING, "UART Receive FIFO empty, cannot read character.");
+		return false;
+	}
 
 	unsigned char c = (unsigned char)(uart->dr & 0xff);
 
 	// TODO(Aurel): Check if full and discard new char if so.
 
-	buffer.buf[buffer.head] = c;
-	circle_forward(buffer.head, buffer.size);
-	if (buffer.head == buffer.tail)
-		circle_forward(buffer.tail, buffer.size);
-	return 0;
+	if (queue.count >= queue.size) {
+		log(WARNING, "UART queue full. Discarding current character");
+		return false;
+	}
+	queue.chars[queue.tail] = c;
+	circle_forward(queue.tail, queue.size);
+	++(queue.count);
+	return true;
 }
 
 bool
@@ -152,9 +153,9 @@ void
 init_uart()
 {
 	// Initialize ringbuffer
-	buffer.size = UART_INPUT_BUFFER_SIZE;
-	buffer.tail = 0;
-	buffer.head = 0;
+	memset(&queue, 0, sizeof(queue));
+	queue.size = sizeof(queue.chars) / sizeof(*(queue.chars));
+	ASSERTM(queue.size, "UART Queue size needs a nonzero size");
 
 	// Disable the UART.
 	CLEAR_BIT(uart->cr, CR_UARTEN);
@@ -179,7 +180,7 @@ init_uart()
 }
 
 void
-uart_putchar(unsigned char c)
+uart_put_char(unsigned char c)
 {
 	// Wait until transmit FIFO is not full
 	while (IS_SET(uart->fr, FR_TXFF)) {}

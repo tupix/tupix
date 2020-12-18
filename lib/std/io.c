@@ -12,7 +12,7 @@ static void
 kprint(const char* s)
 {
 	while (*s)
-		uart_putchar(*(s++));
+		uart_put_char(*(s++));
 }
 
 /**
@@ -24,7 +24,7 @@ print_with_padding(const char* num_str, size_t len, size_t field_width,
 {
 	size_t str_len = max(len, field_width);
 	for (size_t i = 0; i < str_len - len; ++i)
-		uart_putchar(padding);
+		uart_put_char(padding);
 	kprint(num_str);
 }
 
@@ -109,7 +109,7 @@ kprintf(const char* format, ...)
 	size_t flags_len, field_width, len;
 	while (*cur_char) {
 		if (*(cur_char++) != '%') {
-			uart_putchar(*(cur_char - 1));
+			uart_put_char(*(cur_char - 1));
 			continue;
 		}
 
@@ -119,7 +119,7 @@ kprintf(const char* format, ...)
 
 		switch (*cur_char) {
 		case 'c':
-			uart_putchar((unsigned char)va_arg(args, int));
+			uart_put_char((unsigned char)va_arg(args, int));
 			break;
 		case 's': {
 			const char* str = va_arg(args, const char*);
@@ -135,7 +135,7 @@ kprintf(const char* format, ...)
 			itostr(va_arg(args, int32), 10, num_str, &len);
 			uint32 offset = 0;
 			if (num_str[0] == '-') {
-				uart_putchar('-');
+				uart_put_char('-');
 				offset = 1;
 			}
 			print_with_padding(num_str + offset, len - offset,
@@ -152,7 +152,7 @@ kprintf(const char* format, ...)
 			print_with_padding(num_str, len, field_width, padding);
 			break;
 		case '%':
-			uart_putchar('%');
+			uart_put_char('%');
 			break;
 		}
 		++cur_char;
