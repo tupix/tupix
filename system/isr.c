@@ -5,6 +5,7 @@
 #include <driver/timer.h>
 #include <driver/uart.h>
 
+#include <system/entry.h>
 #include <system/scheduler.h>
 #include <system/thread.h>
 
@@ -146,41 +147,35 @@ print_registers(volatile struct registers* reg, char* exc_str,
 }
 
 void
-undefined_instruction_handler(void* sp)
+undefined_instruction_handler(volatile struct registers* reg)
 {
-	volatile struct registers* reg = (struct registers*)sp;
 	print_registers(reg, "Undefined Instruction", "System halted.", "");
-	while (true) {}
+	endless_loop();
 }
 
 void
-software_interrupt_handler(void* sp)
+software_interrupt_handler(volatile struct registers* reg)
 {
-	volatile struct registers* reg = (struct registers*)sp;
 	print_registers(reg, "Software Interrupt", "Continuing.", "");
-	// TODO(Aurel): In the future, this should continue.
 }
 
 void
-prefetch_abort_handler(void* sp)
+prefetch_abort_handler(volatile struct registers* reg)
 {
-	volatile struct registers* reg = (struct registers*)sp;
 	print_registers(reg, "Prefetch Abort", "System halted.", "");
-	while (true) {}
+	endless_loop();
 }
 
 void
-data_abort_handler(void* sp)
+data_abort_handler(volatile struct registers* reg)
 {
-	volatile struct registers* reg = (struct registers*)sp;
 	print_registers(reg, "Data Abort", "System halted.", "");
-	while (true) {}
+	endless_loop();
 }
 
 void
-irq_handler(void* sp)
+irq_handler(volatile struct registers* reg)
 {
-	volatile struct registers* reg = (struct registers*)sp;
 	if (DEBUG_ENABLED)
 		print_registers(reg, "Interrupt Request (IRQ)", "Continuing.", "");
 
