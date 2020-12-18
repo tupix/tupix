@@ -71,7 +71,8 @@ undefined_instruction:
 	 * therefor the location at which the struct registers should be placed.
 	 */
 	mov r0, sp
-	b undefined_instruction_handler
+	bl undefined_instruction_handler
+	b kill_current_thread
 
 software_interrupt:
 	/*
@@ -82,7 +83,6 @@ software_interrupt:
 	 */
 	push { sp }
 	push { pc }
-	//sub lr, #4 // TODO(Aurel): In preperation for later.
 	push { lr }
 	push { r0 - r12 }
 
@@ -125,11 +125,10 @@ software_interrupt:
 	mov r0, sp
 	/*
 	 * NOTE(Aurel): Save the lr before branching and linking the c-function and
-	 * pop it directly into the sp to return to the program
+	 * pop it directly into the pc to return to the program
 	 */
-	push {lr}
 	bl software_interrupt_handler
-	pop {pc}
+	b kill_current_thread
 
 prefetch_abort:
 	/*
@@ -180,7 +179,8 @@ prefetch_abort:
 	 * therefor the location at which the struct registers should be placed.
 	 */
 	mov r0, sp
-	b prefetch_abort_handler
+	bl prefetch_abort_handler
+	b kill_current_thread
 
 data_abort:
 	/*
@@ -231,7 +231,8 @@ data_abort:
 	 * therefor the location at which the struct registers should be placed.
 	 */
 	mov r0, sp
-	b data_abort_handler
+	bl data_abort_handler
+	b kill_current_thread
 
 irq:
 	/*
@@ -284,24 +285,54 @@ irq:
 	 * therefor the location at which the struct registers should be placed.
 	 */
 	mov r0, sp
-	/*
-	 * NOTE(Aurel): Save the lr before branching and linking the c-function and
-	 * pop it directly into the sp to return to the program
-	 */
-	push {lr}
 	bl irq_handler
-	pop {lr}
+	b exc_cleanup_return
+
+kill_current_thread:
+	/*
+	 * NOTE(Aurel): We expect exactly 140 bits space on the stack to overwrite
+	 * with the registers which are then pulled and written into the actual
+	 * registers.
+	 */
+	/*
+	 * NOTE(Aurel): Give current stack pointer as first argument. It points
+	 * exactly to the end of where all the registers have been pushed to and is
+	 * therefor the location at which the struct registers should be placed.
+	 */
+	mov r0, sp
+	bl _kill_current_thread
 	b exc_cleanup_return
 
 exc_cleanup_return:
 	/*
-	 * NOTE(Aurel): Throw away the 19 pushed mode-specific register
-	 * 19 * 4 = 76
+	 * NOTE(Aurel): Throw away all mode-specific register except for usr
+	 * #{fiq, irq, abt, und, svc} * 3 * 4 = 15 * 4 = 60
 	 */
-	add sp, #76
+	add sp, #60
+
+	// Restore usr register
+	pop {r0}
+	msr lr_usr, r0
+	pop {r1}
+	msr sp_usr, r1
+
+	// Throw away cpsr
+	add sp, #4
+	// Restore spsr. This is moved into the cpsr below
+	pop {r0}
+	msr spsr, r0
+
 	// Restore the old register values
 	pop {r0 - r12}
-	// Throw away lr, pc and sp (3 * 4 = 12)
-	add sp, #12
+	pop {lr}
+	// Throw away pc and sp (2 * 4 = 8)
+	add sp, #8
 	// Return and change mode
+	movs pc, lr
+
+
+.global switch_to_usermode
+switch_to_usermode:
+	msr spsr, #0x10
+	ldr lr, =endless_loop
 	movs pc, lr
