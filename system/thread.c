@@ -1,5 +1,6 @@
-#include "std/io.h"
 #include <system/thread.h>
+
+#include <arch/armv7/registers.h>
 
 #include <data/types.h>
 #include <system/entry.h>
@@ -35,9 +36,8 @@ thread_create(void (*func)(void*), const void* args, size_t args_size)
 		thread.callback    = func;
 		thread.regs.pc     = (uint32)func;
 		thread.regs.lr     = (uint32)&exit_thread;
-		thread.cpsr        = 0x10; // User mode, TODO: Anything else?
+		thread.cpsr        = PROCESSOR_MODE_USR;
 		thread.initialized = false;
-		// TODO: What else is there to be done?
 
 		scheduled_thread = schedule_thread(&thread);
 	}

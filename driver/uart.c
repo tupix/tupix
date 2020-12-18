@@ -131,8 +131,6 @@ uart_push_char()
 
 	unsigned char c = (unsigned char)(uart->dr & 0xff);
 
-	// TODO(Aurel): Check if full and discard new char if so.
-
 	if (queue.count >= queue.size) {
 		log(WARNING, "UART queue full. Discarding current character");
 		return false;

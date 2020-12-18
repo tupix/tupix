@@ -3,6 +3,23 @@
 
 #include <data/types.h>
 
+enum processor_mode_bits {
+	PROCESSOR_MODE_USR = 0x10,
+	PROCESSOR_MODE_FIQ = 0x11,
+	PROCESSOR_MODE_IRQ = 0x12,
+	PROCESSOR_MODE_SVC = 0x13,
+	PROCESSOR_MODE_ABT = 0x17,
+	PROCESSOR_MODE_UND = 0x1a,
+	PROCESSOR_MODE_SYS = 0x1f,
+
+	/* NOTE(Aurel): This is not a real processor mode. */
+	PROCESSOR_MODE_UNINITIALIZED = 0x0,
+};
+
+enum psr_bitmask {
+	PSR_BITMASK_PROCESSOR_MODE = 0x1f,
+};
+
 /*
  * NOTE(Aurel): Do not change this, unless you know exactly what you are doing.
  * In that case, also change all the asm exception handlers.

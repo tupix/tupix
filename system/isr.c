@@ -89,7 +89,6 @@ psr_flags_str(uint32 flags, char* str)
 		strncpy(str, "Uninitialized\0", 14);
 		break;
 	default:
-		// TODO(Aurel): This should never happen. Assert!
 		strncpy(str, "Unknown\0", 8);
 		break;
 	}
@@ -151,12 +150,9 @@ print_registers(volatile struct registers* reg, char* exc_str,
 bool
 user_interrupted(uint32 spsr)
 {
-	// TODO: Do not hardcode
-	uint32 bitmask = 0x1f;
-	return (spsr & bitmask) == 0x10;
+	return (spsr & PSR_BITMASK_PROCESSOR_MODE) == PROCESSOR_MODE_USR;
 }
 
-// TODO: Update "System halted" and "Continuing" as we kill threads now
 void
 undefined_instruction_handler(volatile struct registers* reg)
 {
@@ -214,7 +210,6 @@ irq_handler(volatile struct registers* reg)
 	if (l_timer_is_interrupting()) {
 		kprintf("!");
 		scheduler_cycle((struct registers*)reg); // Discard volatile
-		// TODO(Aurel): Should this happen before calling the scheduler?
 		reset_timer();
 	} else if (uart_is_interrupting()) {
 		if (!uart_push_char()) {

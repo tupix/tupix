@@ -176,7 +176,6 @@ init_scheduler()
 
 	null_thread    = init_null_thread();
 	running_thread = null_thread;
-	// TODO: Switch context?
 	log(LOG, "Initialized");
 }
 
@@ -259,7 +258,7 @@ scheduler_cycle(struct registers* regs)
 	if (old_thread->id) {
 		if (!push_thread(old_thread)) {
 			log(ERROR, "Could not push old thread back. Losing the thread!");
-			return; // TODO: PANIC?
+			return;
 		}
 		switch_context(regs, old_thread, running_thread);
 	} else {

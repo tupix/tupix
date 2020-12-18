@@ -9,7 +9,7 @@
 #include <std/io.h>
 #include <std/log.h>
 
-// TODO: Do not hardcode (sp_usr - STACK_SIZE)
+// NOTE: Below user stack
 #define THREAD_STACK_BASE 0x7FFE800
 #define THREAD_STACK_SIZE 0x400 // 4KB
 
