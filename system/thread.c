@@ -23,7 +23,7 @@ void
 exit_thread()
 {
 	// TODO: Disable timer?
-	asm("svc #0");
+	asm("svc #1");
 }
 
 void
