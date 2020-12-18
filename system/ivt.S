@@ -333,7 +333,6 @@ exc_cleanup_return:
 
 .global switch_to_usermode
 switch_to_usermode:
-	mov r0, #0x10
-	msr spsr_cxsf, r0
+	msr spsr, #0x10
 	ldr lr, =endless_loop
 	movs pc, lr
