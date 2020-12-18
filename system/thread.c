@@ -43,11 +43,11 @@ thread_create(void (*func)(void*), const void* args, size_t args_size)
 {
 	struct tcb* scheduled_thread;
 	{
-		struct tcb thread = { 0 };
-		thread.callback   = func;
-		thread.regs.pc    = (uint32)func;
-		thread.regs.lr    = (uint32)&kill_current_thread;
-		// thread.cpsr = spsr;
+		struct tcb thread  = { 0 };
+		thread.callback    = func;
+		thread.regs.pc     = (uint32)func;
+		thread.regs.lr     = (uint32)&kill_current_thread;
+		thread.cpsr        = 0x10; // User mode, TODO: Anything else?
 		thread.initialized = false;
 		// TODO: What else is there to be done?
 
