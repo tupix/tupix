@@ -13,8 +13,10 @@ get_syscall_id(uint32 lr)
 	return (*(uint32*)lr & 0xFF);
 }
 
+#if 0
 void
-exec_syscall(uint16 lr)
+exec_syscall(uint16 id)
 {
 	// TODO: enum and macro or a switch case for different values.
 }
+#endif
