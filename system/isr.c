@@ -160,9 +160,12 @@ user_interrupted(uint32 spsr)
 void
 undefined_instruction_handler(volatile struct registers* reg)
 {
-	print_registers(reg, "Undefined Instruction", "System halted.", "");
-	if (!user_interrupted(reg->spsr))
+	if (user_interrupted(reg->spsr)) {
+		print_registers(reg, "Undefined Instruction", "Killing thread.", "");
+	} else {
 		endless_loop();
+		print_registers(reg, "Undefined Instruction", "System halted.", "");
+	}
 }
 
 void
@@ -182,17 +185,23 @@ software_interrupt_handler(volatile struct registers* reg)
 void
 prefetch_abort_handler(volatile struct registers* reg)
 {
-	print_registers(reg, "Prefetch Abort", "System halted.", "");
-	if (!user_interrupted(reg->spsr))
+	if (user_interrupted(reg->spsr)) {
+		print_registers(reg, "Prefetch Abort", "Killing thread.", "");
+	} else {
+		print_registers(reg, "Prefetch Abort", "System halted.", "");
 		endless_loop();
+	}
 }
 
 void
 data_abort_handler(volatile struct registers* reg)
 {
-	print_registers(reg, "Data Abort", "System halted.", "");
-	if (!user_interrupted(reg->spsr))
+	if (user_interrupted(reg->spsr)) {
+		print_registers(reg, "Data Abort", "Killing thread.", "");
+	} else {
+		print_registers(reg, "Data Abort", "System halted.", "");
 		endless_loop();
+	}
 }
 
 void
