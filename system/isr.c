@@ -147,31 +147,45 @@ print_registers(volatile struct registers* reg, char* exc_str,
 	kprintf("%s\n", exc_system_info_str);
 }
 
+bool
+user_interrupted(uint32 spsr)
+{
+	// TODO: Do not hardcode
+	uint32 bitmask = 0xf;
+	return (spsr & bitmask) == 0x10;
+}
+
+// TODO: Update "System halted" and "Continuing" as we kill threads now
 void
 undefined_instruction_handler(volatile struct registers* reg)
 {
 	print_registers(reg, "Undefined Instruction", "System halted.", "");
-	endless_loop();
+	if (!user_interrupted(reg->spsr))
+		endless_loop();
 }
 
 void
 software_interrupt_handler(volatile struct registers* reg)
 {
 	print_registers(reg, "Software Interrupt", "Continuing.", "");
+	if (!user_interrupted(reg->spsr))
+		endless_loop();
 }
 
 void
 prefetch_abort_handler(volatile struct registers* reg)
 {
 	print_registers(reg, "Prefetch Abort", "System halted.", "");
-	endless_loop();
+	if (!user_interrupted(reg->spsr))
+		endless_loop();
 }
 
 void
 data_abort_handler(volatile struct registers* reg)
 {
 	print_registers(reg, "Data Abort", "System halted.", "");
-	endless_loop();
+	if (!user_interrupted(reg->spsr))
+		endless_loop();
 }
 
 void
