@@ -107,7 +107,7 @@ push_thread(struct tcb* thread)
 	// Push thread
 	ssize_t index = push_index(&thread_indices_q, thread->index);
 	if (!index) {
-		log(WARNING, "Thread queue full");
+		log(LOG, "Thread queue full");
 		return NULL;
 	} else if (0 > index) {
 		return NULL; // Other error
@@ -120,7 +120,7 @@ static struct tcb*
 pop_thread()
 {
 	if (!thread_indices_q.count) {
-		log(WARNING, "thread_indices_q is empty.");
+		log(LOG, "thread_indices_q is empty.");
 		return NULL;
 	}
 
@@ -129,7 +129,7 @@ pop_thread()
 	for (i = 0; i < thread_indices_q.count; ++i) {
 		index = pop_index(&thread_indices_q);
 		if (!index) {
-			log(WARNING, "Thread queue empty");
+			log(LOG, "Thread queue empty");
 			return NULL;
 		} else if (0 > index) {
 			return NULL; // Other error
@@ -146,7 +146,7 @@ pop_thread()
 	// 'greater' and not 'greater or equal' for the case that we pop the last
 	// thread in the queue.
 	if (i > thread_indices_q.count) {
-		log(WARNING, "No thread is initialized, returning null-thread");
+		log(LOG, "No thread is initialized, returning null-thread");
 		return NULL;
 	}
 
@@ -251,7 +251,7 @@ scheduler_cycle(struct registers* regs)
 	struct tcb* old_thread = running_thread;
 	running_thread         = pop_thread();
 	if (!running_thread) {
-		log(WARNING, "Cannot pop thread. Thread %i continues", old_thread->id);
+		log(LOG, "Cannot pop thread. Thread %i continues", old_thread->id);
 		running_thread = old_thread;
 		return;
 	}
