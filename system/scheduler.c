@@ -273,10 +273,8 @@ _kill_current_thread(void* sp)
 {
 	struct tcb* current_thread = running_thread;
 	running_thread             = pop_thread();
-	if (!running_thread) {
+	if (!running_thread)
 		running_thread = null_thread;
-		return;
-	}
 
 	volatile struct registers* new_regs = (struct registers*)sp;
 	// discard volatile
