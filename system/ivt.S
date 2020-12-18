@@ -72,9 +72,6 @@ undefined_instruction:
 	 */
 	mov r0, sp
 	bl undefined_instruction_handler
-	// Since kill_current_thread pushes the register again and then calls the
-	// cleanup, the stuff from before is never removed from the stack.
-	add sp, #140
 	b kill_current_thread
 
 software_interrupt:
@@ -86,7 +83,6 @@ software_interrupt:
 	 */
 	push { sp }
 	push { pc }
-	//sub lr, #4 // TODO(Aurel): In preperation for later.
 	push { lr }
 	push { r0 - r12 }
 
@@ -132,9 +128,6 @@ software_interrupt:
 	 * pop it directly into the pc to return to the program
 	 */
 	bl software_interrupt_handler
-	// Since kill_current_thread pushes the register again and then calls the
-	// cleanup, the stuff from before is never removed from the stack.
-	add sp, #140
 	b kill_current_thread
 
 prefetch_abort:
@@ -187,9 +180,6 @@ prefetch_abort:
 	 */
 	mov r0, sp
 	bl prefetch_abort_handler
-	// Since kill_current_thread pushes the register again and then calls the
-	// cleanup, the stuff from before is never removed from the stack.
-	add sp, #140
 	b kill_current_thread
 
 data_abort:
@@ -242,9 +232,6 @@ data_abort:
 	 */
 	mov r0, sp
 	bl data_abort_handler
-	// Since kill_current_thread pushes the register again and then calls the
-	// cleanup, the stuff from before is never removed from the stack.
-	add sp, #140
 	b kill_current_thread
 
 irq:
@@ -299,16 +286,14 @@ irq:
 	 */
 	mov r0, sp
 	bl irq_handler
-
 	b exc_cleanup_return
 
-.globl kill_current_thread
 kill_current_thread:
-	// 18 current registers
-	// 17 mode specific registers
-	// (18 + 17) * 4 = 140
-	sub sp, #140
-
+	/*
+	 * NOTE(Aurel): We expect exactly 140 bits space on the stack to overwrite
+	 * with the registers which are then pulled and written into the actual
+	 * registers.
+	 */
 	/*
 	 * NOTE(Aurel): Give current stack pointer as first argument. It points
 	 * exactly to the end of where all the registers have been pushed to and is
@@ -316,16 +301,13 @@ kill_current_thread:
 	 */
 	mov r0, sp
 	bl _kill_current_thread
-
 	b exc_cleanup_return
 
 exc_cleanup_return:
 	/*
-	 * NOTE(Aurel): Throw away the 19 pushed mode-specific register
-	 * 19 * 4 = 76
+	 * NOTE(Aurel): Throw away all mode-specific register except for usr
+	 * #{fiq, irq, abt, und, svc} * 3 * 4 = 15 * 4 = 60
 	 */
-	// Throw away all mode-specific register except for usr
-	// #{fiq, irq, abt, und, svc} * 3 * 4 = 15 * 4 = 60
 	add sp, #60
 
 	// Restore usr register
