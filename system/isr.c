@@ -158,8 +158,8 @@ undefined_instruction_handler(volatile struct registers* reg)
 	if (user_interrupted(reg->spsr)) {
 		print_registers(reg, "Undefined Instruction", "Killing thread.", "");
 	} else {
-		endless_loop();
 		print_registers(reg, "Undefined Instruction", "System halted.", "");
+		endless_loop();
 	}
 }
 
