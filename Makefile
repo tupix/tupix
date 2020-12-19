@@ -172,14 +172,19 @@ home: kernel.img
 MATRIKEL_NR_ROWS := $(shell test "$$(wc -l < matrikel_nr.txt)" -gt 2; echo $$?)
 MATRIKEL_NR_DIGITS := $(shell egrep -vq '^[0-9]{6}$$' matrikel_nr.txt; echo $$?)
 
+GIT_REPO_DIRTY := $(shell test -n "$$(git status --porcelain --untracked-files)"; echo $$?)
+
 .PHONY: submission_check
 submission_check:
+ifeq ($(MATRIKEL_NR), )
+	$(error "matrikel_nr.txt is flawed or empty!")
+endif
 ifeq ($(MATRIKEL_NR_ROWS), 0)
 	$(error "matrikel_nr.txt contains too many lines (max 2)")
 endif
 ifeq ($(MATRIKEL_NR_DIGITS),0)
 	$(error "matrikel_nr.txt is flawed. Every line needs to match ^[0-9]{6}$$")
 endif
-ifeq ($(MATRIKEL_NR), )
-	$(error "matrikel_nr.txt is flawed or empty!")
+ifeq ($(GIT_REPO_DIRTY), 0)
+	$(error "Git repository not clean!")
 endif
