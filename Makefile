@@ -1,85 +1,83 @@
 #
-# Kurzanleitung
+# Usage
 # =============
 #
-# make				-- Baut den Kernel.
+# make            -- Build kernel
 #
-# make all			-- Wie make
+# make all        -- Build kernel
 #
-# make debug		-- Baut den Kernel mit debug flags
+# make debug      -- Build kernel with debug flags
 #
-# make install		-- Baut den Kernel und transferiert ihn auf den Server.
-# 			   		   Das Board holt sich diesen Kernel beim nächsten Reset.
+# make install    -- Build kernel and transfer onto server.
+#                    The board gets the kernel at the next reset.
 #
-# make qemu			-- Baut den Kernel und führt ihn unter QEMU aus
+# make qemu       -- Build kernel and execute it in QEMU
 #
-# make qemu_debug	-- Baut den Kernel und führt ihn unter QEMU mit debug
-# 			   		   Optionen aus. Zum debuggen in einem zweiten Terminal
-# 			   		   folgendes ausführen:
-# 			   		   $ arm-none-eabi-gdb kernel_debug
-# 			   		   $ target remote localhost:1234
+# make qemu_debug -- Build kernel and execute it in QEMU with debug flags.
+#                    For debugging execute in a second terminal:
+#                    $ arm-none-eabi-gdb kernel_debug
+#                    $ target remote localhost:1234
 #
-# make clean		-- Löscht alle erzeugten Dateien.
+# make clean      -- Delete all created files
 #
-# make submission	-- Packt alles im Verzeichnis für die Abgabe zusammen
+# make submission -- Create an archive for the submission
 #
-# make home			-- kopiert das fertige image nach $TFTP_PATH, für die
-#			   		   Arbeit zuhause einfach den Pfad eintragen
+# make home       -- Copy the image to $TFTP_PATH, for the work at home simply
+#                    enter the path
 
 
-# Binäre Lsg (falls verwendet, ansonsten leer lassen)
-# bsp: BIN_LSG = e1
+# Binary solution in format `e[0-9]` (Leave empty if not used)
 BIN_LSG =
 
-# Ab Aufgabe 4 auf true
+# User space programs
 KERNEL_USER_SPLIT = false
 
-# Source Dateien
+# Source files
 ASS_OBJ := $(shell find . -name "*.S" | sed 's/S$$/o/')
 SRC_OBJ := $(shell find . -name "*.c" | sed 's/c$$/o/')
 OBJ := $(ASS_OBJ) $(SRC_OBJ)
 
-# Wenn ihr zuhause arbeitet, hier das TFTP-Verzeichnis eintragen
+# Enter TFTP path here for work at home
 TFTP_PATH = /srv/tftp
 
-# --- Ab hier sollte nichts mehr angepasst werden müssen ;D ---
-
+# Binary solution
 BIN_LSG_DIR = binlsg
 BIN_LSG_FILE = $(BIN_LSG_DIR)/lib$(BIN_LSG).a
 
-# Quellen
+# Sources
 LSCRIPT = kernel.lds
 UOBJ = user/user
 UOBJ_DEBUG = $(UOBJ)_debug
 
 KERNEL_TARGETS = $(LSCRIPT) $(OBJ)
 ifeq ($(KERNEL_USER_SPLIT),true)
-KERNEL_TARGETS += $(UOBJ)
+	KERNEL_TARGETS += $(UOBJ)
 endif
 
 KERNEL_TARGETS_DEBUG = $(LSCRIPT) $(OBJ_DEBUG)
 ifeq ($(KERNEL_USER_SPLIT),true)
-KERNEL_TARGETS_DEBUG += $(UOBJ_DEBUG)
+	KERNEL_TARGETS_DEBUG += $(UOBJ_DEBUG)
 endif
 
-# Seperates Target für Debugging
+# Debug sources
 OBJ_DEBUG = $(OBJ:.o=.o_d)
 
-# Seperates Target für Patch Dateien
+# Clean patch files on `clean` target
 OBJ_PATCH = $(OBJ:.o=.orig) $(OBJ:.o=.rej)
 
-# Abgabe Dateien
+# Submission files (Everything tracked by git minus hidden files, tars, pdfs and
+# the format.sh
 SUBMISSION_FILES = $(shell git ls-files | grep -Ev "(^|/)\." | grep -Ev "\.(tar\.gz|pdf)$$" | grep -v "format.sh")
 MATRIKEL_NR := $(shell awk '(NR > 1) && (NR < 3)  {ORS="+"; print prev} {prev=$$1} END { ORS=""; print $$1 }' matrikel_nr.txt )
 
-# Konfiguration
+# Configuration
 CC = arm-none-eabi-gcc
 LD = arm-none-eabi-ld
 OBJCOPY = arm-none-eabi-objcopy
 OBJDUMP = arm-none-eabi-objdump
 
-# gcc will use last specified -O flag, so Og when debugging
 CFLAGS = -Wall -Wextra -ffreestanding -mcpu=cortex-a7 -O2
+# gcc will use last specified -O flag
 CFLAGS_DEBUG = $(CFLAGS) -ggdb -Og
 CPPFLAGS = -Iinclude
 LDFLAGS = -T$(LSCRIPT)
@@ -87,12 +85,11 @@ ifneq ($(BIN_LSG), )
 	LDFLAGS += -L$(BIN_LSG_DIR) -l$(BIN_LSG)
 endif
 
-
 DEP = $(OBJ:.o=.d) $(OBJ_LSG:.o=.d)
 
 #
-# Regeln
-#
+# Targets
+# =============
 .PHONY: all install clean
 
 all: kernel kernel.bin dump
@@ -162,26 +159,27 @@ clean:
 	$(MAKE) -C user clean
 
 .PHONY: submission
-submission: abgabe_check clean
+submission: submission_check clean
 	tar -czf "$(MATRIKEL_NR).tar.gz" $(SUBMISSION_FILES)
 
 home: kernel.img
 	cp -v kernel.img $(TFTP_PATH)
 
-# Abgabe check
 #
+# Submission checks
+# =============
 
 MATRIKEL_NR_ROWS := $(shell test "$$(wc -l < matrikel_nr.txt)" -gt 2; echo $$?)
 MATRIKEL_NR_DIGITS := $(shell egrep -vq '^[0-9]{6}$$' matrikel_nr.txt; echo $$?)
 
-.PHONY: abgabe_check
-abgabe_check:
+.PHONY: submission_check
+submission_check:
 ifeq ($(MATRIKEL_NR_ROWS), 0)
-	$(error "matrikel_nr.txt hat zu viele Zeilen (max 2)")
+	$(error "matrikel_nr.txt contains too many lines (max 2)")
 endif
 ifeq ($(MATRIKEL_NR_DIGITS),0)
-	$(error "matrikel_nr.txt ist fehlerhaft. Matrikel Nummer muss aus 6 Ziffern bestehen")
+	$(error "matrikel_nr.txt is flawed. Every line needs to match ^[0-9]{6}$$")
 endif
 ifeq ($(MATRIKEL_NR), )
-	$(error "matrikel_nr.txt ist fehlerhaft oder leer!")
+	$(error "matrikel_nr.txt is flawed or empty!")
 endif
