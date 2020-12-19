@@ -90,8 +90,8 @@ DEP = $(OBJ:.o=.d) $(OBJ_LSG:.o=.d)
 #
 # Targets
 # =============
-.PHONY: all install clean
 
+.PHONY: all
 all: kernel kernel.bin dump
 
 -include $(DEP)
@@ -134,21 +134,26 @@ kernel.bin: kernel
 kernel.img: kernel.bin
 	mkimage -A arm -T standalone -C none -a 0x8000 -d $< $@
 
+.PHONY: dump
 dump:
 	$(OBJDUMP) -D kernel > kernel_dump.s
 ifeq ($(KERNEL_USER_SPLIT),true)
 	$(MAKE) -C user dump
 endif
 
+.PHONY: install
 install: kernel.img
 	arm-install-image $<
 
+.PHONY: qemu
 qemu: kernel
 	qemu-system-arm -M raspi2 -nographic -kernel $<
 
+.PHONY: qemu_debug
 qemu_debug: kernel_debug
 	qemu-system-arm -M raspi2 -nographic -s -S -kernel $<
 
+.PHONY: clean
 clean:
 	rm -f kernel kernel_debug kernel.bin kernel.img kernel_dump.s
 	rm -f $(OBJ)
@@ -162,6 +167,7 @@ clean:
 submission: submission_check clean
 	tar -czf "$(MATRIKEL_NR).tar.gz" $(SUBMISSION_FILES)
 
+.PHONY: home
 home: kernel.img
 	cp -v kernel.img $(TFTP_PATH)
 
