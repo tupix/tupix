@@ -71,6 +71,7 @@ SUBMISSION_FILES = $(shell git ls-files | grep -Ev "(^|/)\." | grep -Ev "\.(tar\
 MATRIKEL_NR := $(shell awk '(NR > 1) && (NR < 3)  {ORS="+"; print prev} {prev=$$1} END { ORS=""; print $$1 }' matrikel_nr.txt )
 
 # Configuration
+RM = rm -f
 CC = arm-none-eabi-gcc
 LD = arm-none-eabi-ld
 OBJCOPY = arm-none-eabi-objcopy
@@ -155,12 +156,12 @@ qemu_debug: kernel_debug
 
 .PHONY: clean
 clean:
-	rm -f kernel kernel_debug kernel.bin kernel.img kernel_dump.s
-	rm -f $(OBJ)
-	rm -f $(OBJ_DEBUG)
-	rm -f $(OBJ_PATCH)
-	rm -f $(DEP)
-	rm -f "$(MATRIKEL_NR).tar.gz"
+	$(RM) kernel kernel_debug kernel.bin kernel.img kernel_dump.s
+	$(RM) $(OBJ)
+	$(RM) $(OBJ_DEBUG)
+	$(RM) $(OBJ_PATCH)
+	$(RM) $(DEP)
+	$(RM) "$(MATRIKEL_NR).tar.gz"
 	$(MAKE) -C user clean
 
 .PHONY: submission
