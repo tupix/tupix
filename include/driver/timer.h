@@ -5,6 +5,7 @@
 
 void reset_timer();
 bool l_timer_is_interrupting();
+void disable_timer();
 void init_local_timer();
 
 #endif /* DRIVER_TIMER_H */

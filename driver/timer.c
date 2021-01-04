@@ -71,6 +71,18 @@ l_timer_is_interrupting()
 }
 
 void
+enable_timer()
+{
+	SET_BIT(local_interrupt->ctrl_stat, L_TIMER_CTRL_STAT_INTERRUPT_ENABLE);
+}
+
+void
+disable_timer()
+{
+	CLEAR_BIT(local_interrupt->ctrl_stat, L_TIMER_CTRL_STAT_INTERRUPT_ENABLE);
+}
+
+void
 init_local_timer()
 {
 	// Route local timer to core 0
