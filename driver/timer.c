@@ -61,6 +61,7 @@ void
 reset_timer()
 {
 	SET_BIT(local_interrupt->clear_reload, L_TIMER_INTERRUPT_FLAG);
+	SET_BIT(local_interrupt->clear_reload, L_TIMER_RELOAD);
 }
 
 bool
