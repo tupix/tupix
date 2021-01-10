@@ -301,6 +301,8 @@ kill_current_thread:
 	 */
 	mov r0, sp
 	bl _kill_current_thread
+	bl reset_timer
+	bl enable_timer
 	b exc_cleanup_return
 
 exc_cleanup_return:

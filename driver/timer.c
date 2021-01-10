@@ -61,12 +61,25 @@ void
 reset_timer()
 {
 	SET_BIT(local_interrupt->clear_reload, L_TIMER_INTERRUPT_FLAG);
+	SET_BIT(local_interrupt->clear_reload, L_TIMER_RELOAD);
 }
 
 bool
 l_timer_is_interrupting()
 {
 	return IS_SET(local_interrupt->ctrl_stat, L_TIMER_CTRL_STAT_INTERRUPT_FLAG);
+}
+
+void
+enable_timer()
+{
+	SET_BIT(local_interrupt->ctrl_stat, L_TIMER_CTRL_STAT_INTERRUPT_ENABLE);
+}
+
+void
+disable_timer()
+{
+	CLEAR_BIT(local_interrupt->ctrl_stat, L_TIMER_CTRL_STAT_INTERRUPT_ENABLE);
 }
 
 void

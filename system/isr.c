@@ -169,7 +169,11 @@ software_interrupt_handler(volatile struct registers* reg)
 	if (!user_interrupted(reg->spsr)) {
 		print_registers(reg, "Software Interrupt", "System halted.", "");
 		endless_loop();
-	} else if (get_syscall_id(reg->gr.lr) != 1) {
+		return;
+	}
+
+	disable_timer();
+	if (get_syscall_id(reg->gr.lr) != 1) {
 		// Syscall-id 1 means that the thread returned. Then we want no register
 		// snapshot.
 		print_registers(reg, "Software Interrupt", "Killing thread.", "");
