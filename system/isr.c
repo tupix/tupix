@@ -94,7 +94,7 @@ psr_flags_str(uint32 flags, char* str)
 }
 
 void
-print_registers(struct registers* reg, char* exc_str,
+print_registers(struct registers* regs, char* exc_str,
                 char* exc_system_info_str, char* exc_extra_info_str)
 {
 	char und_cpsr_str[PSR_STR_LEN];
@@ -104,44 +104,44 @@ print_registers(struct registers* reg, char* exc_str,
 	char fiq_spsr_str[PSR_STR_LEN];
 	char irq_spsr_str[PSR_STR_LEN];
 
-	psr_flags_str(reg->cpsr, und_cpsr_str);
-	psr_flags_str(reg->spsr, und_spsr_str);
-	psr_flags_str(reg->svc.spsr, svc_spsr_str);
-	psr_flags_str(reg->abt.spsr, abt_spsr_str);
-	psr_flags_str(reg->fiq.spsr, fiq_spsr_str);
-	psr_flags_str(reg->irq.spsr, irq_spsr_str);
-	psr_flags_str(reg->und.spsr, und_spsr_str);
+	psr_flags_str(regs->cpsr, und_cpsr_str);
+	psr_flags_str(regs->spsr, und_spsr_str);
+	psr_flags_str(regs->svc.spsr, svc_spsr_str);
+	psr_flags_str(regs->abt.spsr, abt_spsr_str);
+	psr_flags_str(regs->fiq.spsr, fiq_spsr_str);
+	psr_flags_str(regs->irq.spsr, irq_spsr_str);
+	psr_flags_str(regs->und.spsr, und_spsr_str);
 
 	kprintf("################################################################################\n");
-	kprintf("%s at address 0x%08x\n", exc_str, reg->gr.lr);
+	kprintf("%s at address 0x%08x\n", exc_str, regs->gr.lr);
 	kprintf("%s\n", exc_extra_info_str);
 	kprintf(">>> register snapshot (current mode) <<<\n");
-	kprintf("R0: 0x%08x\tR8:  0x%08x\n", reg->gr.r0, reg->gr.r8);
-	kprintf("R1: 0x%08x\tR9:  0x%08x\n", reg->gr.r1, reg->gr.r9);
-	kprintf("R2: 0x%08x\tR10: 0x%08x\n", reg->gr.r2, reg->gr.r10);
-	kprintf("R3: 0x%08x\tR11: 0x%08x\n", reg->gr.r3, reg->gr.r11);
-	kprintf("R4: 0x%08x\tR12: 0x%08x\n", reg->gr.r4, reg->gr.r12);
-	kprintf("R5: 0x%08x\tSP:  0x%08x\n", reg->gr.r5, reg->gr.sp);
-	kprintf("R6: 0x%08x\tLR:  0x%08x\n", reg->gr.r6, reg->gr.lr);
-	kprintf("R7: 0x%08x\tPC:  0x%08x\n", reg->gr.r7, reg->gr.pc);
+	kprintf("R0: 0x%08x\tR8:  0x%08x\n", regs->gr.r0, regs->gr.r8);
+	kprintf("R1: 0x%08x\tR9:  0x%08x\n", regs->gr.r1, regs->gr.r9);
+	kprintf("R2: 0x%08x\tR10: 0x%08x\n", regs->gr.r2, regs->gr.r10);
+	kprintf("R3: 0x%08x\tR11: 0x%08x\n", regs->gr.r3, regs->gr.r11);
+	kprintf("R4: 0x%08x\tR12: 0x%08x\n", regs->gr.r4, regs->gr.r12);
+	kprintf("R5: 0x%08x\tSP:  0x%08x\n", regs->gr.r5, regs->gr.sp);
+	kprintf("R6: 0x%08x\tLR:  0x%08x\n", regs->gr.r6, regs->gr.lr);
+	kprintf("R7: 0x%08x\tPC:  0x%08x\n", regs->gr.r7, regs->gr.pc);
 	kprintf("\n");
 	kprintf(">>> status-register (current mode) <<<\n");
-	kprintf("CPSR: %s\t(0x%08x)\n", und_cpsr_str, reg->cpsr);
-	kprintf("SPSR: %s\t(0x%08x)\n", und_spsr_str, reg->spsr);
+	kprintf("CPSR: %s\t(0x%08x)\n", und_cpsr_str, regs->cpsr);
+	kprintf("SPSR: %s\t(0x%08x)\n", und_spsr_str, regs->spsr);
 	kprintf("\n");
 	kprintf(">>> registers (mode-specific) <<<\n");
 	kprintf("             LR         SP         SPSR\n");
-	kprintf("User/System: 0x%08x 0x%08x\n", reg->usr_lr, reg->und.sp);
-	kprintf("Supervisor:  0x%08x 0x%08x %s\t(0x%08x)\n", reg->svc.lr,
-	        reg->svc.sp, svc_spsr_str, reg->svc.spsr);
-	kprintf("Abort:       0x%08x 0x%08x %s\t(0x%08x)\n", reg->abt.lr,
-	        reg->abt.sp, abt_spsr_str, reg->abt.spsr);
-	kprintf("FIQ:         0x%08x 0x%08x %s\t(0x%08x)\n", reg->fiq.lr,
-	        reg->fiq.sp, fiq_spsr_str, reg->fiq.spsr);
-	kprintf("IRQ:         0x%08x 0x%08x %s\t(0x%08x)\n", reg->irq.lr,
-	        reg->irq.sp, irq_spsr_str, reg->irq.spsr);
-	kprintf("Undefined:   0x%08x 0x%08x %s\t(0x%08x)\n", reg->und.lr,
-	        reg->und.sp, und_spsr_str, reg->und.spsr);
+	kprintf("User/System: 0x%08x 0x%08x\n", regs->usr_lr, regs->und.sp);
+	kprintf("Supervisor:  0x%08x 0x%08x %s\t(0x%08x)\n", regs->svc.lr,
+	        regs->svc.sp, svc_spsr_str, regs->svc.spsr);
+	kprintf("Abort:       0x%08x 0x%08x %s\t(0x%08x)\n", regs->abt.lr,
+	        regs->abt.sp, abt_spsr_str, regs->abt.spsr);
+	kprintf("FIQ:         0x%08x 0x%08x %s\t(0x%08x)\n", regs->fiq.lr,
+	        regs->fiq.sp, fiq_spsr_str, regs->fiq.spsr);
+	kprintf("IRQ:         0x%08x 0x%08x %s\t(0x%08x)\n", regs->irq.lr,
+	        regs->irq.sp, irq_spsr_str, regs->irq.spsr);
+	kprintf("Undefined:   0x%08x 0x%08x %s\t(0x%08x)\n", regs->und.lr,
+	        regs->und.sp, und_spsr_str, regs->und.spsr);
 	kprintf("\n");
 	kprintf("%s\n", exc_system_info_str);
 }
@@ -153,63 +153,63 @@ user_interrupted(uint32 spsr)
 }
 
 void
-undefined_instruction_handler(struct registers* reg)
+undefined_instruction_handler(struct registers* regs)
 {
-	if (user_interrupted(reg->spsr)) {
-		print_registers(reg, "Undefined Instruction", "Killing thread.", "");
+	if (user_interrupted(regs->spsr)) {
+		print_registers(regs, "Undefined Instruction", "Killing thread.", "");
 	} else {
-		print_registers(reg, "Undefined Instruction", "System halted.", "");
+		print_registers(regs, "Undefined Instruction", "System halted.", "");
 		endless_loop();
 	}
 }
 
 void
-software_interrupt_handler(struct registers* reg)
+software_interrupt_handler(struct registers* regs)
 {
-	if (!user_interrupted(reg->spsr)) {
-		print_registers(reg, "Software Interrupt", "System halted.", "");
+	if (!user_interrupted(regs->spsr)) {
+		print_registers(regs, "Software Interrupt", "System halted.", "");
 		endless_loop();
 		return;
 	}
 
 	disable_timer();
-	if (get_syscall_id(reg->gr.lr) != 1) {
+	if (get_syscall_id(regs->gr.lr) != 1) {
 		// Syscall-id 1 means that the thread returned. Then we want no register
 		// snapshot.
-		print_registers(reg, "Software Interrupt", "Killing thread.", "");
+		print_registers(regs, "Software Interrupt", "Killing thread.", "");
 	}
-	log(LOG, "Syscall with id %i called.", get_syscall_id(reg->gr.lr));
+	log(LOG, "Syscall with id %i called.", get_syscall_id(regs->gr.lr));
 }
 
 void
-prefetch_abort_handler(struct registers* reg)
+prefetch_abort_handler(struct registers* regs)
 {
-	if (user_interrupted(reg->spsr)) {
-		print_registers(reg, "Prefetch Abort", "Killing thread.", "");
+	if (user_interrupted(regs->spsr)) {
+		print_registers(regs, "Prefetch Abort", "Killing thread.", "");
 	} else {
-		print_registers(reg, "Prefetch Abort", "System halted.", "");
+		print_registers(regs, "Prefetch Abort", "System halted.", "");
 		endless_loop();
 	}
 }
 
 void
-data_abort_handler(struct registers* reg)
+data_abort_handler(struct registers* regs)
 {
-	if (user_interrupted(reg->spsr)) {
-		print_registers(reg, "Data Abort", "Killing thread.", "");
+	if (user_interrupted(regs->spsr)) {
+		print_registers(regs, "Data Abort", "Killing thread.", "");
 	} else {
-		print_registers(reg, "Data Abort", "System halted.", "");
+		print_registers(regs, "Data Abort", "System halted.", "");
 		endless_loop();
 	}
 }
 
 void
-irq_handler(struct registers* reg)
+irq_handler(struct registers* regs)
 {
 	// Reset triggered interrupts
 	if (l_timer_is_interrupting()) {
 		kprintf("!");
-		scheduler_cycle(reg);
+		scheduler_cycle(regs);
 		reset_timer();
 	} else if (uart_is_interrupting()) {
 		if (!uart_push_char()) {
@@ -238,7 +238,7 @@ irq_handler(struct registers* reg)
 		uint32 aligned_c = (uint32)c;
 		thread_create(&user_thread, &aligned_c, sizeof(aligned_c));
 	} else {
-		print_registers(reg, "Unknown Interrupt Request (IRQ)", "Continuing.",
+		print_registers(regs, "Unknown Interrupt Request (IRQ)", "Continuing.",
 		                "");
 	}
 }
