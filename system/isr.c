@@ -94,7 +94,7 @@ psr_flags_str(uint32 flags, char* str)
 }
 
 void
-print_registers(volatile struct registers* reg, char* exc_str,
+print_registers(struct registers* reg, char* exc_str,
                 char* exc_system_info_str, char* exc_extra_info_str)
 {
 	char und_cpsr_str[PSR_STR_LEN];
@@ -153,7 +153,7 @@ user_interrupted(uint32 spsr)
 }
 
 void
-undefined_instruction_handler(volatile struct registers* reg)
+undefined_instruction_handler(struct registers* reg)
 {
 	if (user_interrupted(reg->spsr)) {
 		print_registers(reg, "Undefined Instruction", "Killing thread.", "");
@@ -164,7 +164,7 @@ undefined_instruction_handler(volatile struct registers* reg)
 }
 
 void
-software_interrupt_handler(volatile struct registers* reg)
+software_interrupt_handler(struct registers* reg)
 {
 	if (!user_interrupted(reg->spsr)) {
 		print_registers(reg, "Software Interrupt", "System halted.", "");
@@ -182,7 +182,7 @@ software_interrupt_handler(volatile struct registers* reg)
 }
 
 void
-prefetch_abort_handler(volatile struct registers* reg)
+prefetch_abort_handler(struct registers* reg)
 {
 	if (user_interrupted(reg->spsr)) {
 		print_registers(reg, "Prefetch Abort", "Killing thread.", "");
@@ -193,7 +193,7 @@ prefetch_abort_handler(volatile struct registers* reg)
 }
 
 void
-data_abort_handler(volatile struct registers* reg)
+data_abort_handler(struct registers* reg)
 {
 	if (user_interrupted(reg->spsr)) {
 		print_registers(reg, "Data Abort", "Killing thread.", "");
@@ -204,12 +204,12 @@ data_abort_handler(volatile struct registers* reg)
 }
 
 void
-irq_handler(volatile struct registers* reg)
+irq_handler(struct registers* reg)
 {
 	// Reset triggered interrupts
 	if (l_timer_is_interrupting()) {
 		kprintf("!");
-		scheduler_cycle((struct registers*)reg); // Discard volatile
+		scheduler_cycle(reg);
 		reset_timer();
 	} else if (uart_is_interrupting()) {
 		if (!uart_push_char()) {
