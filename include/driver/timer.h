@@ -5,6 +5,7 @@
 
 void reset_timer();
 bool l_timer_is_interrupting();
+void enable_timer();
 void disable_timer();
 void init_local_timer();
 
