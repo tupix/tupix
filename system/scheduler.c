@@ -270,7 +270,7 @@ scheduler_cycle(struct registers* regs)
 }
 
 void
-_kill_current_thread(struct registers* new_regs)
+kill_current_thread(struct registers* new_regs)
 {
 	struct tcb* current_thread = running_thread;
 	running_thread             = pop_thread();

@@ -20,7 +20,7 @@ get_syscall_id(uint32 lr)
 static void
 exec_syscall_kill_me(struct registers* regs)
 {
-	_kill_current_thread(regs);
+	kill_current_thread(regs);
 }
 
 void
@@ -41,7 +41,7 @@ exec_syscall(uint16 id, struct registers* regs)
 		// TODO
 	default:
 		print_registers(regs, "Software Interrupt", "Killing thread.", "");
-		_kill_current_thread(regs);
+		kill_current_thread(regs);
 		break;
 	}
 }

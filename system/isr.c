@@ -157,7 +157,7 @@ undefined_instruction_handler(struct registers* regs)
 {
 	if (user_interrupted(regs->spsr)) {
 		print_registers(regs, "Undefined Instruction", "Killing thread.", "");
-		_kill_current_thread(regs);
+		kill_current_thread(regs);
 	} else {
 		print_registers(regs, "Undefined Instruction", "System halted.", "");
 		endless_loop();
@@ -185,7 +185,7 @@ prefetch_abort_handler(struct registers* regs)
 {
 	if (user_interrupted(regs->spsr)) {
 		print_registers(regs, "Prefetch Abort", "Killing thread.", "");
-		_kill_current_thread(regs);
+		kill_current_thread(regs);
 	} else {
 		print_registers(regs, "Prefetch Abort", "System halted.", "");
 		endless_loop();
@@ -197,7 +197,7 @@ data_abort_handler(struct registers* regs)
 {
 	if (user_interrupted(regs->spsr)) {
 		print_registers(regs, "Data Abort", "Killing thread.", "");
-		_kill_current_thread(regs);
+		kill_current_thread(regs);
 	} else {
 		print_registers(regs, "Data Abort", "System halted.", "");
 		endless_loop();
