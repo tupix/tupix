@@ -1,3 +1,5 @@
+#include <config.h>
+
 #include <system/thread.h>
 
 #include <arch/armv7/registers.h>
@@ -15,6 +17,13 @@ get_stack_pointer(const size_t index)
 {
 	// All thread stacks are positioned on top of each other with stack for id 0
 	// at the very top.
+
+	// Respect max number of threads
+	if (index >= N_THREADS)
+		return NULL;
+	// Do not try to create a pointer of negative memory address
+	if (THREAD_STACK_BASE - index * THREAD_STACK_SIZE < 0)
+		return NULL;
 	void* stack = (void*)(THREAD_STACK_BASE);
 	stack -= index * THREAD_STACK_SIZE;
 	return stack;
