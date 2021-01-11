@@ -270,7 +270,7 @@ scheduler_cycle(struct registers* regs)
 }
 
 void
-kill_current_thread(struct registers* new_regs)
+kill_current_thread(struct registers* regs)
 {
 	struct tcb* current_thread = running_thread;
 	running_thread             = pop_thread();
@@ -278,7 +278,7 @@ kill_current_thread(struct registers* new_regs)
 		running_thread = null_thread;
 
 	// discard volatile
-	switch_context(new_regs, NULL, running_thread);
+	switch_context(regs, NULL, running_thread);
 
 	push_index(&free_indices_q, current_thread->index);
 	reset_timer();
