@@ -10,5 +10,6 @@ void init_scheduler();
 
 struct tcb* schedule_thread(struct tcb* thread);
 void scheduler_cycle(struct registers* regs);
+void _kill_current_thread(struct registers* new_regs);
 
 #endif /* SYSTEM_SCHEDULER_H */

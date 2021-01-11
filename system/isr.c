@@ -172,13 +172,11 @@ software_interrupt_handler(struct registers* regs)
 		return;
 	}
 
+	// TODO: Really here?
 	disable_timer();
-	if (get_syscall_id(regs->gr.lr) != 1) {
-		// Syscall-id 1 means that the thread returned. Then we want no register
-		// snapshot.
-		print_registers(regs, "Software Interrupt", "Killing thread.", "");
-	}
-	log(LOG, "Syscall with id %i called.", get_syscall_id(regs->gr.lr));
+
+	uint16 id = get_syscall_id(regs->gr.lr);
+	exec_syscall(id, regs);
 }
 
 void

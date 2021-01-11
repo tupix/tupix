@@ -128,7 +128,7 @@ software_interrupt:
 	 * pop it directly into the pc to return to the program
 	 */
 	bl software_interrupt_handler
-	b kill_current_thread
+	b exc_cleanup_return
 
 prefetch_abort:
 	/*

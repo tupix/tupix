@@ -1,6 +1,10 @@
 #include <system/calls.h>
 
+#include <arch/armv7/registers.h>
+
+#include <system/isr.h>
 #include <system/ivt.h>
+#include <system/scheduler.h>
 
 #include <data/types.h>
 
@@ -13,10 +17,31 @@ get_syscall_id(uint32 lr)
 	return (*(uint32*)lr & 0xFF);
 }
 
-#if 0
-void
-exec_syscall(uint16 id)
+static void
+exec_syscall_kill_me(struct registers* regs)
 {
-	// TODO: enum and macro or a switch case for different values.
+	_kill_current_thread(regs);
 }
-#endif
+
+void
+exec_syscall(uint16 id, struct registers* regs)
+{
+	log(LOG, "Syscall with id %i called.", id);
+	switch (id) {
+	case KILL_ME:
+		exec_syscall_kill_me(regs);
+		break;
+	case GET_CHAR:
+		// TODO
+	case PUT_CHAR:
+		// TODO
+	case WAIT:
+		// TODO
+	case CREATE_THREAD:
+		// TODO
+	default:
+		print_registers(regs, "Software Interrupt", "Killing thread.", "");
+		_kill_current_thread(regs);
+		break;
+	}
+}
