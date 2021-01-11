@@ -152,17 +152,28 @@ user_interrupted(uint32 spsr)
 	return (spsr & PSR_BITMASK_PROCESSOR_MODE) == PROCESSOR_MODE_USR;
 }
 
-void
-undefined_instruction_handler(struct registers* regs)
-{
-	if (user_interrupted(regs->spsr)) {
-		print_registers(regs, "Undefined Instruction", "Killing thread.", "");
-		kill_current_thread(regs);
-	} else {
-		print_registers(regs, "Undefined Instruction", "System halted.", "");
-		endless_loop();
-	}
+/*
+ * Most of the handlers do the same.
+ * This macro creates a function that loops
+ * endlessly on system interrupt and otherwise kills the current thread. In both
+ * cases a register snapshot is printed.
+ */
+#define HANDLER_FUNCTION(exc_name, exc_name_print) \
+void \
+exc_name##_handler(struct registers* regs) \
+{ \
+	if (user_interrupted(regs->spsr)) { \
+		print_registers(regs, exc_name_print, "Killing thread.", ""); \
+		kill_current_thread(regs); \
+	} else { \
+		print_registers(regs, exc_name_print, "System halted.", ""); \
+		endless_loop(); \
+	} \
 }
+
+HANDLER_FUNCTION(undefined_instruction, "Undefined Instruction")
+HANDLER_FUNCTION(prefetch_abort, "Prefetch Abort")
+HANDLER_FUNCTION(data_abort, "Data Abort")
 
 void
 software_interrupt_handler(struct registers* regs)
@@ -178,30 +189,6 @@ software_interrupt_handler(struct registers* regs)
 
 	uint16 id = get_syscall_id(regs->gr.lr);
 	exec_syscall(id, regs);
-}
-
-void
-prefetch_abort_handler(struct registers* regs)
-{
-	if (user_interrupted(regs->spsr)) {
-		print_registers(regs, "Prefetch Abort", "Killing thread.", "");
-		kill_current_thread(regs);
-	} else {
-		print_registers(regs, "Prefetch Abort", "System halted.", "");
-		endless_loop();
-	}
-}
-
-void
-data_abort_handler(struct registers* regs)
-{
-	if (user_interrupted(regs->spsr)) {
-		print_registers(regs, "Data Abort", "Killing thread.", "");
-		kill_current_thread(regs);
-	} else {
-		print_registers(regs, "Data Abort", "System halted.", "");
-		endless_loop();
-	}
 }
 
 void
