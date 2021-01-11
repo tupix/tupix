@@ -282,4 +282,5 @@ _kill_current_thread(struct registers* new_regs)
 
 	push_index(&free_indices_q, current_thread->index);
 	reset_timer();
+	enable_timer();
 }
