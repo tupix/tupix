@@ -5,8 +5,27 @@
 #include <system/isr.h>
 #include <system/ivt.h>
 #include <system/scheduler.h>
+#include <system/thread.h>
 
 #include <data/types.h>
+
+bool
+verify_pointer(void* p, struct tcb* curr_thread)
+{
+	// Verify if pointer is aligned
+	// TODO: Is 4 correct?
+	if ((uint32)p % 4)
+		return false;
+
+	// Verify if pointer lays inside threads stack
+	void* sp = get_stack_pointer(curr_thread->index);
+	void* max_sp = get_max_stack_pointer(curr_thread->index);
+	// TODO: lesser or lesser-equal?
+	if (!(p < sp && p >= max_sp))
+		return false;
+
+	return true;
+}
 
 uint16
 get_syscall_id(uint32 lr)
