@@ -72,7 +72,7 @@ undefined_instruction:
 	 */
 	mov r0, sp
 	bl undefined_instruction_handler
-	b kill_current_thread
+	b exc_cleanup_return
 
 software_interrupt:
 	/*
@@ -180,7 +180,7 @@ prefetch_abort:
 	 */
 	mov r0, sp
 	bl prefetch_abort_handler
-	b kill_current_thread
+	b exc_cleanup_return
 
 data_abort:
 	/*
@@ -232,7 +232,7 @@ data_abort:
 	 */
 	mov r0, sp
 	bl data_abort_handler
-	b kill_current_thread
+	b exc_cleanup_return
 
 irq:
 	/*
@@ -286,21 +286,6 @@ irq:
 	 */
 	mov r0, sp
 	bl irq_handler
-	b exc_cleanup_return
-
-kill_current_thread:
-	/*
-	 * NOTE(Aurel): We expect exactly 140 bits space on the stack to overwrite
-	 * with the registers which are then pulled and written into the actual
-	 * registers.
-	 */
-	/*
-	 * NOTE(Aurel): Give current stack pointer as first argument. It points
-	 * exactly to the end of where all the registers have been pushed to and is
-	 * therefor the location at which the struct registers should be placed.
-	 */
-	mov r0, sp
-	bl _kill_current_thread
 	b exc_cleanup_return
 
 exc_cleanup_return:
