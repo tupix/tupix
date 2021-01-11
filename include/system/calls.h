@@ -5,10 +5,10 @@
 #include <data/types.h>
 
 enum syscall_id {
-	KILL_ME = 1,
-	GET_CHAR = 2,
-	PUT_CHAR = 3,
-	WAIT = 4,
+	KILL_ME       = 1,
+	GET_CHAR      = 2,
+	PUT_CHAR      = 3,
+	WAIT          = 4,
 	CREATE_THREAD = 5,
 };
 

@@ -158,18 +158,17 @@ user_interrupted(uint32 spsr)
  * endlessly on system interrupt and otherwise kills the current thread. In both
  * cases a register snapshot is printed.
  */
-#define HANDLER_FUNCTION(exc_name, exc_name_print) \
-void \
-exc_name##_handler(struct registers* regs) \
-{ \
-	if (user_interrupted(regs->spsr)) { \
-		print_registers(regs, exc_name_print, "Killing thread.", ""); \
-		kill_current_thread(regs); \
-	} else { \
-		print_registers(regs, exc_name_print, "System halted.", ""); \
-		endless_loop(); \
-	} \
-}
+#define HANDLER_FUNCTION(exc_name, exc_name_print)                             \
+	void exc_name##_handler(struct registers* regs)                            \
+	{                                                                          \
+		if (user_interrupted(regs->spsr)) {                                    \
+			print_registers(regs, exc_name_print, "Killing thread.", "");      \
+			kill_current_thread(regs);                                         \
+		} else {                                                               \
+			print_registers(regs, exc_name_print, "System halted.", "");       \
+			endless_loop();                                                    \
+		}                                                                      \
+	}
 
 HANDLER_FUNCTION(undefined_instruction, "Undefined Instruction")
 HANDLER_FUNCTION(prefetch_abort, "Prefetch Abort")

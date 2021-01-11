@@ -29,7 +29,8 @@ get_stack_pointer(const size_t index)
 	return stack;
 }
 
-void* get_max_stack_pointer(const size_t index)
+void*
+get_max_stack_pointer(const size_t index)
 {
 	return get_stack_pointer(index + 1) + 1;
 }

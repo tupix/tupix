@@ -18,7 +18,7 @@ verify_pointer(void* p, struct tcb* curr_thread)
 		return false;
 
 	// Verify if pointer lays inside threads stack
-	void* sp = get_stack_pointer(curr_thread->index);
+	void* sp     = get_stack_pointer(curr_thread->index);
 	void* max_sp = get_max_stack_pointer(curr_thread->index);
 	// TODO: lesser or lesser-equal?
 	if (!(p < sp && p >= max_sp))
