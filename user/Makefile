@@ -15,9 +15,10 @@
 # make clean		-- Löscht alle erzeugten Dateien.
 
 # Hier eure Dateien hinzufügen
-OBJ =
-# Bsp für weitere:
-# OBJ += driver/uart.o
+# Source files
+ASS_OBJ := $(shell find . -name "*.S" -a -type f | sed 's/S$$/o/')
+SRC_OBJ := $(shell find . -name "*.c" -a -type f | sed 's/c$$/o/')
+OBJ := $(ASS_OBJ) $(SRC_OBJ)
 
 
 # --- Ab hier sollte nichts mehr angepasst werden müssen ;D ---
