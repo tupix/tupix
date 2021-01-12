@@ -284,3 +284,9 @@ kill_current_thread(struct registers* regs)
 	reset_timer();
 	enable_timer();
 }
+
+size_t
+get_curr_thread_index()
+{
+	return running_thread->index;
+}
