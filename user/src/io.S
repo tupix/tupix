@@ -9,6 +9,6 @@ getchar:
 
 	// This might be described by: `(syscall(GET_CHAR))(*ret);`
 	mov r0, sp
-	svc #GET_CHAR
+	// svc #GET_CHAR
 
 	pop { r0 }
