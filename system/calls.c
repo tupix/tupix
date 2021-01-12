@@ -12,7 +12,7 @@
 #include <data/types.h>
 #include <std/log.h>
 
-bool
+static bool
 verify_pointer(const void* p)
 {
 	// Verify if pointer is aligned
@@ -30,8 +30,8 @@ verify_pointer(const void* p)
 	return true;
 }
 
-bool
-verify_func_pointer(const void(* p)(void))
+static bool
+verify_func_pointer(const void (*p)(void))
 {
 	// Verify if pointer is aligned
 	// TODO: Is 4 correct?
@@ -41,15 +41,6 @@ verify_func_pointer(const void(* p)(void))
 	// TODO: Verify if valid location
 
 	return true;
-}
-
-uint16
-get_syscall_id(uint32 lr)
-{
-	// Software interrupts are recognized later in the pipeline
-	lr -= 4;
-	// Get last two bytes from `svc` instruction at `lr` for the immediate value
-	return (*(uint32*)lr & 0xFF);
 }
 
 static void
@@ -118,6 +109,19 @@ exec_syscall_create_thread(struct registers* regs)
 	sp += sizeof(args);
 
 	thread_create(func, args, args_size);
+}
+
+/***************************
+ * END OF STATIC FUNCTIONS *
+ ***************************/
+
+uint16
+get_syscall_id(uint32 lr)
+{
+	// Software interrupts are recognized later in the pipeline
+	lr -= 4;
+	// Get last two bytes from `svc` instruction at `lr` for the immediate value
+	return (*(uint32*)lr & 0xFF);
 }
 
 void
