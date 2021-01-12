@@ -154,9 +154,9 @@ user_interrupted(uint32 spsr)
 
 /*
  * Most of the handlers do the same.
- * This macro creates a function that loops
- * endlessly on system interrupt and otherwise kills the current thread. In both
- * cases a register snapshot is printed.
+ * This macro creates a function that loops endlessly on system interrupt and
+ * otherwise kills the current thread. In both cases a register snapshot is
+ * printed.
  */
 #define HANDLER_FUNCTION(exc_name, exc_name_print)                             \
 	void exc_name##_handler(struct registers* regs)                            \
