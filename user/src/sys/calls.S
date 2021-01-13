@@ -1,5 +1,3 @@
-// TODO(Aurel): This should not be in here, but rather in a syscall header
-
 getchar:
 	/* NOTE(Aurel): Whatever is in r0 is being discarded in the handler on the
 	 * system side.
