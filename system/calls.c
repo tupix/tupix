@@ -30,6 +30,7 @@ verify_pointer(const void* p)
 	return true;
 }
 
+// TODO: Really necessary?
 static bool
 verify_func_pointer(const void (*p)(void))
 {

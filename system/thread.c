@@ -62,6 +62,7 @@ thread_create(void (*func)(void*), const void* args, size_t args_size)
 	void* thread_sp = get_stack_pointer(scheduled_thread->index);
 
 	// Since the stack grows to the 'bottom', copy below it
+	// TODO: What to do if we cannot access user memory?
 	thread_sp -= args_size;
 	memcpy(thread_sp, args, args_size);
 
