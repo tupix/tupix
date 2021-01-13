@@ -1,12 +1,6 @@
 getchar:
-	/* NOTE(Aurel): Whatever is in r0 is being discarded in the handler on the
-	 * system side.
-	 */
-	push { r0 }
-	// TODO(Aurel): Maybe replace by: add sp, #4
+	svc #GET_CHAR
 
-	// This might be described by: `(syscall(GET_CHAR))(*ret);`
-	mov r0, sp
-	// svc #GET_CHAR
+putchar:
+	svc #PUT_CHAR
 
-	pop { r0 }

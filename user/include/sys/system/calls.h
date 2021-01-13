@@ -19,7 +19,8 @@ enum syscall_id {
 	CREATE_THREAD = 5,
 };
 
-//void syscall(enum syscall_id id);
+char getchar();
+void putchar(unsigned char c);
 
 #endif /* __ASSEMBLER__ */
 
