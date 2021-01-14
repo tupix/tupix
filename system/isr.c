@@ -11,7 +11,6 @@
 #include <system/entry.h>
 #include <system/scheduler.h>
 #include <system/thread.h>
-#include <system/user_thread.h>
 
 #include <data/types.h>
 #include <std/bits.h>
