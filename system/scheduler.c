@@ -34,7 +34,6 @@ static struct tcb* null_thread;
 
 static uint32 tid_count;
 
-
 // NOTE: When adding queues, do not forget to initialize them in init_scheduler
 static struct index_queue waiting_queue;
 
@@ -284,9 +283,9 @@ schedule_thread(struct tcb thread)
 	} else if (0 > index) {
 		return NULL; // Other error
 	}
-	thread.id                = ++tid_count;
-	thread.index             = index;
-	threads[thread.index]    = thread;
+	thread.id                 = ++tid_count;
+	thread.index              = index;
+	threads[thread.index]     = thread;
 	struct tcb* queued_thread = push_thread(&thread);
 	if (queued_thread) {
 		log(LOG, "New thread: %i.", queued_thread->id);
