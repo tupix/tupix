@@ -166,7 +166,7 @@ decrement_waits()
 
 	while (i < waiting_queue.count) {
 		thread_idx = waiting_queue.indices[p];
-		circle_forward(p, waiting_queue.count);
+		circle_forward(p, waiting_queue.size);
 
 		if (!--threads[thread_idx].waiting_for) {
 			// Threads wait is done
