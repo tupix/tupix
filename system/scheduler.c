@@ -178,7 +178,7 @@ scheduler_push_uart_read(struct registers* regs)
 	log(DEBUG, "Cycling scheduler.");
 	running_thread = null_thread;
 	switch_context(regs, thread, null_thread);
-	scheduler_cycle(regs);
+	scheduler_cycle(regs, false);
 }
 
 void

@@ -13,7 +13,7 @@ void scheduler_cycle(struct registers* regs, bool decrement);
 void kill_current_thread(struct registers* regs);
 size_t get_curr_thread_index();
 enum thread_state get_cur_thread_state();
-void scheduler_push_uart_write(struct registers* regs);
+void scheduler_push_uart_read(struct registers* regs);
 void scheduler_uart_received();
 void pause_cur_thread(size_t duration, struct registers* regs);
 
