@@ -268,18 +268,20 @@ switch_context(struct registers* regs, struct tcb* old, struct tcb* new)
 }
 
 void
-scheduler_cycle(struct registers* regs)
+scheduler_cycle(struct registers* regs, bool decrement)
 {
 	log(LOG, "Cycling...");
+
+	// Before doing anything else, decrement the waiting times of all waiting
+	// threads and eventually readd them to the thread_indices_q.
+	if (decrement)
+		decrement_waits();
+
 	// Continue if no other threads are waiting.
 	if (!thread_indices_q.count) {
 		log(LOG, "No waiting threads. Thread %i continues", running_thread->id);
 		return;
 	}
-
-	// Before popping the next thread, decrement the waiting times of all
-	// waiting threads and eventually readd them to the thread_indices_q.
-	decrement_waits();
 
 	/*
 	 * NOTE: Pop before pushing as the other way around will not work when
@@ -334,12 +336,17 @@ void
 pause_cur_thread(size_t duration, struct registers* regs)
 {
 	// TODO: Assert(running_thread != null_thread)
-	// When scheduler_cycle is called, decrement_waits is executed, that is why
-	// we need `+ 1`.
-	running_thread->waiting_for = duration + 1;
+	struct tcb* old_thread = running_thread;
+	running_thread->waiting_for = duration;
 	push_index(&waiting_queue, running_thread->index);
-	// Do not reenque into thread_indices_q
+	// Do not reenqueue into thread_indices_q
 	running_thread = null_thread;
 
-	scheduler_cycle(regs);
+	// Explicitly switch context to null_thread as scheduler_cycle might do
+	// nothing if there are no other threads and will assume that `regs` match
+	// `running_thread->regs`.
+	switch_context(regs, old_thread, running_thread);
+	// As the syscall interrupts and resets the current time slice, we do not
+	// want to decrement other waiting threads.
+	scheduler_cycle(regs, false);
 }
