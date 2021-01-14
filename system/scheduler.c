@@ -250,7 +250,8 @@ switch_context(struct registers* regs, struct tcb* old, struct tcb* new)
 		log(ERROR, "regs points to NULL");
 		return;
 	}
-	if (old) {
+	// We never want to change the null_threads register
+	if (old && old != null_thread) {
 		old->regs    = regs->gr;
 		old->regs.lr = regs->usr_lr;
 		old->regs.sp = regs->usr_sp;
