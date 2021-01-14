@@ -216,7 +216,7 @@ decrement_waits()
 
 	while (i < waiting_queue.count) {
 		thread_idx = waiting_queue.indices[p];
-		circle_forward(p, waiting_queue.count);
+		circle_forward(p, waiting_queue.size);
 
 		if (!--threads[thread_idx].waiting_for) {
 			// Threads wait is done
@@ -304,7 +304,8 @@ switch_context(struct registers* regs, struct tcb* old, struct tcb* new)
 		log(ERROR, "regs points to NULL");
 		return;
 	}
-	if (old) {
+	// We never want to change the null_threads register
+	if (old && old != null_thread) {
 		old->regs    = regs->gr;
 		old->regs.lr = regs->usr_lr;
 		old->regs.sp = regs->usr_sp;
@@ -396,16 +397,16 @@ void
 pause_cur_thread(size_t duration, struct registers* regs)
 {
 	// TODO: Assert(running_thread != null_thread)
-	struct tcb* old_thread = running_thread;
 	running_thread->waiting_for = duration;
 	push_index(&waiting_queue, running_thread->index);
-	// Do not reenqueue into thread_indices_q
-	running_thread = null_thread;
 
-	// Explicitly switch context to null_thread as scheduler_cycle might do
+	// Do not requeue into thread_indices_q.
+	// Explicitly switch context to null_thread too as scheduler_cycle might do
 	// nothing if there are no other threads and will assume that `regs` match
 	// `running_thread->regs`.
-	switch_context(regs, old_thread, running_thread);
+	switch_context(regs, running_thread, null_thread);
+	running_thread = null_thread;
+
 	// As the syscall interrupts and resets the current time slice, we do not
 	// want to decrement other waiting threads.
 	scheduler_cycle(regs, false);
