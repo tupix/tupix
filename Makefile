@@ -72,10 +72,12 @@ MATRIKEL_NR := $(shell awk '(NR > 1) && (NR < 3)  {ORS="+"; print prev} {prev=$$
 
 # Configuration
 RM = rm -f
+TAR = tar -czf
 CC = arm-none-eabi-gcc
 LD = arm-none-eabi-ld
 OBJCOPY = arm-none-eabi-objcopy
 OBJDUMP = arm-none-eabi-objdump
+QEMU = qemu-system-arm
 
 CFLAGS = -Wall -Wextra -ffreestanding -mcpu=cortex-a7 -O2
 # gcc will use last specified -O flag
@@ -148,11 +150,11 @@ install: kernel.img
 
 .PHONY: qemu
 qemu: kernel
-	qemu-system-arm -M raspi2 -nographic -kernel $<
+	$(QEMU) -M raspi2 -nographic -kernel $<
 
 .PHONY: qemu_debug
 qemu_debug: kernel_debug
-	qemu-system-arm -M raspi2 -nographic -s -S -kernel $<
+	$(QEMU) -M raspi2 -nographic -s -S -kernel $<
 
 .PHONY: clean
 clean:
@@ -166,7 +168,7 @@ clean:
 
 .PHONY: submission
 submission: submission_check clean
-	tar -czf "$(MATRIKEL_NR).tar.gz" $(SUBMISSION_FILES)
+	$(TAR) "$(MATRIKEL_NR).tar.gz" $(SUBMISSION_FILES)
 
 .PHONY: home
 home: kernel.img
