@@ -188,6 +188,9 @@ software_interrupt_handler(struct registers* regs)
 
 	uint16 id = get_syscall_id(regs->gr.lr);
 	exec_syscall(id, regs);
+
+	reset_timer();
+	enable_timer();
 }
 
 void

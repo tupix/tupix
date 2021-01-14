@@ -281,8 +281,6 @@ kill_current_thread(struct registers* regs)
 	switch_context(regs, NULL, running_thread);
 
 	push_index(&free_indices_q, current_thread->index);
-	reset_timer();
-	enable_timer();
 }
 
 size_t
