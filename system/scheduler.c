@@ -255,7 +255,7 @@ scheduler_cycle(struct registers* regs)
 		return;
 	}
 
-	if (old_thread->id) {
+	if (old_thread != null_thread) {
 		if (!push_thread(old_thread)) {
 			log(ERROR, "Could not push old thread back. Losing the thread!");
 			return;
