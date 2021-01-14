@@ -18,6 +18,9 @@
 #                    $ arm-none-eabi-gdb kernel_debug
 #                    $ target remote localhost:1234
 #
+# make gdb_debug  -- Start gdb and attach it to an already running instance of
+#                    qemu_debug
+#
 # make clean      -- Delete all created files
 #
 # make submission -- Create an archive for the submission
@@ -78,6 +81,7 @@ LD = arm-none-eabi-ld
 OBJCOPY = arm-none-eabi-objcopy
 OBJDUMP = arm-none-eabi-objdump
 QEMU = qemu-system-arm
+GDB = arm-none-eabi-gdb
 
 CFLAGS = -Wall -Wextra -ffreestanding -mcpu=cortex-a7 -O2
 # gcc will use last specified -O flag
@@ -155,6 +159,10 @@ qemu: kernel
 .PHONY: qemu_debug
 qemu_debug: kernel_debug
 	$(QEMU) -M raspi2 -nographic -s -S -kernel $<
+
+.PHONY: gdb_debug
+gdb_debug: kernel_debug
+	$(GDB) kernel_debug -ex "target remote localhost:1234"
 
 .PHONY: clean
 clean:
