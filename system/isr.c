@@ -203,27 +203,10 @@ irq_handler(struct registers* regs)
 			log(ERROR, "Could not buffer new char");
 			return;
 		}
-		char c = uart_pop_char();
-		log(LOG, "Pressed %c 0x%02x %i ", c, c, c);
-		switch (c) {
-		case 'S':
-			trigger_exception(SUPERVISOR_CALL);
-			break;
-		case 'P':
-			trigger_exception(PREFETCH_ABORT);
-			break;
-		case 'A':
-			trigger_exception(DATA_ABORT);
-			break;
-		case 'U':
-			trigger_exception(UNDEFINED_INSTRUCTION);
-			break;
-		default:
-			break;
-		}
 
-		uint32 aligned_c = (uint32)c;
-		thread_create(&user_thread, &aligned_c, sizeof(aligned_c));
+		// Notify scheduler that UART received a char.
+		scheduler_uart_received(regs);
+
 	} else {
 		print_registers(regs, "Unknown Interrupt Request (IRQ)", "Continuing.",
 		                "");
