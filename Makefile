@@ -30,7 +30,7 @@
 BIN_LSG =
 
 # User space programs
-KERNEL_USER_SPLIT = false
+KERNEL_USER_SPLIT = true
 
 # Source files
 ASS_OBJ := $(shell find . \( -path "./user" -prune -o -name "*.S" \) -a -type f | sed 's/S$$/o/')
