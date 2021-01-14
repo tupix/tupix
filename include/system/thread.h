@@ -13,12 +13,15 @@
 #define THREAD_STACK_BASE 0x7FFE800
 #define THREAD_STACK_SIZE 0x400 // 4KB
 
+enum thread_state { READY, WAITING, DONE };
+
 struct tcb {
 	size_t id, index;
 	void (*callback)(void*);
 	struct general_registers regs;
 	uint32 cpsr;
 	bool initialized;
+	enum thread_state state;
 };
 
 void* get_stack_pointer(const size_t index);
