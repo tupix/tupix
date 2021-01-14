@@ -20,12 +20,14 @@ struct tcb {
 	void (*callback)(void*);
 	struct general_registers regs;
 	uint32 cpsr;
+	size_t waiting_for;
 	bool initialized;
 	enum thread_state state;
 };
 
 void* get_stack_pointer(const size_t index);
 void* get_max_stack_pointer(const size_t index);
+struct tcb init_thread(void (*func)(void*));
 void thread_create(void (*func)(void*), const void* args, size_t args_size);
 
 #endif /* SYSTEM_THREAD_H */

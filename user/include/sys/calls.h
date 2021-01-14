@@ -19,7 +19,11 @@ enum syscall_id {
 	CREATE_THREAD = 5,
 };
 
-//void syscall(enum syscall_id id);
+void kill_me();
+char getchar();
+void putchar(unsigned char c);
+void wait(size_t duration);
+void create_thread(void (*func)(void*), const void* args, size_t args_size);
 
 #endif /* __ASSEMBLER__ */
 

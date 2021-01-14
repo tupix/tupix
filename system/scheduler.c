@@ -34,6 +34,10 @@ static struct tcb* null_thread;
 
 static uint32 tid_count;
 
+
+// NOTE: When adding queues, do not forget to initialize them in init_scheduler
+static struct index_queue waiting_queue;
+
 /*
  * Null the struct but set the size
  */
@@ -203,6 +207,34 @@ scheduler_uart_received(struct registers* regs)
 	//thread onto the queue.
 }
 
+static void
+decrement_waits()
+{
+	size_t i = 0;
+	size_t p = waiting_queue.head;
+	size_t thread_idx;
+
+	while (i < waiting_queue.count) {
+		thread_idx = waiting_queue.indices[p];
+		circle_forward(p, waiting_queue.count);
+
+		if (!--threads[thread_idx].waiting_for) {
+			// Threads wait is done
+
+			// TODO: ASSERT(result == thread_idx)
+			pop_index(&waiting_queue);
+			// TODO: Push to front?
+			push_index(&thread_indices_q, thread_idx);
+		} else {
+			// We only want to increment here as pop_index decrements
+			// waiting_queue.count. This would then mess with our loop
+			// condition.
+			++i;
+		}
+	}
+	// TODO: ASSERT(p == waiting_queue->tail)
+}
+
 struct tcb*
 init_null_thread()
 {
@@ -221,6 +253,7 @@ init_scheduler()
 	init_queue(&free_indices_q);
 
 	/* WAITING QUEUES */
+	init_queue(&waiting_queue);
 	init_queue(&wait_uart_read_index_q);
 	/* \WAITING QUEUES */
 
@@ -242,7 +275,7 @@ init_scheduler()
  * @return NULL if the thread could not be pushed.
  */
 struct tcb*
-schedule_thread(struct tcb* thread)
+schedule_thread(struct tcb thread)
 {
 	ssize_t index = pop_index(&free_indices_q);
 	if (!index) {
@@ -251,10 +284,10 @@ schedule_thread(struct tcb* thread)
 	} else if (0 > index) {
 		return NULL; // Other error
 	}
-	thread->id                = ++tid_count;
-	thread->index             = index;
-	threads[thread->index]    = *thread;
-	struct tcb* queued_thread = push_thread(thread);
+	thread.id                = ++tid_count;
+	thread.index             = index;
+	threads[thread.index]    = thread;
+	struct tcb* queued_thread = push_thread(&thread);
 	if (queued_thread) {
 		log(LOG, "New thread: %i.", queued_thread->id);
 	} else {
@@ -289,9 +322,15 @@ switch_context(struct registers* regs, struct tcb* old, struct tcb* new)
 }
 
 void
-scheduler_cycle(struct registers* regs)
+scheduler_cycle(struct registers* regs, bool decrement)
 {
 	log(LOG, "Cycling...");
+
+	// Before doing anything else, decrement the waiting times of all waiting
+	// threads and eventually readd them to the thread_indices_q.
+	if (decrement)
+		decrement_waits();
+
 	// Continue if no other threads are waiting.
 	if (!thread_indices_q.count) {
 		log(LOG, "No waiting threads. Thread %i continues", running_thread->id);
@@ -310,7 +349,7 @@ scheduler_cycle(struct registers* regs)
 		return;
 	}
 
-	if (old_thread->id) {
+	if (old_thread != null_thread) {
 		if (!push_thread(old_thread)) {
 			log(ERROR, "Could not push old thread back. Losing the thread!");
 			return;
@@ -336,8 +375,6 @@ kill_current_thread(struct registers* regs)
 	switch_context(regs, NULL, running_thread);
 
 	push_index(&free_indices_q, current_thread->index);
-	reset_timer();
-	enable_timer();
 }
 
 size_t
@@ -350,4 +387,26 @@ enum thread_state
 get_cur_thread_state()
 {
 	return running_thread->state;
+}
+
+// NOTE: Currently the waiting times are only decremented on cycle, so when the
+// interrupt fired and the timer run at least one full time slice. Beware that
+// this does not happen in kill_current_thread.
+void
+pause_cur_thread(size_t duration, struct registers* regs)
+{
+	// TODO: Assert(running_thread != null_thread)
+	struct tcb* old_thread = running_thread;
+	running_thread->waiting_for = duration;
+	push_index(&waiting_queue, running_thread->index);
+	// Do not reenqueue into thread_indices_q
+	running_thread = null_thread;
+
+	// Explicitly switch context to null_thread as scheduler_cycle might do
+	// nothing if there are no other threads and will assume that `regs` match
+	// `running_thread->regs`.
+	switch_context(regs, old_thread, running_thread);
+	// As the syscall interrupts and resets the current time slice, we do not
+	// want to decrement other waiting threads.
+	scheduler_cycle(regs, false);
 }

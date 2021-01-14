@@ -188,6 +188,9 @@ software_interrupt_handler(struct registers* regs)
 
 	uint16 id = get_syscall_id(regs->gr.lr);
 	exec_syscall(id, regs);
+
+	reset_timer();
+	enable_timer();
 }
 
 void
@@ -196,7 +199,7 @@ irq_handler(struct registers* regs)
 	// Reset triggered interrupts
 	if (l_timer_is_interrupting()) {
 		kprintf("!");
-		scheduler_cycle(regs);
+		scheduler_cycle(regs, true);
 		reset_timer();
 	} else if (uart_is_interrupting()) {
 		if (!uart_push_char()) {

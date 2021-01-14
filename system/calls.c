@@ -32,6 +32,7 @@ verify_pointer(const void* p)
 	return true;
 }
 
+// TODO: Really necessary?
 static bool
 verify_func_pointer(const void (*p)(void))
 {
@@ -47,13 +48,14 @@ verify_func_pointer(const void (*p)(void))
 
 #define SET_SYSCALL_RETURN_VALUE(value) regs->gr.r0 = (value)
 
+// Kill current thread
 static void
 exec_syscall_kill_me(struct registers* regs)
 {
 	kill_current_thread(regs);
 }
 
-// Put pointer to memory when char should be placed.
+// Put char into r0.
 static void
 exec_syscall_get_char(struct registers* regs)
 {
@@ -68,51 +70,35 @@ exec_syscall_get_char(struct registers* regs)
 	}
 }
 
-// Put pointer to char that should be printed in r0.
+// Print char store in r0
 static void
 exec_syscall_put_char(struct registers* regs)
 {
-	char* c = (char*)regs->gr.r0;
-	if (!verify_pointer(c)) {
-		log(WARNING, "Thread passed invalid pointer. Killing.");
-		kill_current_thread(regs);
-		return;
-	}
-	uart_put_char(*c);
+	uart_put_char(regs->gr.r0);
 }
 
 static void
 exec_syscall_wait(struct registers* regs)
 {
-	// TODO
+	pause_cur_thread(regs->gr.r0, regs);
 }
 
 static void
 exec_syscall_create_thread(struct registers* regs)
 {
-	// TODO: When incrementing sp, do we need to respect alignment?
-	void* sp = (void*)regs->gr.r0;
-	if (!verify_pointer(sp)) {
+	void (*func)(void*) = (void (*)(void*))regs->gr.r0;
+	if (!verify_func_pointer(func)) {
 		log(WARNING, "Thread passed invalid pointer. Killing.");
 		kill_current_thread(regs);
 		return;
 	}
-	void (*func)(void*) = (void (*)(void*))sp;
-	sp += sizeof(func);
-	if (!verify_func_pointer(func) || !verify_pointer(sp)) {
+	void* args = (void*)regs->gr.r1;
+	if (!verify_pointer(args)) {
 		log(WARNING, "Thread passed invalid pointer. Killing.");
 		kill_current_thread(regs);
 		return;
 	}
-	const void* args = (void*)sp;
-	sp += sizeof(args);
-	if (!verify_pointer(args) || !verify_pointer(sp)) {
-		log(WARNING, "Thread passed invalid pointer. Killing.");
-		kill_current_thread(regs);
-		return;
-	}
-	size_t args_size = *(size_t*)sp;
-	sp += sizeof(args);
+	size_t args_size = regs->gr.r2;
 
 	thread_create(func, args, args_size);
 }
@@ -130,6 +116,7 @@ get_syscall_id(uint32 lr)
 	return (*(uint32*)lr & 0xFF);
 }
 
+// See user/include/sys/calls.h and user/src/sys/calls.S
 void
 exec_syscall(uint16 id, struct registers* regs)
 {
