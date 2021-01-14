@@ -345,3 +345,9 @@ get_curr_thread_index()
 {
 	return running_thread->index;
 }
+
+enum thread_state
+get_cur_thread_state()
+{
+	return running_thread->state;
+}

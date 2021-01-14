@@ -12,6 +12,8 @@
 #include <data/types.h>
 #include <std/log.h>
 
+#include <system/assert.h>
+
 static bool
 verify_pointer(const void* p)
 {
@@ -43,6 +45,8 @@ verify_func_pointer(const void (*p)(void))
 	return true;
 }
 
+#define SET_SYSCALL_RETURN_VALUE(value) regs->gr.r0 = (value)
+
 static void
 exec_syscall_kill_me(struct registers* regs)
 {
@@ -53,13 +57,15 @@ exec_syscall_kill_me(struct registers* regs)
 static void
 exec_syscall_get_char(struct registers* regs)
 {
-	char* c = (char*)regs->gr.r0;
-	if (!verify_pointer(c)) {
-		log(WARNING, "Thread passed invalid pointer. Killing.");
-		kill_current_thread(regs);
-		return;
+	if (uart_queue_is_emtpy()) {
+		scheduler_push_uart_read(regs);
+		ASSERTM(get_cur_thread_state() == READY,
+		        "Thread has not yet received a char.");
+	} else {
+		// TODO(Aurel): How do we return a value?
+		//regs->gr.r0 = uart_pop_char();
+		SET_SYSCALL_RETURN_VALUE(uart_pop_char());
 	}
-	*c = uart_pop_char();
 }
 
 // Put pointer to char that should be printed in r0.
