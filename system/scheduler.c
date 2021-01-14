@@ -15,6 +15,8 @@
 #include <std/log.h>
 #include <std/mem.h>
 
+#include <driver/uart.h>
+
 struct index_queue {
 	size_t size, count;
 	size_t tail, head;
@@ -151,6 +153,52 @@ pop_thread()
 	}
 
 	return &(threads[index]);
+}
+
+// TODO(Aurel): Remove.
+static void switch_context(struct registers* regs, struct tcb* old,
+                           struct tcb* new);
+
+// TODO(Aurel): Error handling.
+void
+scheduler_push_uart_read(struct registers* regs)
+{
+	log(DEBUG, "Pushing running thread onto waiting queue...");
+	struct tcb* thread = running_thread;
+
+	push_index(&wait_uart_read_index_q, thread->index);
+	thread->state = WAITING;
+
+	log(DEBUG, "Cycling scheduler.");
+	running_thread = null_thread;
+	switch_context(regs, thread, null_thread);
+	scheduler_cycle(regs);
+}
+
+void
+scheduler_uart_received(struct registers* regs)
+{
+	if (wait_uart_read_index_q.count == 0) {
+		log(LOG, "Received char, but uart pop waiting queue is empty.");
+		return;
+	}
+
+	size_t index = pop_index(&wait_uart_read_index_q);
+	if (uart_queue_is_emtpy()) {
+		// NOTE(Aurel): Accidental irq?
+		return;
+	}
+
+	// TODO(Aurel): Align c?
+	char c = uart_pop_char();
+
+	struct tcb* thread = &(threads[index]);
+	thread->regs.r0    = c;
+	thread->state      = READY;
+
+	push_thread(thread);
+	//scheduler_cycle(regs); // We only want to append the now non-waiting
+	//thread onto the queue.
 }
 
 struct tcb*

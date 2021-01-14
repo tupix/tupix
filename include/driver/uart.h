@@ -14,6 +14,7 @@ void init_uart();
 void uart_put_char(unsigned char c);
 char uart_pop_char();
 char uart_peek_char();
+bool uart_queue_is_emtpy();
 
 bool uart_push_char();
 bool uart_is_interrupting();

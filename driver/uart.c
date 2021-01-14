@@ -140,6 +140,12 @@ uart_push_char()
 }
 
 bool
+uart_queue_is_emtpy()
+{
+	return (queue.count == 0);
+}
+
+bool
 uart_is_interrupting()
 {
 	return IS_SET(uart->mis, MIS_RXMIS);
