@@ -113,8 +113,6 @@ uart_pop_char()
 char
 uart_peek_char()
 {
-	while (!queue.count) {}
-
 	return queue.chars[queue.head];
 }
 
