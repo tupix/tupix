@@ -42,20 +42,23 @@ exit_thread()
 	asm("svc #1");
 }
 
+struct tcb
+init_thread(void (*func)(void*))
+{
+	struct tcb thread  = { 0 };
+	thread.callback    = func;
+	thread.regs.pc     = (uint32)func;
+	thread.regs.lr     = (uint32)&exit_thread;
+	thread.cpsr        = PROCESSOR_MODE_USR;
+	thread.initialized = false;
+
+	return thread;
+}
+
 void
 thread_create(void (*func)(void*), const void* args, size_t args_size)
 {
-	struct tcb* scheduled_thread;
-	{
-		struct tcb thread  = { 0 };
-		thread.callback    = func;
-		thread.regs.pc     = (uint32)func;
-		thread.regs.lr     = (uint32)&exit_thread;
-		thread.cpsr        = PROCESSOR_MODE_USR;
-		thread.initialized = false;
-
-		scheduled_thread = schedule_thread(&thread);
-	}
+	struct tcb* scheduled_thread = schedule_thread(init_thread(func));
 	if (!scheduled_thread)
 		return; // Thread was not added to queue
 

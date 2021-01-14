@@ -187,7 +187,7 @@ init_scheduler()
  * @return NULL if the thread could not be pushed.
  */
 struct tcb*
-schedule_thread(struct tcb* thread)
+schedule_thread(struct tcb thread)
 {
 	ssize_t index = pop_index(&free_indices_q);
 	if (!index) {
@@ -196,10 +196,10 @@ schedule_thread(struct tcb* thread)
 	} else if (0 > index) {
 		return NULL; // Other error
 	}
-	thread->id                = ++tid_count;
-	thread->index             = index;
-	threads[thread->index]    = *thread;
-	struct tcb* queued_thread = push_thread(thread);
+	thread.id                = ++tid_count;
+	thread.index             = index;
+	threads[thread.index]    = thread;
+	struct tcb* queued_thread = push_thread(&thread);
 	if (queued_thread) {
 		log(LOG, "New thread: %i.", queued_thread->id);
 	} else {
