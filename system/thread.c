@@ -67,13 +67,19 @@ thread_create(void (*func)(void*), const void* args, size_t args_size)
 
 	// Since the stack grows to the 'bottom', copy below it
 	// TODO: What to do if we cannot access user memory?
-	thread_sp -= args_size;
-	memcpy(thread_sp, args, args_size);
+	if (args && args_size) {
+		thread_sp -= args_size;
+		memcpy(thread_sp, args, args_size);
+	}
 
 	// Update stack pointer
 	scheduled_thread->regs.sp = (uint32)thread_sp;
 
 	// Pass stack-pointer as argument
-	scheduled_thread->regs.r0     = scheduled_thread->regs.sp;
+	if (args && args_size)
+		scheduled_thread->regs.r0 = scheduled_thread->regs.sp;
+	else
+		scheduled_thread->regs.r0 = NULL;
+
 	scheduled_thread->initialized = true;
 }
