@@ -12,5 +12,6 @@ struct tcb* schedule_thread(struct tcb thread);
 void scheduler_cycle(struct registers* regs);
 void kill_current_thread(struct registers* regs);
 size_t get_curr_thread_index();
+void pause_cur_thread(size_t duration, struct registers* regs);
 
 #endif /* SYSTEM_SCHEDULER_H */

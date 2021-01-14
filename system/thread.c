@@ -50,6 +50,7 @@ init_thread(void (*func)(void*))
 	thread.regs.pc     = (uint32)func;
 	thread.regs.lr     = (uint32)&exit_thread;
 	thread.cpsr        = PROCESSOR_MODE_USR;
+	thread.waiting_for = 0;
 	thread.initialized = false;
 
 	return thread;

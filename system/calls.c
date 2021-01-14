@@ -67,7 +67,7 @@ exec_syscall_put_char(struct registers* regs)
 static void
 exec_syscall_wait(struct registers* regs)
 {
-	// TODO
+	pause_cur_thread(regs->gr.r0, regs);
 }
 
 static void

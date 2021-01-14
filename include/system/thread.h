@@ -18,6 +18,7 @@ struct tcb {
 	void (*callback)(void*);
 	struct general_registers regs;
 	uint32 cpsr;
+	size_t waiting_for;
 	bool initialized;
 };
 

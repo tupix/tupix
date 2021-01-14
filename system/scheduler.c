@@ -30,6 +30,10 @@ static struct tcb* null_thread;
 
 static uint32 tid_count;
 
+
+// NOTE: When adding queues, do not forget to initialize them in init_scheduler
+static struct index_queue waiting_queue;
+
 /*
  * Null the struct but set the size
  */
@@ -153,6 +157,35 @@ pop_thread()
 	return &(threads[index]);
 }
 
+static void
+decrement_waits()
+{
+	size_t i = 0;
+	size_t p = waiting_queue.head;
+	size_t thread_idx;
+
+	while (i < waiting_queue.count) {
+		thread_idx = waiting_queue.indices[p];
+		circle_forward(p, waiting_queue.count);
+
+		if (!--threads[thread_idx].waiting_for) {
+			// Threads wait is done
+
+			// TODO: ASSERT(result == thread_idx)
+			pop_index(&waiting_queue);
+			// TODO: Push to front?
+			push_index(&thread_indices_q, thread_idx);
+		} else {
+			// We only want to increment here as pop_index decrements
+			// waiting_queue.count. This would then mess with our loop
+			// condition.
+			++i;
+		}
+	}
+
+	// TODO: ASSERT(p == waiting_queue->tail)
+}
+
 struct tcb*
 init_null_thread()
 {
@@ -169,6 +202,7 @@ init_scheduler()
 {
 	init_queue(&thread_indices_q);
 	init_queue(&free_indices_q);
+	init_queue(&waiting_queue);
 	tid_count = 0;
 	// Mark all indices as free
 	for (size_t i = 0; i < free_indices_q.size; ++i)
@@ -243,6 +277,10 @@ scheduler_cycle(struct registers* regs)
 		return;
 	}
 
+	// Before popping the next thread, decrement the waiting times of all
+	// waiting threads and eventually readd them to the thread_indices_q.
+	decrement_waits();
+
 	/*
 	 * NOTE: Pop before pushing as the other way around will not work when
 	 * the queue is full.
@@ -287,4 +325,21 @@ size_t
 get_curr_thread_index()
 {
 	return running_thread->index;
+}
+
+// NOTE: Currently the waiting times are only decremented on cycle, so when the
+// interrupt fired and the timer run at least one full time slice. Beware that
+// this does not happen in kill_current_thread.
+void
+pause_cur_thread(size_t duration, struct registers* regs)
+{
+	// TODO: Assert(running_thread != null_thread)
+	// When scheduler_cycle is called, decrement_waits is executed, that is why
+	// we need `+ 1`.
+	running_thread->waiting_for = duration + 1;
+	push_index(&waiting_queue, running_thread->index);
+	// Do not reenque into thread_indices_q
+	running_thread = null_thread;
+
+	scheduler_cycle(regs);
 }

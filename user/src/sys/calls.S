@@ -4,3 +4,5 @@ getchar:
 putchar:
 	svc #PUT_CHAR
 
+wait:
+	svc #WAIT

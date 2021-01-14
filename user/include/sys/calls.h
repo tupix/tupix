@@ -21,6 +21,7 @@ enum syscall_id {
 
 char getchar();
 void putchar(unsigned char c);
+void wait(size_t duration);
 
 #endif /* __ASSEMBLER__ */
 
