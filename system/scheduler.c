@@ -26,6 +26,8 @@ struct index_queue {
 static struct index_queue thread_indices_q;
 static struct index_queue free_indices_q;
 
+static struct index_queue wait_uart_read_index_q;
+
 static struct tcb threads[N_THREADS + 1];
 static struct tcb* running_thread;
 static struct tcb* null_thread;
@@ -217,6 +219,11 @@ init_scheduler()
 {
 	init_queue(&thread_indices_q);
 	init_queue(&free_indices_q);
+
+	/* WAITING QUEUES */
+	init_queue(&wait_uart_read_index_q);
+	/* \WAITING QUEUES */
+
 	tid_count = 0;
 	// Mark all indices as free
 	for (size_t i = 0; i < free_indices_q.size; ++i)
