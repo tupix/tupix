@@ -38,7 +38,7 @@ get_max_stack_pointer(const size_t index)
 void
 exit_thread()
 {
-	// TODO: Disable timer?
+	// TODO: Use KILL_ME or even the syscall from user_mode
 	asm("svc #1");
 }
 

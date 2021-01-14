@@ -44,20 +44,21 @@ verify_func_pointer(const void (*p)(void))
 	return true;
 }
 
+// Kill current thread
 static void
 exec_syscall_kill_me(struct registers* regs)
 {
 	kill_current_thread(regs);
 }
 
-// Put pointer to memory when char should be placed.
+// Put char into r0.
 static void
 exec_syscall_get_char(struct registers* regs)
 {
 	regs->gr.r0 = uart_pop_char();
 }
 
-// Put pointer to char that should be printed in r0.
+// Print char store in r0
 static void
 exec_syscall_put_char(struct registers* regs)
 {
@@ -103,6 +104,7 @@ get_syscall_id(uint32 lr)
 	return (*(uint32*)lr & 0xFF);
 }
 
+// See user/include/sys/calls.h and user/src/sys/calls.S
 void
 exec_syscall(uint16 id, struct registers* regs)
 {
