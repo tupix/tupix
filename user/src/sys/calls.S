@@ -1,17 +1,17 @@
-#define KILL_ME 1
+#define EXIT 1
 #define GET_CHAR 2
 #define PUT_CHAR 3
 #define WAIT 4
 #define CREATE_THREAD 5
 
-.global kill_me
+.global exit
 .global getchar
 .global putchar
 .global wait
 .global create_thread
 
-kill_me:
-    svc #KILL_ME
+exit:
+    svc #EXIT
     bx lr
 
 getchar:

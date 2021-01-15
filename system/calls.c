@@ -50,7 +50,7 @@ verify_func_pointer(void (*p)())
 
 // Kill current thread
 static void
-exec_syscall_kill_me(struct registers* regs)
+exec_syscall_exit(struct registers* regs)
 {
 	kill_current_thread(regs);
 }
@@ -122,8 +122,8 @@ exec_syscall(uint16 id, struct registers* regs)
 {
 	log(LOG, "Syscall with id %i called.", id);
 	switch (id) {
-	case KILL_ME:
-		exec_syscall_kill_me(regs);
+	case EXIT:
+		exec_syscall_exit(regs);
 		break;
 	case GET_CHAR:
 		exec_syscall_get_char(regs);

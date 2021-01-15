@@ -4,14 +4,14 @@
 #include <arch/armv7/registers.h>
 #include <data/types.h>
 
-#define _KILL_ME 1
+#define _EXIT 1
 #define _GET_CHAR 2
 #define _PUT_CHAR 3
 #define _WAIT 4
 #define _CREATE_THREAD 5
 
 enum syscall_id {
-	KILL_ME       = _KILL_ME,
+	EXIT          = _EXIT,
 	GET_CHAR      = _GET_CHAR,
 	PUT_CHAR      = _PUT_CHAR,
 	WAIT          = _WAIT,
