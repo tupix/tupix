@@ -22,8 +22,8 @@ static void
 print_with_padding(const char* num_str, size_t len, size_t field_width,
                    const char padding)
 {
-	size_t str_len = max(len, field_width);
-	for (size_t i = 0; i < str_len - len; ++i)
+	size_t kstr_len = max(len, field_width);
+	for (size_t i = 0; i < kstr_len - len; ++i)
 		uart_put_char(padding);
 	kprint(num_str);
 }
@@ -123,16 +123,16 @@ kprintf(const char* format, ...)
 			break;
 		case 's': {
 			const char* str = va_arg(args, const char*);
-			print_with_padding(str, str_len(str), field_width, padding);
+			print_with_padding(str, kstr_len(str), field_width, padding);
 			break;
 		}
 		case 'x':
-			utostr(va_arg(args, uint32), 16, num_str, &len);
+			kutostr(va_arg(args, uint32), 16, num_str, &len);
 			print_with_padding(num_str, len, field_width, padding);
 			break;
 		case 'd':
 		case 'i': {
-			itostr(va_arg(args, int32), 10, num_str, &len);
+			kitostr(va_arg(args, int32), 10, num_str, &len);
 			uint32 offset = 0;
 			if (num_str[0] == '-') {
 				uart_put_char('-');
@@ -143,12 +143,12 @@ kprintf(const char* format, ...)
 			break;
 		}
 		case 'u':
-			utostr(va_arg(args, uint32), 10, num_str, &len);
+			kutostr(va_arg(args, uint32), 10, num_str, &len);
 			print_with_padding(num_str, len, field_width, padding);
 			break;
 		case 'p':
 			kprint("0x");
-			utostr((uint32)va_arg(args, void*), 16, num_str, &len);
+			kutostr((uint32)va_arg(args, void*), 16, num_str, &len);
 			print_with_padding(num_str, len, field_width, padding);
 			break;
 		case '%':

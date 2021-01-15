@@ -7,7 +7,7 @@
  * Returns: `dest`
  */
 void*
-memcpy(void* dest, const void* src, const size_t n)
+kmemcpy(void* dest, const void* src, const size_t n)
 {
 	const char* c_src = (const char*)src;
 	char* c_dest      = (char*)dest;
@@ -18,7 +18,7 @@ memcpy(void* dest, const void* src, const size_t n)
 }
 
 void*
-memset(void* mem, const unsigned char val, const size_t n)
+kmemset(void* mem, const unsigned char val, const size_t n)
 {
 	unsigned char* c_mem = (unsigned char*)mem;
 	for (size_t i = 0; i < n; ++i)

@@ -19,9 +19,9 @@
 		_a < _b ? _a : _b;                                                     \
 	})
 
-uint32 calc_digits(uint32 n, uint32 base);
+uint32 kcalc_digits(uint32 n, uint32 base);
 
-char* utostr(uint32 n, uint8 base, char* str, size_t* len);
-char* itostr(int32 n, uint8 base, char* str, size_t* len);
+char* kutostr(uint32 n, uint8 base, char* str, size_t* len);
+char* kitostr(int32 n, uint8 base, char* str, size_t* len);
 
 #endif /* STD_UTIL_H */
