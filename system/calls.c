@@ -21,10 +21,12 @@ verify_pointer(const void* p)
 	if ((uint32)p % 4)
 		return false;
 
-	// Verify if pointer lays inside threads stack
-	void* sp     = get_stack_pointer(get_curr_thread_index());
+	// Verify if pointer lays inside threads stack.
+	// NOTE: The stack pointer indicates the last address written to, thus
+	// max_sp is valid, but min_sp not.
+	void* min_sp = get_stack_pointer(get_curr_thread_index());
 	void* max_sp = get_max_stack_pointer(get_curr_thread_index());
-	if (!(p < sp && p >= max_sp))
+	if (!(p < min_sp && p >= max_sp))
 		return false;
 
 	return true;
