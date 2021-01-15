@@ -22,8 +22,8 @@ static void
 print_with_padding(const char* num_str, size_t len, size_t field_width,
                    const char padding)
 {
-	size_t str_len = max(len, field_width);
-	for (size_t i = 0; i < str_len - len; ++i)
+	size_t strlen = max(len, field_width);
+	for (size_t i = 0; i < strlen - len; ++i)
 		putchar(padding);
 	print(num_str);
 }
@@ -123,7 +123,7 @@ printf(const char* format, ...)
 			break;
 		case 's': {
 			const char* str = va_arg(args, const char*);
-			print_with_padding(str, str_len(str), field_width, padding);
+			print_with_padding(str, strlen(str), field_width, padding);
 			break;
 		}
 		case 'x':
