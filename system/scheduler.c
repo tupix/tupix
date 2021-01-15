@@ -17,12 +17,6 @@
 
 #include <driver/uart.h>
 
-struct index_queue {
-	size_t size, count;
-	size_t tail, head;
-	size_t indices[N_THREADS];
-};
-
 static struct index_queue thread_indices_q;
 static struct index_queue free_indices_q;
 
@@ -36,64 +30,6 @@ static struct tcb* running_thread;
 static struct tcb* null_thread;
 
 static uint32 tid_count;
-
-/*
- * Null the struct but set the size
- */
-static void
-init_queue(struct index_queue* q)
-{
-	memset(q, 0, sizeof(*q));
-	q->size = sizeof(q->indices) / sizeof(*(q->indices));
-}
-
-// NOTE(Aurel): Do not increment var when using this macro.
-#define circle_forward(var, size) (var) = (var) + 1 >= (size) ? 0 : (var) + 1
-
-/*
- * Push index to index_queue.
- *
- * @return 0 if queue is full and -1 on any other fatal error.
- */
-static ssize_t
-push_index(struct index_queue* q, size_t index)
-{
-	if (!q) {
-		log(WARNING, "Invalid index_queue (NULL)");
-		return -1;
-	} else if (index <= 0 || index > q->size) {
-		log(WARNING, "Index %i out of bounds", index);
-		return -1;
-	} else if (q->count >= q->size) {
-		return 0;
-	}
-
-	q->indices[q->tail] = index;
-	circle_forward(q->tail, q->size);
-	++(q->count);
-	return index;
-}
-
-/*
- * Pop index from index_queue.
- *
- * @return 0 if queue is empty and -1 on any other fatal error.
- */
-static ssize_t
-pop_index(struct index_queue* q)
-{
-	if (!q) {
-		log(WARNING, "Invalid index_queue (NULL)");
-		return -1;
-	} else if (!q->count) {
-		return 0;
-	}
-
-	size_t index = q->indices[q->head];
-	circle_forward(q->head, q->size);
-	--(q->count);
-	return index;
-}
 
 /*
  * Push thread onto thread queue.
