@@ -1,3 +1,6 @@
+#ifndef CONFIG_H
+#define CONFIG_H
+
 // Nächste Zeile auskommentieren falls auf der Hardware getestet wird
 #define __QEMU__
 
@@ -21,3 +24,5 @@
 
 // Number of Threads supported
 #define N_THREADS 32
+
+#endif /* CONFIG_H */
