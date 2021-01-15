@@ -286,6 +286,9 @@ get_cur_thread_state()
 void
 pause_cur_thread(size_t duration, struct registers* regs)
 {
+	if (!duration)
+		return;
+
 	// TODO: Assert(running_thread != null_thread)
 	running_thread->waiting_for = duration;
 	push_index(&waiting_queue, running_thread->index);
