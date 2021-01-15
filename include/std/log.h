@@ -14,10 +14,10 @@ enum klog_lvl {
 };
 
 // [Reference](https://stackoverflow.com/questions/1644868/define-macro-for-debug-printing-in-c)
-#define klog(klog_lvl, fmt, ...)                                                 \
+#define klog(klog_lvl, fmt, ...)                                               \
 	do {                                                                       \
-		if (LOGGING_ENABLED && klog_lvl <= LOGGING_LEVEL) {                     \
-			switch (klog_lvl) {                                                 \
+		if (LOGGING_ENABLED && klog_lvl <= LOGGING_LEVEL) {                    \
+			switch (klog_lvl) {                                                \
 			case ASSERT:                                                       \
 				kprintf("[ASSERT] ");                                          \
 				break;                                                         \

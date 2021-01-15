@@ -8,7 +8,7 @@
 #define ASSERT(condition)                                                      \
 	do {                                                                       \
 		if (!(condition)) {                                                    \
-			klog(ASSERT, "");                                                   \
+			klog(ASSERT, "");                                                  \
 			PANIC;                                                             \
 		}                                                                      \
 	} while (0)
@@ -16,7 +16,7 @@
 #define ASSERTM(condition, fmt, ...)                                           \
 	do {                                                                       \
 		if (!(condition)) {                                                    \
-			klog(ASSERT, fmt, ##__VA_ARGS__);                                   \
+			klog(ASSERT, fmt, ##__VA_ARGS__);                                  \
 			PANIC;                                                             \
 		}                                                                      \
 	} while (0)

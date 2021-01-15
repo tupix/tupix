@@ -331,7 +331,8 @@ scheduler_cycle(struct registers* regs, bool decrement)
 
 	// Continue if no other threads are waiting.
 	if (!thread_indices_q.count) {
-		klog(LOG, "No waiting threads. Thread %i continues", running_thread->id);
+		klog(LOG, "No waiting threads. Thread %i continues",
+		     running_thread->id);
 		return;
 	}
 
