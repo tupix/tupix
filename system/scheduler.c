@@ -110,8 +110,8 @@ decrement_waits()
 		if (!--threads[thread_idx].waiting_for) {
 			// Threads wait is done
 
-			// TODO: ASSERT(result == thread_idx)
-			pop_index(&waiting_queue);
+			size_t res = pop_index(&waiting_queue);
+			ASSERTM(res == thread_idx, "Current thread was not popped.");
 			// TODO: Push to front?
 			push_index(&thread_indices_q, thread_idx);
 		} else {
@@ -121,7 +121,7 @@ decrement_waits()
 			++i;
 		}
 	}
-	// TODO: ASSERT(p == waiting_queue->tail)
+	ASSERTM(p == waiting_queue.tail, "Loop did not cycle correctly.");
 }
 
 static void
@@ -289,7 +289,7 @@ pause_cur_thread(size_t duration, struct registers* regs)
 	if (!duration)
 		return;
 
-	// TODO: Assert(running_thread != null_thread)
+	ASSERTM(running_thread != null_thread, "Null thread should loop endlessly");
 	running_thread->waiting_for = duration;
 	push_index(&waiting_queue, running_thread->index);
 
@@ -335,11 +335,8 @@ scheduler_uart_received()
 		return;
 	}
 
-	// TODO(Aurel): Align c?
-	char c = uart_pop_char();
-
 	struct tcb* thread = &(threads[index]);
-	thread->regs.r0    = c;
+	thread->regs.r0    = uart_pop_char();
 	thread->state      = READY;
 
 	push_thread(thread);

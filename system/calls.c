@@ -18,26 +18,22 @@ static bool
 verify_pointer(const void* p)
 {
 	// Verify if pointer is aligned
-	// TODO: Is 4 correct?
 	if ((uint32)p % 4)
 		return false;
 
 	// Verify if pointer lays inside threads stack
 	void* sp     = get_stack_pointer(get_curr_thread_index());
 	void* max_sp = get_max_stack_pointer(get_curr_thread_index());
-	// TODO: lesser or lesser-equal?
 	if (!(p < sp && p >= max_sp))
 		return false;
 
 	return true;
 }
 
-// TODO: Really necessary?
 static bool
 verify_func_pointer(void (*p)())
 {
 	// Verify if pointer is aligned
-	// TODO: Is 4 correct?
 	if ((uint32)p % 4)
 		return false;
 
@@ -64,8 +60,6 @@ exec_syscall_get_char(struct registers* regs)
 		ASSERTM(get_cur_thread_state() == READY,
 		        "Thread has not yet received a char.");
 	} else {
-		// TODO(Aurel): How do we return a value?
-		//regs->gr.r0 = uart_pop_char();
 		SET_SYSCALL_RETURN_VALUE(uart_pop_char());
 	}
 }

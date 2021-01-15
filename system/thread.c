@@ -12,6 +12,8 @@
 #include <std/log.h>
 #include <std/mem.h>
 
+extern void exit();
+
 void*
 get_stack_pointer(const size_t index)
 {
@@ -35,20 +37,13 @@ get_max_stack_pointer(const size_t index)
 	return get_stack_pointer(index + 1) + 1;
 }
 
-void
-exit_thread()
-{
-	// TODO: Use EXIT or even the syscall from user_mode
-	asm("svc #1");
-}
-
 struct tcb
 init_thread(void (*func)(void*))
 {
 	struct tcb thread  = { 0 };
 	thread.callback    = func;
 	thread.regs.pc     = (uint32)func;
-	thread.regs.lr     = (uint32)&exit_thread;
+	thread.regs.lr     = (uint32)&exit;
 	thread.cpsr        = PROCESSOR_MODE_USR;
 	thread.waiting_for = 0;
 	thread.initialized = false;

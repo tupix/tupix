@@ -182,7 +182,6 @@ software_interrupt_handler(struct registers* regs)
 		return;
 	}
 
-	// TODO: Really here?
 	disable_timer();
 
 	uint16 id = get_syscall_id(regs->gr.lr);
