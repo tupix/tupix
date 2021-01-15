@@ -22,7 +22,7 @@ get_stack_pointer(const size_t index)
 	if (index >= N_THREADS)
 		return NULL;
 	// Do not try to create a pointer of negative memory address
-	if (THREAD_STACK_BASE - index * THREAD_STACK_SIZE < 0)
+	if (THREAD_STACK_BASE - (int32)index * THREAD_STACK_SIZE < 0)
 		return NULL;
 	void* stack = (void*)(THREAD_STACK_BASE);
 	stack -= index * THREAD_STACK_SIZE;
@@ -79,7 +79,7 @@ thread_create(void (*func)(void*), const void* args, size_t args_size)
 	if (args && args_size)
 		scheduled_thread->regs.r0 = scheduled_thread->regs.sp;
 	else
-		scheduled_thread->regs.r0 = NULL;
+		scheduled_thread->regs.r0 = (uint32)NULL;
 
 	scheduled_thread->initialized = true;
 }

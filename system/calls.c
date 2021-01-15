@@ -34,7 +34,7 @@ verify_pointer(const void* p)
 
 // TODO: Really necessary?
 static bool
-verify_func_pointer(const void (*p)(void))
+verify_func_pointer(void (*p)())
 {
 	// Verify if pointer is aligned
 	// TODO: Is 4 correct?

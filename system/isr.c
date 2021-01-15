@@ -207,7 +207,7 @@ irq_handler(struct registers* regs)
 		}
 
 		// Notify scheduler that UART received a char.
-		scheduler_uart_received(regs);
+		scheduler_uart_received();
 
 	} else {
 		print_registers(regs, "Unknown Interrupt Request (IRQ)", "Continuing.",

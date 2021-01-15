@@ -181,7 +181,7 @@ scheduler_push_uart_read(struct registers* regs)
 }
 
 void
-scheduler_uart_received(struct registers* regs)
+scheduler_uart_received()
 {
 	if (wait_uart_read_index_q.count == 0) {
 		log(LOG, "Received char, but uart pop waiting queue is empty.");
@@ -202,8 +202,6 @@ scheduler_uart_received(struct registers* regs)
 	thread->state      = READY;
 
 	push_thread(thread);
-	//scheduler_cycle(regs); // We only want to append the now non-waiting
-	//thread onto the queue.
 }
 
 static void
