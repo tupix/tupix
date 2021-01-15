@@ -88,6 +88,7 @@ exec_syscall_create_thread(struct registers* regs)
 		kill_current_thread(regs);
 		return;
 	}
+
 	void* args = (void*)regs->gr.r1;
 	if (!verify_pointer(args)) {
 		klog(WARNING, "Thread passed invalid pointer. Killing.");
@@ -95,6 +96,14 @@ exec_syscall_create_thread(struct registers* regs)
 		return;
 	}
 	size_t args_size = regs->gr.r2;
+
+	// NOTE: (args - args_size) points below the block that will be copied. It
+	// does not need to be valid, but the pointer above it.
+	if (!verify_pointer(args - (args_size - 4))) {
+		klog(WARNING, "Thread passed invalid pointer. Killing.");
+		kill_current_thread(regs);
+		return;
+	}
 
 	thread_create(func, args, args_size);
 }
