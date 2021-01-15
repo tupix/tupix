@@ -11,6 +11,8 @@
 
 #include <std/mem.h>
 
+extern void user_thread(void*);
+
 bool DEBUG_ENABLED = false;
 
 void
@@ -23,5 +25,6 @@ start_kernel(void)
 	ASSERTM(N_THREADS >= 32, "A minimum of 32 threads should be supported.");
 	init_scheduler();
 
+	thread_create(&user_thread, NULL, 0);
 	switch_to_usermode();
 }
