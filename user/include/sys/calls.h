@@ -31,7 +31,7 @@ void putchar(unsigned char c);
  *
  * @param duration scheduler time-slides to wait until execution continues.
  */
-void wait(uint32 duration);
+void wait(size_t duration);
 
 /**
  * Create a new thread.
@@ -40,6 +40,6 @@ void wait(uint32 duration);
  * @param args pointer to an array of arguments to pass to the function.
  * @param args_size size of `args`.
  */
-void create_thread(void (*func)(void*), const void* args, uint32 args_size);
+void create_thread(void (*func)(void*), const void* args, size_t args_size);
 
 #endif /* USER_SYSTEM_CALLS_H */
