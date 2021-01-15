@@ -63,31 +63,31 @@ psr_flags_str(uint32 flags, char* str)
 
 	switch ((enum cpsr_mode_bits)(flags & 0b11111)) {
 	case USER:
-		strncpy(str, "User\0", 5);
+		kstrncpy(str, "User\0", 5);
 		break;
 	case FIQ:
-		strncpy(str, "FIQ\0", 4);
+		kstrncpy(str, "FIQ\0", 4);
 		break;
 	case IRQ:
-		strncpy(str, "IRQ\0", 4);
+		kstrncpy(str, "IRQ\0", 4);
 		break;
 	case SUPERVISOR:
-		strncpy(str, "Supervisor\0", 11);
+		kstrncpy(str, "Supervisor\0", 11);
 		break;
 	case ABORT:
-		strncpy(str, "Abort\0", 6);
+		kstrncpy(str, "Abort\0", 6);
 		break;
 	case UNDEFINED:
-		strncpy(str, "Undefined\0", 10);
+		kstrncpy(str, "Undefined\0", 10);
 		break;
 	case SYSTEM:
-		strncpy(str, "System\0", 7);
+		kstrncpy(str, "System\0", 7);
 		break;
 	case UNINITIALIZED:
-		strncpy(str, "Uninitialized\0", 14);
+		kstrncpy(str, "Uninitialized\0", 14);
 		break;
 	default:
-		strncpy(str, "Unknown\0", 8);
+		kstrncpy(str, "Unknown\0", 8);
 		break;
 	}
 }
@@ -202,7 +202,7 @@ irq_handler(struct registers* regs)
 		reset_timer();
 	} else if (uart_is_interrupting()) {
 		if (!uart_push_char()) {
-			log(ERROR, "Could not buffer new char");
+			klog(ERROR, "Could not buffer new char");
 			return;
 		}
 

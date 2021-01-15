@@ -3,7 +3,7 @@
 #include <data/types.h>
 
 uint32
-kcalc_digits(uint32 n, uint32 base)
+calc_digits(uint32 n, uint32 base)
 {
 	// Start at 1 when n == 0
 	uint32 num = !n;
@@ -16,13 +16,13 @@ kcalc_digits(uint32 n, uint32 base)
 }
 
 char*
-kutostr(uint32 n, uint8 base, char* str, size_t* len)
+utostr(uint32 n, uint8 base, char* str, size_t* len)
 {
 	if (base < 2 || base > 36)
 		return str; // TODO: ERROR
 
 	// Start from the least significant digit
-	*len = kcalc_digits(n, base);
+	*len = calc_digits(n, base);
 	str += *len;
 	*str = '\0';
 
@@ -53,7 +53,7 @@ kutostr(uint32 n, uint8 base, char* str, size_t* len)
 }
 
 char*
-kitostr(int32 n, uint8 base, char* str, size_t* len)
+itostr(int32 n, uint8 base, char* str, size_t* len)
 {
 	size_t offset = 0;
 	if (n < 0) {
@@ -63,7 +63,7 @@ kitostr(int32 n, uint8 base, char* str, size_t* len)
 	}
 
 	// returns str + offset
-	char* result = kutostr(n, base, str, len) - offset;
+	char* result = utostr(n, base, str, len) - offset;
 	*len += offset;
 
 	return result;

@@ -88,13 +88,13 @@ exec_syscall_create_thread(struct registers* regs)
 {
 	void (*func)(void*) = (void (*)(void*))regs->gr.r0;
 	if (!verify_func_pointer(func)) {
-		log(WARNING, "Thread passed invalid pointer. Killing.");
+		klog(WARNING, "Thread passed invalid pointer. Killing.");
 		kill_current_thread(regs);
 		return;
 	}
 	void* args = (void*)regs->gr.r1;
 	if (!verify_pointer(args)) {
-		log(WARNING, "Thread passed invalid pointer. Killing.");
+		klog(WARNING, "Thread passed invalid pointer. Killing.");
 		kill_current_thread(regs);
 		return;
 	}
@@ -120,7 +120,7 @@ get_syscall_id(uint32 lr)
 void
 exec_syscall(uint16 id, struct registers* regs)
 {
-	log(LOG, "Syscall with id %i called.", id);
+	klog(LOG, "Syscall with id %i called.", id);
 	switch (id) {
 	case EXIT:
 		exec_syscall_exit(regs);

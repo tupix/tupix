@@ -100,5 +100,5 @@ init_local_timer()
 	local_interrupt->ctrl_stat = val;
 	// Tell timer about new value
 	SET_BIT(local_interrupt->clear_reload, L_TIMER_RELOAD);
-	log(LOG, "Local timer initialized.");
+	klog(LOG, "Local timer initialized.");
 }

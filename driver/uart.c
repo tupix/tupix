@@ -123,14 +123,14 @@ bool
 uart_push_char()
 {
 	if (IS_SET(uart->fr, FR_RXFE)) {
-		log(WARNING, "UART Receive FIFO empty, cannot read character.");
+		klog(WARNING, "UART Receive FIFO empty, cannot read character.");
 		return false;
 	}
 
 	unsigned char c = (unsigned char)(uart->dr & 0xff);
 
 	if (queue.count >= queue.size) {
-		log(WARNING, "UART queue full. Discarding current character");
+		klog(WARNING, "UART queue full. Discarding current character");
 		return false;
 	}
 	queue.chars[queue.tail] = c;
@@ -155,7 +155,7 @@ void
 init_uart()
 {
 	// Initialize ringbuffer
-	memset(&queue, 0, sizeof(queue));
+	kmemset(&queue, 0, sizeof(queue));
 	queue.size = sizeof(queue.chars) / sizeof(*(queue.chars));
 	ASSERTM(queue.size, "UART Queue size needs a nonzero size");
 
@@ -178,7 +178,7 @@ init_uart()
 
 	// Enable the UART.
 	SET_BIT(uart->cr, CR_UARTEN);
-	log(LOG, "UART initialized.");
+	klog(LOG, "UART initialized.");
 }
 
 void

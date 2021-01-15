@@ -40,17 +40,17 @@ static struct tcb*
 push_thread(struct tcb* thread)
 {
 	if (!thread) {
-		log(WARNING, "Invalid thread (NULL)");
+		klog(WARNING, "Invalid thread (NULL)");
 		return NULL;
 	} else if (thread == &(threads[0])) {
-		log(WARNING, "Trying to push null-thread");
+		klog(WARNING, "Trying to push null-thread");
 		return NULL;
 	}
 
 	// Push thread
 	ssize_t index = push_index(&thread_indices_q, thread->index);
 	if (!index) {
-		log(LOG, "Thread queue full");
+		klog(LOG, "Thread queue full");
 		return NULL;
 	} else if (0 > index) {
 		return NULL; // Other error
@@ -63,7 +63,7 @@ static struct tcb*
 pop_thread()
 {
 	if (!thread_indices_q.count) {
-		log(LOG, "thread_indices_q is empty.");
+		klog(LOG, "thread_indices_q is empty.");
 		return NULL;
 	}
 
@@ -72,7 +72,7 @@ pop_thread()
 	for (i = 0; i < thread_indices_q.count; ++i) {
 		index = pop_index(&thread_indices_q);
 		if (!index) {
-			log(LOG, "Thread queue empty");
+			klog(LOG, "Thread queue empty");
 			return NULL;
 		} else if (0 > index) {
 			return NULL; // Other error
@@ -81,7 +81,7 @@ pop_thread()
 		if (threads[index].initialized) {
 			break;
 		} else {
-			log(LOG, "Thread not initialized; getting next one");
+			klog(LOG, "Thread not initialized; getting next one");
 			push_index(&thread_indices_q, index);
 		}
 	}
@@ -89,7 +89,7 @@ pop_thread()
 	// 'greater' and not 'greater or equal' for the case that we pop the last
 	// thread in the queue.
 	if (i > thread_indices_q.count) {
-		log(LOG, "No thread is initialized, returning null-thread");
+		klog(LOG, "No thread is initialized, returning null-thread");
 		return NULL;
 	}
 
@@ -128,7 +128,7 @@ static void
 switch_context(struct registers* regs, struct tcb* old, struct tcb* new)
 {
 	if (!regs) {
-		log(ERROR, "regs points to NULL");
+		klog(ERROR, "regs points to NULL");
 		return;
 	}
 	// We never want to change the null_threads register
@@ -178,7 +178,7 @@ init_scheduler()
 
 	null_thread    = init_null_thread();
 	running_thread = null_thread;
-	log(LOG, "Initialized");
+	klog(LOG, "Initialized");
 }
 
 /*
@@ -193,7 +193,7 @@ schedule_thread(struct tcb thread)
 {
 	ssize_t index = pop_index(&free_indices_q);
 	if (!index) {
-		log(WARNING, "No available thread indices");
+		klog(WARNING, "No available thread indices");
 		return NULL;
 	} else if (0 > index) {
 		return NULL; // Other error
@@ -203,7 +203,7 @@ schedule_thread(struct tcb thread)
 	threads[thread.index]     = thread;
 	struct tcb* queued_thread = push_thread(&thread);
 	if (queued_thread) {
-		log(LOG, "New thread: %i.", queued_thread->id);
+		klog(LOG, "New thread: %i.", queued_thread->id);
 	} else {
 		// Make index available again
 		push_index(&free_indices_q, index);
@@ -214,7 +214,7 @@ schedule_thread(struct tcb thread)
 void
 scheduler_cycle(struct registers* regs, bool decrement)
 {
-	log(LOG, "Cycling...");
+	klog(LOG, "Cycling...");
 
 	// Before doing anything else, decrement the waiting times of all waiting
 	// threads and eventually readd them to the thread_indices_q.
@@ -223,7 +223,8 @@ scheduler_cycle(struct registers* regs, bool decrement)
 
 	// Continue if no other threads are waiting.
 	if (!thread_indices_q.count) {
-		log(LOG, "No waiting threads. Thread %i continues", running_thread->id);
+		klog(LOG, "No waiting threads. Thread %i continues",
+		     running_thread->id);
 		return;
 	}
 
@@ -234,14 +235,14 @@ scheduler_cycle(struct registers* regs, bool decrement)
 	struct tcb* old_thread = running_thread;
 	running_thread         = pop_thread();
 	if (!running_thread) {
-		log(LOG, "Cannot pop thread. Thread %i continues", old_thread->id);
+		klog(LOG, "Cannot pop thread. Thread %i continues", old_thread->id);
 		running_thread = old_thread;
 		return;
 	}
 
 	if (old_thread != null_thread) {
 		if (!push_thread(old_thread)) {
-			log(ERROR, "Could not push old thread back. Losing the thread!");
+			klog(ERROR, "Could not push old thread back. Losing the thread!");
 			return;
 		}
 		switch_context(regs, old_thread, running_thread);
@@ -250,7 +251,7 @@ scheduler_cycle(struct registers* regs, bool decrement)
 		switch_context(regs, NULL, running_thread);
 	}
 
-	log(LOG, "Running thread: %i", running_thread->id);
+	klog(LOG, "Running thread: %i", running_thread->id);
 }
 
 void
@@ -305,13 +306,13 @@ pause_cur_thread(size_t duration, struct registers* regs)
 void
 scheduler_push_uart_read(struct registers* regs)
 {
-	log(DEBUG, "Pushing running thread onto waiting queue...");
+	klog(DEBUG, "Pushing running thread onto waiting queue...");
 	struct tcb* thread = running_thread;
 
 	push_index(&wait_uart_read_index_q, thread->index);
 	thread->state = WAITING;
 
-	log(DEBUG, "Cycling scheduler.");
+	klog(DEBUG, "Cycling scheduler.");
 	running_thread = null_thread;
 	switch_context(regs, thread, null_thread);
 	scheduler_cycle(regs, false);
@@ -321,7 +322,7 @@ void
 scheduler_uart_received()
 {
 	if (wait_uart_read_index_q.count == 0) {
-		log(LOG, "Received char, but uart pop waiting queue is empty.");
+		klog(LOG, "Received char, but uart pop waiting queue is empty.");
 		return;
 	}
 

@@ -8,7 +8,7 @@
 void
 init_queue(struct index_queue* q)
 {
-	memset(q, 0, sizeof(*q));
+	kmemset(q, 0, sizeof(*q));
 	q->size = sizeof(q->indices) / sizeof(*(q->indices));
 }
 
@@ -24,10 +24,10 @@ ssize_t
 push_index(struct index_queue* q, size_t index)
 {
 	if (!q) {
-		log(WARNING, "Invalid index_queue (NULL)");
+		klog(WARNING, "Invalid index_queue (NULL)");
 		return -1;
 	} else if (index <= 0 || index > q->size) {
-		log(WARNING, "Index %i out of bounds", index);
+		klog(WARNING, "Index %i out of bounds", index);
 		return -1;
 	} else if (q->count >= q->size) {
 		return 0;
@@ -48,7 +48,7 @@ ssize_t
 pop_index(struct index_queue* q)
 {
 	if (!q) {
-		log(WARNING, "Invalid index_queue (NULL)");
+		klog(WARNING, "Invalid index_queue (NULL)");
 		return -1;
 	} else if (!q->count) {
 		return 0;
