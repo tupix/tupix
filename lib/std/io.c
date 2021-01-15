@@ -22,8 +22,8 @@ static void
 print_with_padding(const char* num_str, size_t len, size_t field_width,
                    const char padding)
 {
-	size_t kstr_len = max(len, field_width);
-	for (size_t i = 0; i < kstr_len - len; ++i)
+	size_t kstrlen = max(len, field_width);
+	for (size_t i = 0; i < kstrlen - len; ++i)
 		uart_put_char(padding);
 	kprint(num_str);
 }
@@ -123,7 +123,7 @@ kprintf(const char* format, ...)
 			break;
 		case 's': {
 			const char* str = va_arg(args, const char*);
-			print_with_padding(str, kstr_len(str), field_width, padding);
+			print_with_padding(str, kstrlen(str), field_width, padding);
 			break;
 		}
 		case 'x':
