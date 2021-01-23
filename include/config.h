@@ -18,7 +18,7 @@
 #endif /* __QEMU__ */
 // clang-format on
 
-#define LOGGING_ENABLED 0
+#define LOGGING_ENABLED 1
 // See `include/std/log.h`
 #define LOGGING_LEVEL 99
 

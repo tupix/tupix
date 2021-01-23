@@ -19,25 +19,25 @@ enum klog_lvl {
 		if (LOGGING_ENABLED && klog_lvl <= LOGGING_LEVEL) {                    \
 			switch (klog_lvl) {                                                \
 			case ASSERT:                                                       \
-				kprintf("[ASSERT] ");                                          \
+				kprintf("\e[0;31m[ASSERT] ");                                  \
 				break;                                                         \
 			case ERROR:                                                        \
-				kprintf("[ERROR] ");                                           \
+				kprintf("\e[0;31m[ERROR] ");                                   \
 				break;                                                         \
 			case WARNING:                                                      \
-				kprintf("[WARNING] ");                                         \
+				kprintf("\e[0;33m[WARNING] ");                                 \
 				break;                                                         \
 			case LOG:                                                          \
 			default:                                                           \
 				kprintf("[LOG] ");                                             \
 				break;                                                         \
 			case DEBUG:                                                        \
-				kprintf("[DEBUG] ");                                           \
+				kprintf("\e[0;36m[DEBUG] ");                                   \
 				break;                                                         \
 			}                                                                  \
 			kprintf("%s:%d:%s(): ", __FILE__, __LINE__, __func__);             \
 			kprintf(fmt, ##__VA_ARGS__);                                       \
-			kprintf("\n");                                                     \
+			kprintf("\e[0m\n");                                                \
 		}                                                                      \
 	} while (0)
 
