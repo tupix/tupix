@@ -19,25 +19,26 @@ enum klog_lvl {
 		if (LOGGING_ENABLED && klog_lvl <= LOGGING_LEVEL) {                    \
 			switch (klog_lvl) {                                                \
 			case ASSERT:                                                       \
-				kprintf("\e[0;31m[ASSERT] ");                                  \
+				kprintf("\e[0;31m[ASSERT]");                                   \
 				break;                                                         \
 			case ERROR:                                                        \
-				kprintf("\e[0;31m[ERROR] ");                                   \
+				kprintf("\e[0;31m[ERROR]");                                    \
 				break;                                                         \
 			case WARNING:                                                      \
-				kprintf("\e[0;33m[WARNING] ");                                 \
+				kprintf("\e[0;33m[WARNING]");                                  \
 				break;                                                         \
 			case LOG:                                                          \
 			default:                                                           \
-				kprintf("[LOG] ");                                             \
+				kprintf("\e[0;32m[LOG]");                                      \
 				break;                                                         \
 			case DEBUG:                                                        \
-				kprintf("\e[0;36m[DEBUG] ");                                   \
+				kprintf("\e[0;36m[DEBUG]");                                    \
 				break;                                                         \
 			}                                                                  \
+			kprintf("\e[0m ");                                                 \
 			kprintf("%s:%d:%s(): ", __FILE__, __LINE__, __func__);             \
 			kprintf(fmt, ##__VA_ARGS__);                                       \
-			kprintf("\e[0m\n");                                                \
+			kprintf("\n");                                                     \
 		}                                                                      \
 	} while (0)
 
