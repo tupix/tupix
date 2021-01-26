@@ -58,9 +58,11 @@ static void
 exec_syscall_get_char(struct registers* regs)
 {
 	if (uart_queue_is_emtpy()) {
-		scheduler_push_uart_read(regs);
+		scheduler_on_getchar(regs);
+
 		ASSERTM(get_cur_thread_state() == READY,
 		        "Thread has not yet received a char.");
+
 	} else {
 		SET_SYSCALL_RETURN_VALUE(uart_pop_char());
 	}
@@ -76,7 +78,7 @@ exec_syscall_put_char(struct registers* regs)
 static void
 exec_syscall_wait(struct registers* regs)
 {
-	pause_cur_thread(regs->gr.r0, regs);
+	scheduler_on_sleep(regs->gr.r0, regs);
 }
 
 static void

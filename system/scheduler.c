@@ -108,7 +108,7 @@ decrement_waits()
 		thread_idx = sleep_waiting_q.indices[p];
 		circle_forward(p, sleep_waiting_q.size);
 
-		if (!--threads[thread_idx].waiting_for) {
+		if (!--threads[thread_idx].waiting_duration) {
 			// Threads wait is done
 
 			size_t res = pop_index(&sleep_waiting_q);
@@ -281,49 +281,51 @@ get_cur_thread_state()
 	return running_thread->state;
 }
 
-// NOTE: Currently the waiting times are only decremented on cycle, so when the
-// interrupt fired and the timer run at least one full time slice. Beware that
-// this does not happen in kill_cur_thread.
-void
-pause_cur_thread(size_t duration, struct registers* regs)
+struct tcb*
+push_waiting_thread(struct index_queue* waiting_q, struct registers* regs)
 {
-	if (!duration)
-		return;
+	ASSERTM(running_thread != null_thread,
+	        "Null thread should loop endlessly and never wait.");
 
-	ASSERTM(running_thread != null_thread, "Null thread should loop endlessly");
-	running_thread->waiting_for = duration;
-	push_index(&sleep_waiting_q, running_thread->index);
+	push_index(waiting_q, running_thread->index);
+	struct tcb* thread = running_thread;
 
-	// Do not requeue into thread_indices_q.
+	// Do not "re"queue into thread_indices_q.
 	// Explicitly switch context to null_thread too as scheduler_cycle might do
 	// nothing if there are no other threads and will assume that `regs` match
 	// `running_thread->regs`.
-	switch_context(regs, running_thread, null_thread);
+	switch_context(regs, thread, null_thread);
 	running_thread = null_thread;
 
 	// As the syscall interrupts and resets the current time slice, we do not
 	// want to decrement other waiting threads.
 	scheduler_cycle(regs, false);
+	return thread;
 }
 
-// TODO(Aurel): Error handling.
+/*
+ * NOTE: The waiting duration is only decremented on a scheduler cycle based on
+ * a timer interrupt and not if a time slice is terminated early. This means a
+ * waiting queue might wait (significantly) longer than expected.
+ */
 void
-scheduler_push_uart_read(struct registers* regs)
+scheduler_on_sleep(size_t duration, struct registers* regs)
 {
-	klog(DEBUG, "Pushing running thread onto waiting queue...");
-	struct tcb* thread = running_thread;
-
-	push_index(&char_waiting_q, thread->index);
-	thread->state = WAITING;
-
-	klog(DEBUG, "Cycling scheduler.");
-	running_thread = null_thread;
-	switch_context(regs, thread, null_thread);
-	scheduler_cycle(regs, false);
+	if (!duration)
+		return;
+	struct tcb* thread       = push_waiting_thread(&sleep_waiting_q, regs);
+	thread->waiting_duration = duration;
 }
 
 void
-scheduler_update_char_waiting_q()
+scheduler_on_getchar(struct registers* regs)
+{
+	struct tcb* thread = push_waiting_thread(&char_waiting_q, regs);
+	thread->state      = WAITING;
+}
+
+void
+scheduler_on_char_received()
 {
 	if (char_waiting_q.count == 0) {
 		klog(LOG, "Received char, but uart pop waiting queue is empty.");

@@ -20,7 +20,7 @@ struct tcb {
 	void (*callback)(void*);
 	struct general_registers regs;
 	uint32 cpsr;
-	size_t waiting_for;
+	size_t waiting_duration;
 	bool initialized;
 	enum thread_state state;
 };
