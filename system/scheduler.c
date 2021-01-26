@@ -23,7 +23,7 @@ static struct index_queue free_indices_q;
 /* WAITING QUEUES */
 // NOTE: When adding queues, do not forget to initialize them in init_scheduler
 static struct index_queue waiting_queue;
-static struct index_queue wait_uart_read_index_q;
+static struct index_queue char_waiting_q;
 
 static struct tcb threads[N_THREADS + 1];
 static struct tcb* running_thread;
@@ -168,7 +168,7 @@ init_scheduler()
 
 	/* WAITING QUEUES */
 	init_queue(&waiting_queue);
-	init_queue(&wait_uart_read_index_q);
+	init_queue(&char_waiting_q);
 	/* \WAITING QUEUES */
 
 	tid_count = 0;
@@ -312,7 +312,7 @@ scheduler_push_uart_read(struct registers* regs)
 	klog(DEBUG, "Pushing running thread onto waiting queue...");
 	struct tcb* thread = running_thread;
 
-	push_index(&wait_uart_read_index_q, thread->index);
+	push_index(&char_waiting_q, thread->index);
 	thread->state = WAITING;
 
 	klog(DEBUG, "Cycling scheduler.");
@@ -322,14 +322,14 @@ scheduler_push_uart_read(struct registers* regs)
 }
 
 void
-scheduler_uart_received()
+scheduler_update_char_waiting_q()
 {
-	if (wait_uart_read_index_q.count == 0) {
+	if (char_waiting_q.count == 0) {
 		klog(LOG, "Received char, but uart pop waiting queue is empty.");
 		return;
 	}
 
-	size_t index = pop_index(&wait_uart_read_index_q);
+	size_t index = pop_index(&char_waiting_q);
 	if (uart_queue_is_emtpy()) {
 		// NOTE(Aurel): Accidental irq?
 		return;
