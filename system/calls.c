@@ -24,8 +24,8 @@ verify_pointer(const void* p)
 	// Verify if pointer lays inside threads stack.
 	// NOTE: The stack pointer indicates the last address written to, thus
 	// max_sp is valid, but min_sp not.
-	void* min_sp = get_stack_pointer(get_curr_thread_index());
-	void* max_sp = get_max_stack_pointer(get_curr_thread_index());
+	void* min_sp = get_stack_pointer(get_cur_thread_index());
+	void* max_sp = get_max_stack_pointer(get_cur_thread_index());
 	if (!(p < min_sp && p >= max_sp))
 		return false;
 
@@ -50,7 +50,7 @@ verify_func_pointer(void (*p)())
 static void
 exec_syscall_exit(struct registers* regs)
 {
-	kill_current_thread(regs);
+	kill_cur_thread(regs);
 }
 
 // Put char into r0.
@@ -85,14 +85,14 @@ exec_syscall_create_thread(struct registers* regs)
 	void (*func)(void*) = (void (*)(void*))regs->gr.r0;
 	if (!verify_func_pointer(func)) {
 		klog(WARNING, "Thread passed invalid pointer. Killing.");
-		kill_current_thread(regs);
+		kill_cur_thread(regs);
 		return;
 	}
 
 	void* args = (void*)regs->gr.r1;
 	if (!verify_pointer(args)) {
 		klog(WARNING, "Thread passed invalid pointer. Killing.");
-		kill_current_thread(regs);
+		kill_cur_thread(regs);
 		return;
 	}
 	size_t args_size = regs->gr.r2;
@@ -101,7 +101,7 @@ exec_syscall_create_thread(struct registers* regs)
 	// does not need to be valid, but the pointer above it.
 	if (!verify_pointer(args - (args_size - 4))) {
 		klog(WARNING, "Thread passed invalid pointer. Killing.");
-		kill_current_thread(regs);
+		kill_cur_thread(regs);
 		return;
 	}
 
@@ -144,7 +144,7 @@ exec_syscall(uint16 id, struct registers* regs)
 		break;
 	default:
 		print_registers(regs, "Software Interrupt", "Killing thread.", "");
-		kill_current_thread(regs);
+		kill_cur_thread(regs);
 		break;
 	}
 }

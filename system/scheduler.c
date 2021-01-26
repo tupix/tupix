@@ -255,21 +255,21 @@ scheduler_cycle(struct registers* regs, bool decrement)
 }
 
 void
-kill_current_thread(struct registers* regs)
+kill_cur_thread(struct registers* regs)
 {
-	struct tcb* current_thread = running_thread;
-	running_thread             = pop_thread();
+	struct tcb* cur_thread = running_thread;
+	running_thread         = pop_thread();
 	if (!running_thread)
 		running_thread = null_thread;
 
 	// discard volatile
 	switch_context(regs, NULL, running_thread);
 
-	push_index(&free_indices_q, current_thread->index);
+	push_index(&free_indices_q, cur_thread->index);
 }
 
 size_t
-get_curr_thread_index()
+get_cur_thread_index()
 {
 	return running_thread->index;
 }
@@ -282,7 +282,7 @@ get_cur_thread_state()
 
 // NOTE: Currently the waiting times are only decremented on cycle, so when the
 // interrupt fired and the timer run at least one full time slice. Beware that
-// this does not happen in kill_current_thread.
+// this does not happen in kill_cur_thread.
 void
 pause_cur_thread(size_t duration, struct registers* regs)
 {

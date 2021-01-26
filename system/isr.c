@@ -162,7 +162,7 @@ user_interrupted(uint32 spsr)
 	{                                                                          \
 		if (user_interrupted(regs->spsr)) {                                    \
 			print_registers(regs, exc_name_print, "Killing thread.", "");      \
-			kill_current_thread(regs);                                         \
+			kill_cur_thread(regs);                                             \
 		} else {                                                               \
 			print_registers(regs, exc_name_print, "System halted.", "");       \
 			endless_loop();                                                    \

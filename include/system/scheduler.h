@@ -10,8 +10,8 @@ void init_scheduler();
 
 struct tcb* schedule_thread(struct tcb thread);
 void scheduler_cycle(struct registers* regs, bool decrement);
-void kill_current_thread(struct registers* regs);
-size_t get_curr_thread_index();
+void kill_cur_thread(struct registers* regs);
+size_t get_cur_thread_index();
 enum thread_state get_cur_thread_state();
 void scheduler_push_uart_read(struct registers* regs);
 void scheduler_uart_received();
