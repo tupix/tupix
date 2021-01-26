@@ -22,8 +22,9 @@ static struct index_queue free_indices_q;
 
 /* WAITING QUEUES */
 // NOTE: When adding queues, do not forget to initialize them in init_scheduler
-static struct index_queue waiting_queue;
+static struct index_queue sleep_waiting_q;
 static struct index_queue char_waiting_q;
+/* \WAITING QUEUES */
 
 static struct tcb threads[N_THREADS + 1];
 static struct tcb* running_thread;
@@ -100,17 +101,17 @@ static void
 decrement_waits()
 {
 	size_t i = 0;
-	size_t p = waiting_queue.head;
+	size_t p = sleep_waiting_q.head;
 	size_t thread_idx;
 
-	while (i < waiting_queue.count) {
-		thread_idx = waiting_queue.indices[p];
-		circle_forward(p, waiting_queue.size);
+	while (i < sleep_waiting_q.count) {
+		thread_idx = sleep_waiting_q.indices[p];
+		circle_forward(p, sleep_waiting_q.size);
 
 		if (!--threads[thread_idx].waiting_for) {
 			// Threads wait is done
 
-			size_t res = pop_index(&waiting_queue);
+			size_t res = pop_index(&sleep_waiting_q);
 			ASSERTM(res == thread_idx, "Current thread was not popped.");
 			// TODO: Push to front?
 			push_index(&thread_indices_q, thread_idx);
@@ -121,7 +122,7 @@ decrement_waits()
 			++i;
 		}
 	}
-	ASSERTM(p == waiting_queue.tail, "Loop did not cycle correctly.");
+	ASSERTM(p == sleep_waiting_q.tail, "Loop did not cycle correctly.");
 }
 
 static void
@@ -167,7 +168,7 @@ init_scheduler()
 	init_queue(&free_indices_q);
 
 	/* WAITING QUEUES */
-	init_queue(&waiting_queue);
+	init_queue(&sleep_waiting_q);
 	init_queue(&char_waiting_q);
 	/* \WAITING QUEUES */
 
@@ -291,7 +292,7 @@ pause_cur_thread(size_t duration, struct registers* regs)
 
 	ASSERTM(running_thread != null_thread, "Null thread should loop endlessly");
 	running_thread->waiting_for = duration;
-	push_index(&waiting_queue, running_thread->index);
+	push_index(&sleep_waiting_q, running_thread->index);
 
 	// Do not requeue into thread_indices_q.
 	// Explicitly switch context to null_thread too as scheduler_cycle might do
