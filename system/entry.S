@@ -68,17 +68,18 @@ _init_modes:
 	cpsie i
 
     // supervisor sp
-    mov sp, #0x8000000
+	ldr r0, =0x002FFFFF
+    mov sp, r0
     // Initialize other stack pointers
-    ldr r0, =0x7FFFC00
+    ldr r0, =0x002FFBFF
     msr sp_und, r0
-    ldr r0, =0x7FFF800
+    ldr r0, =0x002FF7FF
     msr sp_abt, r0
-    ldr r0, =0x7FFF400
+    ldr r0, =0x002FF3FF
     msr sp_irq, r0
-    ldr r0, =0x7FFF000
+    ldr r0, =0x002FEFFF
     msr sp_fiq, r0
-    ldr r0, =0x7FFEC00
+    ldr r0, =0x002FEBFF
     msr sp_usr, r0
 
     mov pc, lr

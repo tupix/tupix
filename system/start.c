@@ -13,8 +13,6 @@
 
 extern void user_thread(void*);
 
-bool DEBUG_ENABLED = false;
-
 void
 start_kernel(void)
 {
