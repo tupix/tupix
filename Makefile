@@ -68,11 +68,6 @@ OBJ_DEBUG = $(OBJ:.o=.o_d)
 # Clean patch files on `clean` target
 OBJ_PATCH = $(OBJ:.o=.orig) $(OBJ:.o=.rej)
 
-# Submission files (Everything tracked by git minus hidden files, tars, pdfs and
-# the format.sh
-SUBMISSION_FILES = $(shell git ls-files | grep -Ev "(^|/)\." | grep -Ev "\.(tar\.gz|pdf)$$" | grep -v "format.sh")
-MATRIKEL_NR := $(shell awk '(NR > 1) && (NR < 3)  {ORS="+"; print prev} {prev=$$1} END { ORS=""; print $$1 }' matrikel_nr.txt )
-
 # Configuration
 RM = rm -f
 TAR = tar -czf
@@ -176,6 +171,10 @@ clean:
 
 .PHONY: submission
 submission: submission_check clean
+	# Submission files (Everything tracked by git minus hidden files, tars, pdfs and
+	# the format.sh
+	submission : SUBMISSION_FILES = $(shell git ls-files | grep -Ev "(^|/)\." | grep -Ev "\.(tar\.gz|pdf)$$" | grep -v "format.sh")
+	submission : MATRIKEL_NR := $(shell awk '(NR > 1) && (NR < 3)  {ORS="+"; print prev} {prev=$$1} END { ORS=""; print $$1 }' matrikel_nr.txt )
 	$(TAR) "$(MATRIKEL_NR).tar.gz" $(SUBMISSION_FILES)
 
 .PHONY: home
@@ -186,22 +185,20 @@ home: kernel.img
 # Submission checks
 # =============
 
-MATRIKEL_NR_ROWS := $(shell test "$$(wc -l < matrikel_nr.txt)" -gt 2; echo $$?)
-MATRIKEL_NR_DIGITS := $(shell egrep -vq '^[0-9]{6}$$' matrikel_nr.txt; echo $$?)
-
-GIT_REPO_DIRTY := $(shell test -n "$$(git status --porcelain --untracked-files)"; echo $$?)
-
 .PHONY: submission_check
 submission_check:
-ifeq ($(MATRIKEL_NR), )
-	$(error "matrikel_nr.txt is flawed or empty!")
-endif
-ifeq ($(MATRIKEL_NR_ROWS), 0)
-	$(error "matrikel_nr.txt contains too many lines (max 2)")
-endif
-ifeq ($(MATRIKEL_NR_DIGITS),0)
-	$(error "matrikel_nr.txt is flawed. Every line needs to match ^[0-9]{6}$$")
-endif
-ifeq ($(GIT_REPO_DIRTY), 0)
-	$(error "Git repository not clean!")
-endif
+	submission_check : MATRIKEL_NR_ROWS := $(shell test "$$(wc -l < matrikel_nr.txt)" -gt 2; echo $$?)
+	submission_check : MATRIKEL_NR_DIGITS := $(shell egrep -vq '^[0-9]{6}$$' matrikel_nr.txt; echo $$?)
+	submission_check : GIT_REPO_DIRTY := $(shell test -n "$$(git status --porcelain --untracked-files)"; echo $$?)
+	ifeq ($(MATRIKEL_NR), )
+		$(error "matrikel_nr.txt is flawed or empty!")
+	endif
+	ifeq ($(MATRIKEL_NR_ROWS), 0)
+		$(error "matrikel_nr.txt contains too many lines (max 2)")
+	endif
+	ifeq ($(MATRIKEL_NR_DIGITS),0)
+		$(error "matrikel_nr.txt is flawed. Every line needs to match ^[0-9]{6}$$")
+	endif
+	ifeq ($(GIT_REPO_DIRTY), 0)
+		$(error "Git repository not clean!")
+	endif
