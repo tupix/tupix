@@ -7,9 +7,9 @@ SECTIONS
 	}
 
 	. = (0x00500000);
-	ucode : {
-			user/?*.o (.data*)
-			user/?*.o (.bss* COMMON)
+	udata : {
+		user/?*.o (.data*)
+		user/?*.o (.bss* COMMON)
 	}
 }
 
