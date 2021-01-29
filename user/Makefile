@@ -16,8 +16,8 @@
 
 # Hier eure Dateien hinzufügen
 # Source files
-ASS_OBJ := $(shell find . -name "*.S" -a -type f | sed 's/S$$/o/')
-SRC_OBJ := $(shell find . -name "*.c" -a -type f | sed 's/c$$/o/')
+ASS_OBJ := $(shell find . -name "*.S" -a -type f | sed -E 's:^\./(.*)S$$:\1o:')
+SRC_OBJ := $(shell find . -name "*.c" -a -type f | sed -E 's:^\./(.*)c$$:\1o:')
 OBJ := $(ASS_OBJ) $(SRC_OBJ)
 
 
