@@ -8,7 +8,7 @@
 #include <driver/uart.h>
 
 #include <system/calls.h>
-#include <system/entry.h>
+#include <system/kutil.h>
 #include <system/scheduler.h>
 #include <system/thread.h>
 
@@ -165,7 +165,7 @@ user_interrupted(uint32 spsr)
 			kill_cur_thread(regs);                                             \
 		} else {                                                               \
 			print_registers(regs, exc_name_print, "System halted.", "");       \
-			endless_loop();                                                    \
+			kendless_loop();                                                   \
 		}                                                                      \
 	}
 
@@ -178,7 +178,7 @@ software_interrupt_handler(struct registers* regs)
 {
 	if (!user_interrupted(regs->spsr)) {
 		print_registers(regs, "Software Interrupt", "System halted.", "");
-		endless_loop();
+		kendless_loop();
 		return;
 	}
 

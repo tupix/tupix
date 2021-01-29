@@ -5,7 +5,6 @@
 #include <arch/armv7/registers.h>
 
 #include <data/types.h>
-#include <system/entry.h>
 #include <system/ivt.h>
 #include <system/scheduler.h>
 

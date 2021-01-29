@@ -7,7 +7,7 @@
 #include <driver/timer.h>
 
 #include <system/assert.h>
-#include <system/entry.h>
+#include <system/kutil.h>
 #include <system/thread.h>
 
 #include <data/types.h>
@@ -154,7 +154,7 @@ struct tcb*
 init_null_thread()
 {
 	struct tcb null_thread_init = { 0 };
-	null_thread_init.regs.pc    = (uint32)&endless_loop;
+	null_thread_init.regs.pc    = (uint32)&kendless_loop;
 	null_thread_init.regs.sp =
 			(uint32)get_stack_pointer(null_thread_init.index);
 	threads[0] = null_thread_init;
