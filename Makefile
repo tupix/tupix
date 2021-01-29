@@ -36,8 +36,8 @@ BIN_LSG =
 KERNEL_USER_SPLIT = true
 
 # Source files
-ASS_OBJ := $(shell find . \( -path "./user" -prune -o -name "*.S" \) -a -type f | sed 's/S$$/o/' | sed 's|\./||g')
-SRC_OBJ := $(shell find . \( -path "./user" -prune -o -name "*.c" \) -a -type f | sed 's/c$$/o/' | sed 's|\./||g')
+ASS_OBJ := $(shell find . \( -path "./user" -prune -o -name "*.S" \) -a -type f | sed -E 's:^\./(.*)S$$:\1o:')
+SRC_OBJ := $(shell find . \( -path "./user" -prune -o -name "*.c" \) -a -type f | sed -E 's:^\./(.*)c$$:\1o:')
 OBJ := $(ASS_OBJ) $(SRC_OBJ)
 
 # Enter TFTP path here for work at home
