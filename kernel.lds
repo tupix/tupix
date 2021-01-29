@@ -1,7 +1,6 @@
 ENTRY(_start)
 SECTIONS
 {
-
 	. = (0x00100000);
 	kcode : {
 		system/entry.o (.init)
