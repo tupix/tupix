@@ -1,5 +1,6 @@
 .section .init
 
+.global _start
 _start:
 	/* Erkennen ob Hypervisor Mode aktiv */
 	mrs r0, cpsr
