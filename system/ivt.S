@@ -20,7 +20,8 @@ _ivt:
 
 fiq: not_used:
 reset:
-	b _start
+	b reset
+	//b _start
 
 undefined_instruction:
 	/*
