@@ -49,6 +49,7 @@ BIN_LSG_FILE = $(BIN_LSG_DIR)/lib$(BIN_LSG).a
 
 # Sources
 LSCRIPT = kernel.lds
+LSCRIPT_DEBUG = kernel_debug.lds
 UOBJ = user/user
 UOBJ_DEBUG = $(UOBJ)_debug
 
@@ -57,7 +58,7 @@ ifeq ($(KERNEL_USER_SPLIT),true)
 	KERNEL_TARGETS += $(UOBJ)
 endif
 
-KERNEL_TARGETS_DEBUG = $(LSCRIPT) $(OBJ_DEBUG)
+KERNEL_TARGETS_DEBUG = $(LSCRIPT_DEBUG) $(OBJ_DEBUG)
 ifeq ($(KERNEL_USER_SPLIT),true)
 	KERNEL_TARGETS_DEBUG += $(UOBJ_DEBUG)
 endif
@@ -82,9 +83,13 @@ CFLAGS = -Wall -Wextra -ffreestanding -mcpu=cortex-a7 -O2
 # gcc will use last specified -O flag
 CFLAGS_DEBUG = $(CFLAGS) -ggdb -Og
 CPPFLAGS = -Iinclude
+# ld would accumulate multiple specified linker scripts, thus separate flags are
+# needed
 LDFLAGS = -T$(LSCRIPT)
+LDFLAGS_DEBUG = -T$(LSCRIPT_DEBUG)
 ifneq ($(BIN_LSG), )
 	LDFLAGS += -L$(BIN_LSG_DIR) -l$(BIN_LSG)
+	LDFLAGS_DEBUG += -L$(BIN_LSG_DIR) -l$(BIN_LSG)
 endif
 
 DEP = $(OBJ:.o=.d) $(OBJ_LSG:.o=.d)
@@ -125,9 +130,9 @@ endif
 
 kernel_debug: $(KERNEL_TARGETS_DEBUG)
 ifeq ($(KERNEL_USER_SPLIT),true)
-	$(LD) -o $@ $(OBJ_DEBUG) $(UOBJ_DEBUG) $(OBJ_LSG) $(LDFLAGS)
+	$(LD) -o $@ $(OBJ_DEBUG) $(UOBJ_DEBUG) $(OBJ_LSG) $(LDFLAGS_DEBUG)
 else
-	$(LD) -o $@ $(OBJ_DEBUG) $(OBJ_LSG) $(LDFLAGS)
+	$(LD) -o $@ $(OBJ_DEBUG) $(OBJ_LSG) $(LDFLAGS_DEBUG)
 endif
 
 kernel.bin: kernel

@@ -1,0 +1,31 @@
+ENTRY(_start)
+SECTIONS
+{
+	. = (0x00100000);
+	kcode : {
+		system/entry.o_d (.init)
+
+		data/?*.o_d    (.text*)
+		driver/?*.o_d  (.text*)
+		lib/?*.o_d     (.text*)
+		system/?*.o_d  (.text*)
+
+		data/?*.o_d    (.rodata*)
+		driver/?*.o_d  (.rodata*)
+		lib/?*.o_d     (.rodata*)
+		system/?*.o_d  (.rodata*)
+	}
+
+	. = (0x00200000);
+	kdata : {
+		data/?*.o_d    (.data*)
+		driver/?*.o_d  (.data*)
+		lib/?*.o_d     (.data*)
+		system/?*.o_d  (.data*)
+
+		data/?*.o_d    (.bss* COMMON)
+		driver/?*.o_d  (.bss* COMMON)
+		lib/?*.o_d     (.bss* COMMON)
+		system/?*.o_d  (.bss* COMMON)
+	}
+}
