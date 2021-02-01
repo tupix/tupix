@@ -1,10 +1,13 @@
 ENTRY(_start)
 SECTIONS
 {
-	. = (0x00100000);
-	kcode : {
-		system/entry.o (.init)
 
+	. = (0x00008000);
+	.init : { *(.init) }
+
+
+	. = (0x00100000);
+	.kcode : {
 		data/?*.o    (.text*)
 		driver/?*.o  (.text*)
 		lib/?*.o     (.text*)
@@ -17,7 +20,7 @@ SECTIONS
 	}
 
 	. = (0x00200000);
-	kdata : {
+	.kdata : {
 		data/?*.o    (.data*)
 		driver/?*.o  (.data*)
 		lib/?*.o     (.data*)
@@ -28,4 +31,16 @@ SECTIONS
 		lib/?*.o     (.bss* COMMON)
 		system/?*.o  (.bss* COMMON)
 	}
+
+	. = (0x00400000);
+	.ucode : {
+		*(.ucode)
+	}
+
+	. = (0x00500000);
+	.udata : {
+		*(.udata)
+	}
+
+
 }

@@ -1,15 +1,13 @@
 SECTIONS
 {
-	. = (0x00400000);
-	ucode : {
-		user/src/?*.o (.text*)
-		user/src/?*.o (.rodata*)
+	.ucode : {
+		*(.text .text.*)
+		*(.rodata .rodata.*)
 	}
 
-	. = (0x00500000);
-	udata : {
-		user/src/?*.o (.data*)
-		user/src/?*.o (.bss* COMMON)
+	.udata : {
+		*(.data .data.*)
+		*(.bss .bss.*)
 	}
 }
 
