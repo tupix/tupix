@@ -32,6 +32,10 @@ SECTIONS
 		system/?*.o  (.bss* COMMON)
 	}
 
+	.kstacks : ALIGN(4K) {
+		_kstacks_start = .;
+	}
+
 	. = (0x00400000);
 	.ucode : {
 		*(.ucode)

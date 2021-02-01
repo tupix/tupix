@@ -64,19 +64,22 @@ _init_modes:
 	cpsid f
 	cpsie i
 
-    // supervisor sp
-	ldr r0, =0x002FFFFF
-    mov sp, r0
-    // Initialize other stack pointers
-    ldr r0, =0x002FFBFF
-    msr sp_und, r0
-    ldr r0, =0x002FF7FF
-    msr sp_abt, r0
-    ldr r0, =0x002FF3FF
-    msr sp_irq, r0
-    ldr r0, =0x002FEFFF
-    msr sp_fiq, r0
-    ldr r0, =0x002FEBFF
-    msr sp_usr, r0
+.extern _kstacks_start
+
+	// supervisor sp
+	ldr r0, =_kstacks_start
+	mov sp, r0
+	// Initialize other stack pointers
+	// subtract 4KB (= 0x1000) from previous stack base
+	sub r0, r0, #0x1000
+	msr sp_und, r0
+	sub r0, r0, #0x1000
+	msr sp_abt, r0
+	sub r0, r0, #0x1000
+	msr sp_irq, r0
+	sub r0, r0, #0x1000
+	msr sp_fiq, r0
+	sub r0, r0, #0x1000
+	msr sp_usr, r0
 
     mov pc, lr
