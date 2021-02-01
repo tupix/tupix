@@ -63,7 +63,7 @@ thread_create(void (*func)(void*), const void* args, size_t args_size)
 	// TODO: What to do if we cannot access user memory?
 	if (args && args_size) {
 		thread_sp -= args_size;
-		kmemcpy(thread_sp, args, args_size);
+		memcpy(thread_sp, args, args_size);
 	}
 
 	// Update stack pointer

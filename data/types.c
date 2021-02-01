@@ -8,7 +8,7 @@
 void
 init_queue(struct index_queue* q)
 {
-	kmemset(q, 0, sizeof(*q));
+	memset(q, 0, sizeof(*q));
 	q->size = sizeof(q->indices) / sizeof(*(q->indices));
 }
 

@@ -155,7 +155,7 @@ void
 init_uart()
 {
 	// Initialize ringbuffer
-	kmemset(&queue, 0, sizeof(queue));
+	memset(&queue, 0, sizeof(queue));
 	queue.size = sizeof(queue.chars) / sizeof(*(queue.chars));
 	ASSERTM(queue.size, "UART Queue size needs a nonzero size");
 
