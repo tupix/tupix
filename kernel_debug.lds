@@ -28,4 +28,22 @@ SECTIONS
 		lib/?*.o_d     (.bss* COMMON)
 		system/?*.o_d  (.bss* COMMON)
 	}
+
+	.kstacks : ALIGN(4K) {
+		_kstacks_start = .;
+	}
+
+	. = (0x00400000);
+	.ucode : {
+		*(.ucode)
+	}
+
+	. = (0x00500000);
+	.udata : {
+		*(.udata)
+	}
+
+	.ustacks : ALIGN(4K) {
+		_ustacks_start = .;
+	}
 }

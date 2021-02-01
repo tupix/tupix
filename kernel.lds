@@ -46,5 +46,7 @@ SECTIONS
 		*(.udata)
 	}
 
-
+	.ustacks : ALIGN(4K) {
+		_ustacks_start = .;
+	}
 }

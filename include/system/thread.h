@@ -11,7 +11,8 @@
 
 // NOTE: Below user stack
 //#define THREAD_STACK_BASE 0x7FFE800
-#define THREAD_STACK_BASE 0x002FE7FF
+extern size_t _ustacks_start;
+#define THREAD_STACK_BASE _ustacks_start
 #define THREAD_STACK_SIZE 0x400 // 4KB
 
 enum thread_state { READY, WAITING, DONE };
