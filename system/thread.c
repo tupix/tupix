@@ -5,6 +5,8 @@
 #include <arch/armv7/registers.h>
 
 #include <data/types.h>
+
+#include <system/assert.h>
 #include <system/ivt.h>
 #include <system/scheduler.h>
 
@@ -21,20 +23,30 @@ extern char _ustacks_start[]; // see kernel.lds
 void*
 get_stack_pointer(const size_t index)
 {
+	ASSERTM(_ustacks_start > 0,
+	        "_ustacks_start = %p <= 0. This should not "
+	        "happen and probably means there is something wrong with your "
+	        "linking as this variable should be set to a value > 0 by the "
+	        "linker.",
+	        _ustacks_start);
+
 	// All thread stacks are positioned on top of each other with stack for id 0
 	// at the very top.
 
 	// Respect max number of threads
-	if (index >= N_THREADS)
-		return NULL;
-	// We need to have enough space for the new thread's stack.
-	if ((void*)(index * THREAD_STACK_SIZE) > THREAD_STACK_BASE) {
+	if (index >= N_THREADS) {
+		klog(ERROR, "Already reached the limit of threads.");
 		return NULL;
 	}
 
-	void* stack = (void*)(THREAD_STACK_BASE);
-	stack -= index * THREAD_STACK_SIZE;
-	return stack;
+	// We need to have enough space for the new thread's stack.
+	if ((void*)(index * THREAD_STACK_SIZE) > THREAD_STACK_BASE) {
+		klog(ERROR, "Not enough memory for this thread's stack.");
+		return NULL;
+	}
+
+	// stacks get allocated downwards in memory
+	return (void*)(THREAD_STACK_BASE) - (index * THREAD_STACK_SIZE);
 }
 
 void*
@@ -65,6 +77,8 @@ thread_create(void (*func)(void*), const void* args, size_t args_size)
 		return; // Thread was not added to queue
 
 	void* thread_sp = get_stack_pointer(scheduled_thread->index);
+
+	// TODO(Aurel): Error handling for thread_sp == NULL
 
 	// Since the stack grows to the 'bottom', copy below it
 	// TODO: What to do if we cannot access user memory?

@@ -17,6 +17,7 @@
 	do {                                                                       \
 		if (!(condition)) {                                                    \
 			klog(ASSERT, fmt, ##__VA_ARGS__);                                  \
+			klog(ASSERT, "Panicing.");                                         \
 			PANIC;                                                             \
 		}                                                                      \
 	} while (0)
