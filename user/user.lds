@@ -10,4 +10,3 @@ SECTIONS
 		*(.bss .bss.*)
 	}
 }
-
