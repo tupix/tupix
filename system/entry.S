@@ -68,18 +68,19 @@ _init_modes:
 
 	// supervisor sp
 	ldr r0, =_kstacks_start
+	add r0, r0, #0x1000
 	mov sp, r0
 	// Initialize other stack pointers
 	// subtract 4KB (= 0x1000) from previous stack base
-	sub r0, r0, #0x1000
+	add r0, r0, #0x1000
 	msr sp_und, r0
-	sub r0, r0, #0x1000
+	add r0, r0, #0x1000
 	msr sp_abt, r0
-	sub r0, r0, #0x1000
+	add r0, r0, #0x1000
 	msr sp_irq, r0
-	sub r0, r0, #0x1000
+	add r0, r0, #0x1000
 	msr sp_fiq, r0
-	sub r0, r0, #0x1000
+	add r0, r0, #0x1000
 	msr sp_usr, r0
 
     mov pc, lr
