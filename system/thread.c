@@ -27,9 +27,11 @@ get_stack_pointer(const size_t index)
 	// Respect max number of threads
 	if (index >= N_THREADS)
 		return NULL;
-	// Do not try to create a pointer of negative memory address
-	if (THREAD_STACK_BASE - (int32)index * THREAD_STACK_SIZE < 0)
+	// We need to have enough space for the new thread's stack.
+	if ((void*)(index * THREAD_STACK_SIZE) > THREAD_STACK_BASE) {
 		return NULL;
+	}
+
 	void* stack = (void*)(THREAD_STACK_BASE);
 	stack -= index * THREAD_STACK_SIZE;
 	return stack;
