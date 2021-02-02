@@ -9,13 +9,6 @@
 #include <std/io.h>
 #include <std/log.h>
 
-// NOTE: Below user stack
-//#define THREAD_STACK_BASE 0x7FFE800
-extern char _ustacks_start[];
-#define THREAD_STACK_BASE ((size_t)_ustacks_start) * (N_THREADS + 1)
-
-#define THREAD_STACK_SIZE 0x400 // 1KB
-
 enum thread_state { READY, WAITING, DONE };
 
 struct tcb {

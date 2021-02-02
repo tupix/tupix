@@ -11,7 +11,12 @@
 #include <std/log.h>
 #include <std/mem.h>
 
-extern void exit();
+extern void exit();           // syscall in user
+extern char _ustacks_start[]; // see kernel.lds
+
+#define THREAD_STACK_SIZE 0x400 // 1KB
+#define THREAD_STACK_BASE                                                      \
+	(((void*)_ustacks_start) + (THREAD_STACK_SIZE * (N_THREADS + 1)))
 
 void*
 get_stack_pointer(const size_t index)
