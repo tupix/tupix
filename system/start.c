@@ -3,6 +3,7 @@
 #include <driver/interrupt_controller.h>
 #include <driver/timer.h>
 #include <driver/uart.h>
+#include <driver/mmu.h>
 
 #include <system/assert.h>
 #include <system/ivt.h>
@@ -19,6 +20,7 @@ start_kernel(void)
 	init_interrupt_controller();
 	init_uart();
 	init_local_timer();
+	init_mmu();
 
 	ASSERTM(N_THREADS >= 32, "A minimum of 32 threads should be supported.");
 	init_scheduler();
