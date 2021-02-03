@@ -23,7 +23,7 @@ extern char _ustacks_start[]; // see kernel.lds
 void*
 get_stack_pointer(const size_t index)
 {
-	ASSERTM(_ustacks_start > 0,
+	ASSERTM(_ustacks_start > (char*)NULL,
 	        "_ustacks_start = %p <= 0. This should not "
 	        "happen and probably means there is something wrong with your "
 	        "linking as this variable should be set to a value > 0 by the "
