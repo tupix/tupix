@@ -62,6 +62,31 @@ set_base_address_of_index(uint32 entry, uint32 index)
 	return entry;
 }
 
+enum l1_entry_type {
+	L1_ENTRY_TYPE_FAULT = 0b00,
+	L1_ENTRY_TYPE_L2_POINTER = 0b01,
+	L1_ENTRY_TYPE_1MB_PAGE = 0b10,
+
+	L1_ENTRY_TYPE_SIZE = 2,
+};
+
+uint32
+set_l1_entry_type(uint32 entry, enum l1_entry_type entry_type)
+{
+	/*
+	 * NOTE(Aurel): We need to check for the type, as we don't want to overwrite
+	 * bit 0 when we are dealing with a 1MB page L1-entry as that bit actually
+	 * represents, whether privileged execution is allowed.
+	 * This way this function never overwrites any bits set beforehand.
+	 */
+	if (entry_type == L1_ENTRY_TYPE_1MB_PAGE) {
+		SET_BIT(entry, 1);
+	} else {
+		SET_BIT_TO(entry, 0, entry_type, L1_ENTRY_TYPE_SIZE);
+	}
+	return entry;
+}
+
 void
 init_l1()
 {
