@@ -52,10 +52,14 @@ set_l1_access_permission(uint32 l1_entry, enum l1_access_permission permission)
 }
 
 uint32
-set_base_address_of_index(uint32 index)
+set_base_address_of_index(uint32 entry, uint32 index)
 {
-	// TODO(Aurel): Checks for the size. What's its biggest size?
-	return (index MB)&0xfff00000;
+	// clear base address bits
+	entry &= 0x000fffff;
+	// << 20 is like multiplying by (1024 * 1024)
+	// index 1 becomes base address 1 as its MB aligned.
+	entry |= (index << 20);
+	return entry;
 }
 
 void
