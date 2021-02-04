@@ -3,7 +3,7 @@ SECTIONS
 {
 	. = (0x00100000);
 	kcode : {
-		system/entry.o_d (.init)
+		*(.init)
 
 		data/?*.o_d    (.text*)
 		driver/?*.o_d  (.text*)
@@ -29,7 +29,11 @@ SECTIONS
 		system/?*.o_d  (.bss* COMMON)
 	}
 
-	.kstacks : ALIGN(4K) {
+	.kl1 : ALIGN(16K) {
+		_l1_start = .;
+	}
+
+	.kstacks ALIGN(4K) : AT (ADDR(.kl1) + 16K) {
 		_kstacks_start = .;
 	}
 
