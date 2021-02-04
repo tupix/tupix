@@ -107,9 +107,11 @@ build_l1_entry(uint32 index, enum l1_access_permission permission,
 	return entry;
 }
 
+extern uint32 _kstacks_start[];
 void
 init_l1()
 {
+	klog(DEBUG, "_l1_start: %p", _l1_start);
 	// TODO(Aurel): Remove
 	//ASSERTM(1 == 0, "Not implemented yet.");
 	/*
@@ -117,6 +119,7 @@ init_l1()
 	 * kernel.lds
 	 */
 	memset(L1, 0, 0x4000);
+	klog(DEBUG,"%p", _kstacks_start);
 #if 1
 	// hardware
 	L1[0] = build_l1_entry(0, L1_ACCESS_PERM_SYS_ONLY_FULL, false, false, L1_ENTRY_TYPE_1MB_PAGE);
@@ -132,14 +135,19 @@ init_l1()
 	// user data including stacks
 	L1[5] = build_l1_entry(5, L1_ACCESS_PERM_SYS_USER_FULL, false, false, L1_ENTRY_TYPE_1MB_PAGE);
 #endif
+
+	klog(LOG, "L1-table initialized.");
 }
 
 uint32
 get_dacr_init_val(uint32 dacr)
 {
+	klog(DEBUG, "This function still needs an enum.");
 	// TODO(Aurel): Do we need to set any domain to a specific value?
 	// Domain 0 -> client mode?
 	//ASSERTM(1 == 0, "Not implemented yet.");
+	// TODO(Aurel): create enum.
+	// domain 0 is in client mode.
 	dacr = 1;
 	return dacr;
 }
@@ -147,6 +155,7 @@ get_dacr_init_val(uint32 dacr)
 uint32
 get_ttbcr_init_val(uint32 ttbcr)
 {
+	klog(DEBUG, "This function still needs an enum.");
 	// TODO(Aurel): Init ttbcr.
 	//ASSERTM(1 == 0, "Not implemented yet.");
 	CLEAR_BIT(ttbcr, 5);
