@@ -41,16 +41,16 @@ enum l1_bit_field {
 };
 
 uint32
-set_l1_access_permission(uint32 l1_entry, enum l1_access_permission permission)
+set_l1_access_permission(uint32 entry, enum l1_access_permission permission)
 {
 	/*
 	 * NOTE(Aurel): Permission bits are split into two:
 	 * L1_AP_0 takes the first two bits
 	 * L1_AP_2 takes the third bit
 	 */
-	SET_BIT_TO(l1_entry, L1_AP_0, permission, 2);
-	SET_BIT_TO(l1_entry, L1_AP_2, (permission >> 2), 1);
-	return l1_entry;
+	SET_BIT_TO(entry, L1_AP_0, permission, 2);
+	SET_BIT_TO(entry, L1_AP_2, (permission >> 2), 1);
+	return entry;
 }
 
 uint32
