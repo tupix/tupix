@@ -31,7 +31,11 @@ SECTIONS
 		system/?*.o  (.bss* COMMON)
 	}
 
-	.kstacks : ALIGN(4K) {
+	.kl1 : ALIGN(16K) {
+		_l1_start = .;
+	}
+
+	.kstacks ALIGN(4K) : AT (ADDR(.kl1) + 16K) {
 		_kstacks_start = .;
 	}
 
