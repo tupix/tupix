@@ -5,6 +5,9 @@
 #include <std/bits.h>
 #include <std/log.h>
 
+#define KB *1024
+#define MB KB * 1024
+
 extern uint32 _l1_start[N_L1_ENTRIES];
 #define L1 _l1_start
 
@@ -48,10 +51,21 @@ set_l1_access_permission(uint32 l1_entry, enum l1_access_permission permission)
 	return l1_entry;
 }
 
+uint32
+set_base_address_of_index(uint32 index)
+{
+	// TODO(Aurel): Checks for the size. What's its biggest size?
+	return (index MB)&0xfff00000;
+}
+
 void
 init_l1()
 {
 	ASSERTM(1 == 0, "Not implemented yet.");
+	// TODO(Aurel): This is an example for the first index. Should actually be
+	// right, I think.
+	L1[0] = set_l1_access_permission(set_base_address_of_index(0),
+	                                 L1_ACCESS_PERM_SYS_ONLY_READ_ONLY);
 }
 
 uint32
