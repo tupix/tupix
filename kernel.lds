@@ -34,11 +34,13 @@ SECTIONS
 		system/?*.o  (.bss* COMMON)
 	}
 
-	.kl1 : ALIGN(16K) {
+	. = ALIGN(16K);
+	.kl1 : {
 		_l1_start = .;
 	}
 
-	.kstacks ALIGN(4K) : AT (ADDR(.kl1) + 16K) {
+	. += 16K;
+	.kstacks : ALIGN(4K) {
 		_kstacks_start = .;
 	}
 
@@ -52,6 +54,7 @@ SECTIONS
 		*(.udata)
 	}
 
+	. = ALIGN(4K);
 	.ustacks : ALIGN(4K) {
 		_ustacks_start = .;
 	}
