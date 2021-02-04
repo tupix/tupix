@@ -5,6 +5,8 @@
 #include <std/bits.h>
 #include <std/log.h>
 
+#include <std/mem.h>
+
 #define KB *1024
 #define MB KB * 1024
 
@@ -87,14 +89,49 @@ set_l1_entry_type(uint32 entry, enum l1_entry_type entry_type)
 	return entry;
 }
 
+uint32
+build_l1_entry(uint32 index, enum l1_access_permission permission,
+               bool allow_execute, bool allow_privileged_execute, enum l1_entry_type entry_type)
+{
+	uint32 entry = 0;
+
+	entry = set_l1_entry_type(entry, entry_type);
+	entry = set_base_address_of_index(entry, index);
+	entry = set_l1_access_permission(entry, permission);
+
+	if (allow_execute)
+		SET_BIT(entry, L1_XN);
+	if (allow_privileged_execute)
+		SET_BIT(entry, L1_PXN);
+
+	return entry;
+}
+
 void
 init_l1()
 {
-	ASSERTM(1 == 0, "Not implemented yet.");
-	// TODO(Aurel): This is an example for the first index. Should actually be
-	// right, I think.
-	L1[0] = set_l1_access_permission(set_base_address_of_index(0),
-	                                 L1_ACCESS_PERM_SYS_ONLY_READ_ONLY);
+	// TODO(Aurel): Remove
+	//ASSERTM(1 == 0, "Not implemented yet.");
+	/*
+	 * NOTE(Aurel): These indices correspond to the 6th hex-digit seen in
+	 * kernel.lds
+	 */
+	memset(L1, 0, 0x4000);
+#if 1
+	// hardware
+	L1[0] = build_l1_entry(0, L1_ACCESS_PERM_SYS_ONLY_FULL, false, false, L1_ENTRY_TYPE_1MB_PAGE);
+	klog(DEBUG, "l1_0: %i", L1[0]);
+	// init code
+	// kernel code
+	L1[1] = build_l1_entry(1, L1_ACCESS_PERM_SYS_ONLY_READ_ONLY, true, true, L1_ENTRY_TYPE_1MB_PAGE);
+	// kernel data including stacks
+	L1[2] = build_l1_entry(2, L1_ACCESS_PERM_SYS_ONLY_FULL, false, false, L1_ENTRY_TYPE_1MB_PAGE);
+	L1[3] = build_l1_entry(3, L1_ACCESS_PERM_SYS_ONLY_FULL, false, false, L1_ENTRY_TYPE_1MB_PAGE);
+	// user code
+	L1[4] = build_l1_entry(4, L1_ACCESS_PERM_SYS_USER_READ_ONLY, true, false, L1_ENTRY_TYPE_1MB_PAGE);
+	// user data including stacks
+	L1[5] = build_l1_entry(5, L1_ACCESS_PERM_SYS_USER_FULL, false, false, L1_ENTRY_TYPE_1MB_PAGE);
+#endif
 }
 
 uint32
