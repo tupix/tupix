@@ -1,8 +1,10 @@
+#include <std/io.h>
 #include <sys/calls.h>
 
 void
 user_thread(void* args)
 {
+#if 0
 	if (args) {
 		uint32 c = *(uint32*)args;
 		args += sizeof(c);
@@ -16,4 +18,7 @@ user_thread(void* args)
 	create_thread(&user_thread, &c, sizeof(c));
 	exit();
 	putchar('x');
+#else
+	printf("Hello World!");
+#endif
 }
