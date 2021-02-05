@@ -20,12 +20,12 @@ extern char _ustacks_start[]; // see kernel.lds
 
 #define THREAD_STACK_SIZE 0x400 // 1KB
 // NOTE(Aurel): Place at the beginning of the second 4KB page
-#define THREAD_STACK_BASE ((void*) _ustacks_start + (0x1000 + THREAD_STACK_SIZE))
+#define THREAD_STACK_BASE ((void*) _ustacks_start)
 
 void*
 get_stack_pointer(const size_t index)
 {
-	return THREAD_STACK_BASE;
+	//return THREAD_STACK_BASE;
 
 
 	ASSERTM(_ustacks_start > (char*)NULL,
@@ -51,7 +51,7 @@ get_stack_pointer(const size_t index)
 	}
 
 	// stacks get allocated downwards in memory
-	return (void*)(THREAD_STACK_BASE) - (index * THREAD_STACK_SIZE);
+	return (void*)(THREAD_STACK_BASE) + ((index * 0x2000) +  THREAD_STACK_SIZE);
 }
 
 void*

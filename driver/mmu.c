@@ -226,18 +226,22 @@ get_thread_memory(size_t index, struct l2_entry* memory)
 {
 	memset(memory, 0, sizeof(*memory));
 
-	uint32 stack = build_l1_1MB_page_entry(index, L1_ACCESS_PERM_SYS_USER_FULL,
-	                                       false, false);
-	memory->pages[1] = stack;
+	index  = index *2 +1;
+	uint32 phys_index = (6 << 8) | index;
+	uint32 stack_page = build_l1_1MB_page_entry(phys_index, L1_ACCESS_PERM_SYS_USER_FULL, false, false);
+	memory->pages[index] = stack_page;
 
-	// NOTE(Aurel): Guard page, do not change or overwrite!
-	memory->pages[0] = 0;
+	// NOTE(Aurel): Guard page. Do not change or overwrite!
+	//memory->pages[index - 1] = 0;
 }
 
 void
 switch_memory(struct l2_entry* new_memory)
 {
+	// invalidate entire TLB
+	asm("mcr p15, 0, r0, c8, c7, 0");
 	// TODO(Aurel): Is this all we need to do, to get the address?
-	SET_BIT_TO(L1[6], L1_L2_PAGE_BASE_ADDRESS, (uint32)new_memory,
-	           32 - L1_L2_PAGE_BASE_ADDRESS);
+	//SET_BIT_TO(L1[6], L1_L2_PAGE_BASE_ADDRESS, (uint32)new_memory >>  32 - L1_L2_PAGE_BASE_ADDRESS, 32 - L1_L2_PAGE_BASE_ADDRESS);
+	L1[6] &= 0x000000ff;
+	L1[6] |= (uint32)new_memory & 0xffffff00;
 }

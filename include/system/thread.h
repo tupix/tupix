@@ -20,7 +20,7 @@ struct tcb {
 	size_t waiting_duration;
 	bool initialized;
 	enum thread_state state;
-	struct l2_entry l2_table;
+	__attribute__((aligned(1024))) struct l2_entry l2_table;
 };
 
 void* get_stack_pointer(const size_t index);
