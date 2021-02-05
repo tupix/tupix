@@ -161,6 +161,21 @@ init_l1()
 	klog(LOG, "L1-table initialized.");
 }
 
+
+enum dacr_domain_access {
+	DACR_DOMAIN_NO_ACCESS = 0b00, // Any access generates domain fault
+	DACR_DOMAIN_CLIENT_ACCESS = 0b01, // access checked against access permission bits
+	DACR_DOMAIN_MANAGER_ACCESS = 0b11, // access not checked against access permission bits
+
+	DACR_DOMAIN_ACCESS_SIZE = 2,
+};
+
+uint32 set_dacr_domain_access(uint32 dacr, uint32 domain, enum dacr_domain_access access)
+{
+	SET_BIT_TO(dacr, domain*2, access, DACR_DOMAIN_ACCESS_SIZE);
+	return dacr;
+}
+
 uint32
 get_dacr_init_val(uint32 dacr)
 {
