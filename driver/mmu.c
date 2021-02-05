@@ -80,6 +80,15 @@ set_l1_base_address_of_index(uint32 entry, uint32 index)
 }
 
 uint32
+set_l2_base_address_of_index(uint32 entry, uint32 index)
+{
+	// clear base address bits and set them to the index
+	entry &= 0x000003ff;
+	entry |= (index << 10);
+	return entry;
+}
+
+uint32
 set_l1_entry_type(uint32 entry, enum l1_entry_type entry_type)
 {
 	/*
@@ -120,7 +129,7 @@ build_l1_l2_pointer_entry(uint32 index, bool allow_privileged_execute)
 	uint32 entry = 0;
 
 	entry = set_l1_entry_type(entry, L1_ENTRY_TYPE_L2_POINTER);
-	entry = set_l1_base_address_of_index(entry, index);
+	entry = set_l2_base_address_of_index(entry, index);
 
 	if (!allow_privileged_execute)
 		SET_BIT(entry, L1_L2_PAGE_PXN);
