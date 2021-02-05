@@ -32,6 +32,8 @@ static struct tcb* null_thread;
 
 static uint32 tid_count;
 
+extern void endless_loop();
+
 /*
  * Push thread onto thread queue.
  *
@@ -154,10 +156,12 @@ struct tcb*
 init_null_thread()
 {
 	struct tcb null_thread_init = { 0 };
-	null_thread_init.regs.pc    = (uint32)&kendless_loop;
+	null_thread_init.regs.pc    = (uint32)&endless_loop;
+	null_thread_init.cpsr       = PROCESSOR_MODE_USR;
 	null_thread_init.regs.sp =
 			(uint32)get_stack_pointer(null_thread_init.index);
-	threads[0] = null_thread_init;
+	null_thread_init.initialized = true;
+	threads[0]                   = null_thread_init;
 	return &(threads[0]);
 }
 

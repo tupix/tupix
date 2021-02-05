@@ -317,8 +317,8 @@ exc_cleanup_return:
 
 
 .global switch_to_usermode
-.extern kendless_loop
+.extern endless_loop
 switch_to_usermode:
 	msr spsr, #0x10
-	ldr lr, =kendless_loop
+	ldr lr, =endless_loop
 	movs pc, lr

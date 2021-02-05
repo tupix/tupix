@@ -2,6 +2,12 @@
 #include <sys/calls.h>
 
 void
+endless_loop()
+{
+	while (1) {}
+}
+
+void
 user_thread(void* args)
 {
 #if 0
