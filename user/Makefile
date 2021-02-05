@@ -77,7 +77,7 @@ dump: user
 	$(OBJDUMP) -D user > user_dump.s
 
 clean:
-	rm -f user user.bin user.img user_dump.s
+	rm -f user user_debug user.bin user.img user_dump.s
 	rm -f $(OBJ)
 	rm -f $(OBJ_DEBUG)
 	rm -f $(DEP)
