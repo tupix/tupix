@@ -1,15 +1,11 @@
 ENTRY(_start)
 SECTIONS
 {
-	/*
 	. = (0x00008000);
 	.init : { *(.init) }
-	*/
 
 	. = (0x00100000);
 	.kcode : {
-		*(.init)
-
 		data/?*.o    (.text*)
 		driver/?*.o  (.text*)
 		lib/?*.o     (.text*)
