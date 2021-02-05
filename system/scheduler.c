@@ -179,7 +179,7 @@ init_scheduler()
 
 	null_thread    = init_null_thread();
 	running_thread = null_thread;
-	klog(LOG, "Initialized");
+	klog(LOG, "Scheduler initialized.");
 }
 
 /*
