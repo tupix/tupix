@@ -65,9 +65,9 @@ set_base_address_of_index(uint32 entry, uint32 index)
 }
 
 enum l1_entry_type {
-	L1_ENTRY_TYPE_FAULT = 0b00,
+	L1_ENTRY_TYPE_FAULT      = 0b00,
 	L1_ENTRY_TYPE_L2_POINTER = 0b01,
-	L1_ENTRY_TYPE_1MB_PAGE = 0b10,
+	L1_ENTRY_TYPE_1MB_PAGE   = 0b10,
 
 	L1_ENTRY_TYPE_SIZE = 2,
 };
@@ -91,7 +91,8 @@ set_l1_entry_type(uint32 entry, enum l1_entry_type entry_type)
 
 uint32
 build_l1_entry(uint32 index, enum l1_access_permission permission,
-               bool allow_execute, bool allow_privileged_execute, enum l1_entry_type entry_type)
+               bool allow_execute, bool allow_privileged_execute,
+               enum l1_entry_type entry_type)
 {
 	uint32 entry = 0;
 
@@ -119,28 +120,37 @@ init_l1()
 	 * kernel.lds or the base addresses of the hardware-components driver.
 	 */
 	memset(L1, 0, 0x4000);
-	klog(DEBUG,"%p", _kstacks_start);
+	klog(DEBUG, "%p", _kstacks_start);
 #if 1
 	// init code
 	//						  permission, exec, priv_exec
-	L1[0] = build_l1_entry(0, L1_ACCESS_PERM_SYS_ONLY_READ_ONLY, true, true, L1_ENTRY_TYPE_1MB_PAGE);
+	L1[0] = build_l1_entry(0, L1_ACCESS_PERM_SYS_ONLY_READ_ONLY, true, true,
+	                       L1_ENTRY_TYPE_1MB_PAGE);
 	// kernel code
-	L1[1] = build_l1_entry(1, L1_ACCESS_PERM_SYS_ONLY_READ_ONLY, true, true, L1_ENTRY_TYPE_1MB_PAGE);
+	L1[1] = build_l1_entry(1, L1_ACCESS_PERM_SYS_ONLY_READ_ONLY, true, true,
+	                       L1_ENTRY_TYPE_1MB_PAGE);
 	// kernel data including stacks
-	L1[2] = build_l1_entry(2, L1_ACCESS_PERM_SYS_ONLY_FULL, false, false, L1_ENTRY_TYPE_1MB_PAGE);
-	L1[3] = build_l1_entry(3, L1_ACCESS_PERM_SYS_ONLY_FULL, false, false, L1_ENTRY_TYPE_1MB_PAGE);
+	L1[2] = build_l1_entry(2, L1_ACCESS_PERM_SYS_ONLY_FULL, false, false,
+	                       L1_ENTRY_TYPE_1MB_PAGE);
+	L1[3] = build_l1_entry(3, L1_ACCESS_PERM_SYS_ONLY_FULL, false, false,
+	                       L1_ENTRY_TYPE_1MB_PAGE);
 	// user code
-	L1[4] = build_l1_entry(4, L1_ACCESS_PERM_SYS_USER_READ_ONLY, true, false, L1_ENTRY_TYPE_1MB_PAGE);
+	L1[4] = build_l1_entry(4, L1_ACCESS_PERM_SYS_USER_READ_ONLY, true, false,
+	                       L1_ENTRY_TYPE_1MB_PAGE);
 	// user data including stacks
-	L1[5] = build_l1_entry(5, L1_ACCESS_PERM_SYS_USER_FULL, false, false, L1_ENTRY_TYPE_1MB_PAGE);
+	L1[5] = build_l1_entry(5, L1_ACCESS_PERM_SYS_USER_FULL, false, false,
+	                       L1_ENTRY_TYPE_1MB_PAGE);
 
 	// hardware
 	// Interrupt Controller
-	L1[0x3F0] = build_l1_entry(0x3F0, L1_ACCESS_PERM_SYS_ONLY_FULL, false, false, L1_ENTRY_TYPE_1MB_PAGE);
+	L1[0x3F0] = build_l1_entry(0x3F0, L1_ACCESS_PERM_SYS_ONLY_FULL, false,
+	                           false, L1_ENTRY_TYPE_1MB_PAGE);
 	// UART
-	L1[0x3F2] = build_l1_entry(0x3F2, L1_ACCESS_PERM_SYS_ONLY_FULL, false, false, L1_ENTRY_TYPE_1MB_PAGE);
+	L1[0x3F2] = build_l1_entry(0x3F2, L1_ACCESS_PERM_SYS_ONLY_FULL, false,
+	                           false, L1_ENTRY_TYPE_1MB_PAGE);
 	// TIMER
-	L1[0x400] = build_l1_entry(0x400, L1_ACCESS_PERM_SYS_ONLY_FULL, false, false, L1_ENTRY_TYPE_1MB_PAGE);
+	L1[0x400] = build_l1_entry(0x400, L1_ACCESS_PERM_SYS_ONLY_FULL, false,
+	                           false, L1_ENTRY_TYPE_1MB_PAGE);
 	klog(DEBUG, "L1[0]:\t\t%x", L1[0]);
 	klog(DEBUG, "L1[1]:\t\t%x", L1[1]);
 	klog(DEBUG, "Interrupt Controller:\t%x", L1[0x3f0]);

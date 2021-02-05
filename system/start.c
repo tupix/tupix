@@ -24,7 +24,6 @@ start_kernel(void)
 	init_mmu();
 	klog(LOG, "Kernel initialized.");
 
-
 	ASSERTM(N_THREADS >= 32, "A minimum of 32 threads should be supported.");
 	init_scheduler();
 
