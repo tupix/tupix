@@ -121,10 +121,9 @@ init_l1()
 	memset(L1, 0, 0x4000);
 	klog(DEBUG,"%p", _kstacks_start);
 #if 1
-	// hardware
-	L1[0] = build_l1_entry(0, L1_ACCESS_PERM_SYS_ONLY_FULL, false, false, L1_ENTRY_TYPE_1MB_PAGE);
-	klog(DEBUG, "l1_0: %i", L1[0]);
 	// init code
+	//						  permission, exec, priv_exec
+	L1[0] = build_l1_entry(0, L1_ACCESS_PERM_SYS_ONLY_READ_ONLY, true, true, L1_ENTRY_TYPE_1MB_PAGE);
 	// kernel code
 	L1[1] = build_l1_entry(1, L1_ACCESS_PERM_SYS_ONLY_READ_ONLY, true, true, L1_ENTRY_TYPE_1MB_PAGE);
 	// kernel data including stacks
@@ -134,6 +133,14 @@ init_l1()
 	L1[4] = build_l1_entry(4, L1_ACCESS_PERM_SYS_USER_READ_ONLY, true, false, L1_ENTRY_TYPE_1MB_PAGE);
 	// user data including stacks
 	L1[5] = build_l1_entry(5, L1_ACCESS_PERM_SYS_USER_FULL, false, false, L1_ENTRY_TYPE_1MB_PAGE);
+
+	// hardware
+	// Interrupt Controller
+	L1[0x3F0] = build_l1_entry(0x3F0, L1_ACCESS_PERM_SYS_ONLY_FULL, false, false, L1_ENTRY_TYPE_1MB_PAGE);
+	// UART
+	L1[0x3F2] = build_l1_entry(0x3F2, L1_ACCESS_PERM_SYS_ONLY_FULL, false, false, L1_ENTRY_TYPE_1MB_PAGE);
+	// TIMER
+	L1[0x400] = build_l1_entry(0x400, L1_ACCESS_PERM_SYS_ONLY_FULL, false, false, L1_ENTRY_TYPE_1MB_PAGE);
 #endif
 
 	klog(LOG, "L1-table initialized.");
