@@ -222,7 +222,7 @@ get_thread_memory(size_t index, struct l2_entry* memory)
 	memory->pages[1] = stack;
 
 	// NOTE(Aurel): Guard page, do not change or overwrite!
-	memory->pages[2] = 0;
+	memory->pages[0] = 0;
 }
 
 void

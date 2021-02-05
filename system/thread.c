@@ -19,12 +19,15 @@ extern void exit();           // syscall in user
 extern char _ustacks_start[]; // see kernel.lds
 
 #define THREAD_STACK_SIZE 0x400 // 1KB
-#define THREAD_STACK_BASE                                                      \
-	(((void*)_ustacks_start) + (THREAD_STACK_SIZE * (N_THREADS + 1)))
+// NOTE(Aurel): Place at the bottom of a 4KB page
+#define THREAD_STACK_BASE ((void*) _ustacks_start + (0x1000 + THREAD_STACK_SIZE))
 
 void*
 get_stack_pointer(const size_t index)
 {
+	return THREAD_STACK_BASE;
+
+
 	ASSERTM(_ustacks_start > (char*)NULL,
 	        "_ustacks_start = %p <= 0. This should not "
 	        "happen and probably means there is something wrong with your "
