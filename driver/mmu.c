@@ -178,11 +178,14 @@ uint32
 get_ttbcr_init_val(uint32 ttbcr)
 {
 	klog(DEBUG, "This function still needs an enum.");
-	// TODO(Aurel): Init ttbcr.
-	//ASSERTM(1 == 0, "Not implemented yet.");
+#if 0
+	// TODO: cleanup
 	CLEAR_BIT(ttbcr, 5);
 	SET_BIT(ttbcr, 4);
 	// this also sets the 0th bit to 0 which selects the ttbr0
-	SET_BIT_TO(ttbcr, 0, 0b010, 3);
+	SET_BIT_TO(ttbcr, 0, 0b000, 3);
+#endif
+
+	ttbcr = 0;
 	return ttbcr;
 }
