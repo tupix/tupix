@@ -216,11 +216,18 @@ void
 init_thread_memory(size_t index)
 {
 	uint32 l1_entry = build_l1_l2_pointer_entry(index, false);
+
+	// With an offset of 6MB is where the thread stacks begin. See kerner.lds
+	// for more information.
 	L1[index + 6]   = l1_entry;
-	// TODO(Aurel): l2 entries
-	for (uint32 i = 0; i < 156; ++i) {
+
+	// clear all other table entries
+	for (uint32 i = 0; i < 256; ++i) {
 		l2_entries[index][i] = 0;
 	}
+
+	// The second entry is reserved for the thread stack. It should be read and
+	// writable, but not executable.
 	l2_entries[index][1] = build_l1_1MB_page_entry(
 			index, L1_ACCESS_PERM_SYS_USER_FULL, false, false);
 }
