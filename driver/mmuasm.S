@@ -39,12 +39,6 @@ init_mmu:
 	orr r0, r0, #0b1		  // SCTRL bit 0 - enable MMU
 	mcr p15, 0, r0, c1, c0, 0 // write SCTLR
 
-	// print "MMU initialized."
-	// TODO(Aurel): Remove before handing in.
-	ldr r0, =init_mmu_initialized_msg
-	bl kprintf
-	// ~print "MMU initialized."
-
 	pop { lr }
 	movs pc, lr
 
