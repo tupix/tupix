@@ -19,6 +19,7 @@ start_kernel(void)
 {
 	init_interrupt_controller();
 	init_uart();
+	klog(DEBUG, "UART base address: %p", uart_get_uart_base());
 	init_local_timer();
 	init_mmu();
 	klog(LOG, "Kernel initialized.");
