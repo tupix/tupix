@@ -19,7 +19,7 @@ extern void exit();           // syscall in user
 extern char _ustacks_start[]; // see kernel.lds
 
 #define THREAD_STACK_SIZE 0x400 // 1KB
-// NOTE(Aurel): Place at the bottom of a 4KB page
+// NOTE(Aurel): Place at the beginning of the second 4KB page
 #define THREAD_STACK_BASE ((void*) _ustacks_start + (0x1000 + THREAD_STACK_SIZE))
 
 void*
