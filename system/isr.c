@@ -191,18 +191,39 @@ software_interrupt_handler(struct registers* regs)
 	enable_timer();
 }
 
+
+// TODO(Aurel): Remove this after assignment.
+extern void main_thread();
+
 void
 irq_handler(struct registers* regs)
 {
 	// Reset triggered interrupts
 	if (l_timer_is_interrupting()) {
-		kprintf("!");
 		scheduler_cycle(regs, true);
 		reset_timer();
 	} else if (uart_is_interrupting()) {
 		if (!uart_push_char()) {
 			klog(ERROR, "Could not buffer new char");
 			return;
+		}
+
+		switch (uart_peek_char()) {
+			case 'N':
+				asm("ldr r0, =0");
+				break;
+			case 'P':
+				asm("mov pc, #0");
+				break;
+			case 'C':
+				*((int*)&irq_handler) = 0;
+				break;
+			case 'U':
+				asm("mov r0, #0xF00000");
+				break;
+			case 'X':
+				asm("b main_thread");
+				break;
 		}
 
 		// Notify scheduler that UART received a char.

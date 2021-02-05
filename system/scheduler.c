@@ -148,14 +148,13 @@ switch_context(struct registers* regs, struct tcb* old, struct tcb* new)
 		regs->gr.lr  = new->regs.pc;
 		regs->spsr   = new->cpsr;
 	}
-	kprintf("\n");
 }
 
 struct tcb*
 init_null_thread()
 {
 	struct tcb null_thread_init = { 0 };
-	null_thread_init.regs.pc    = (uint32)&kendless_loop;
+	null_thread_init.regs.pc = (uint32)&kendless_loop;
 	null_thread_init.regs.sp =
 			(uint32)get_stack_pointer(null_thread_init.index);
 	threads[0] = null_thread_init;

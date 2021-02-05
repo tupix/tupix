@@ -12,7 +12,7 @@
 
 #include <std/mem.h>
 
-extern void user_thread(void*);
+extern void main_thread(void*);
 
 void
 start_kernel(void)
@@ -26,5 +26,5 @@ start_kernel(void)
 	ASSERTM(N_THREADS >= 32, "A minimum of 32 threads should be supported.");
 	init_scheduler();
 
-	thread_create(&user_thread, NULL, 0);
+	thread_create(&main_thread, NULL, 0);
 }
