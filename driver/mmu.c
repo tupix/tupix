@@ -7,12 +7,10 @@
 
 #include <std/mem.h>
 
-#define KB *1024
-#define MB KB * 1024
-
 extern uint32 _l1_start[N_L1_ENTRIES];
 #define L1 _l1_start
 
+/*********** L1-TABLE HELPER ***********/
 enum l1_access_permission {
 	L1_ACCESS_PERM_SYS_USER_FULL           = 0b011,
 	L1_ACCESS_PERM_SYS_FULL_USER_READ_ONLY = 0b010,
@@ -40,6 +38,14 @@ enum l1_bit_field {
 	L1_PXN                  = 0,  // Privileged eXecute Never
 };
 
+enum l1_entry_type {
+	L1_ENTRY_TYPE_FAULT      = 0b00,
+	L1_ENTRY_TYPE_L2_POINTER = 0b01,
+	L1_ENTRY_TYPE_1MB_PAGE   = 0b10,
+
+	L1_ENTRY_TYPE_SIZE = 2,
+};
+
 uint32
 set_l1_access_permission(uint32 entry, enum l1_access_permission permission)
 {
@@ -54,23 +60,16 @@ set_l1_access_permission(uint32 entry, enum l1_access_permission permission)
 }
 
 uint32
-set_base_address_of_index(uint32 entry, uint32 index)
+set_l1_base_address_of_index(uint32 entry, uint32 index)
 {
 	// clear base address bits
 	entry &= 0x000fffff;
-	// << 20 is like multiplying by (1024 * 1024)
-	// index 1 becomes base address 1 as its MB aligned.
+
+	// `<< 20` is like multiplying by (1024 * 1024).
+	// Index 1 becomes base address 1 as its MB aligned.
 	entry |= (index << 20);
 	return entry;
 }
-
-enum l1_entry_type {
-	L1_ENTRY_TYPE_FAULT      = 0b00,
-	L1_ENTRY_TYPE_L2_POINTER = 0b01,
-	L1_ENTRY_TYPE_1MB_PAGE   = 0b10,
-
-	L1_ENTRY_TYPE_SIZE = 2,
-};
 
 uint32
 set_l1_entry_type(uint32 entry, enum l1_entry_type entry_type)
@@ -81,11 +80,11 @@ set_l1_entry_type(uint32 entry, enum l1_entry_type entry_type)
 	 * represents, whether privileged execution is allowed.
 	 * This way this function never overwrites any bits set beforehand.
 	 */
-	if (entry_type == L1_ENTRY_TYPE_1MB_PAGE) {
+	if (entry_type == L1_ENTRY_TYPE_1MB_PAGE)
 		SET_BIT(entry, 1);
-	} else {
+	else
 		SET_BIT_TO(entry, 0, entry_type, L1_ENTRY_TYPE_SIZE);
-	}
+
 	return entry;
 }
 
@@ -97,7 +96,7 @@ build_l1_entry(uint32 index, enum l1_access_permission permission,
 	uint32 entry = 0;
 
 	entry = set_l1_entry_type(entry, entry_type);
-	entry = set_base_address_of_index(entry, index);
+	entry = set_l1_base_address_of_index(entry, index);
 	entry = set_l1_access_permission(entry, permission);
 
 	if (!allow_execute)
@@ -107,23 +106,40 @@ build_l1_entry(uint32 index, enum l1_access_permission permission,
 
 	return entry;
 }
+/*********** \L1-TABLE HELPER ***********/
 
-extern uint32 _kstacks_start[];
+/*********** DACR HELPER ***********/
+enum dacr_domain_access {
+	// any access generates domain fault:
+	DACR_DOMAIN_NO_ACCESS = 0b00,
+	// access checked against access permission bits:
+	DACR_DOMAIN_CLIENT_ACCESS = 0b01, 
+	// access not checked against access permission bits:
+	DACR_DOMAIN_MANAGER_ACCESS = 0b11, 
+
+	DACR_DOMAIN_ACCESS_SIZE = 2,
+};
+
+uint32
+set_dacr_domain_access(uint32 dacr, uint32 domain,
+                       enum dacr_domain_access access)
+{
+	SET_BIT_TO(dacr, domain * 2, access, DACR_DOMAIN_ACCESS_SIZE);
+	return dacr;
+}
+/*********** \DACR HELPER ***********/
+
 void
 init_l1()
 {
-	klog(DEBUG, "_l1_start: %p", _l1_start);
-	// TODO(Aurel): Remove
-	//ASSERTM(1 == 0, "Not implemented yet.");
+	// Null all entries.
+	memset(L1, 0, 0x4000);
+
 	/*
 	 * NOTE(Aurel): These indices correspond to the 6th hex-digit seen in
 	 * kernel.lds or the base addresses of the hardware-components driver.
 	 */
-	memset(L1, 0, 0x4000);
-	klog(DEBUG, "%p", _kstacks_start);
-#if 1
 	// init code
-	//						  permission, exec, priv_exec
 	L1[0] = build_l1_entry(0, L1_ACCESS_PERM_SYS_ONLY_READ_ONLY, true, true,
 	                       L1_ENTRY_TYPE_1MB_PAGE);
 	// kernel code
@@ -151,56 +167,21 @@ init_l1()
 	// TIMER
 	L1[0x400] = build_l1_entry(0x400, L1_ACCESS_PERM_SYS_ONLY_FULL, false,
 	                           false, L1_ENTRY_TYPE_1MB_PAGE);
-	klog(DEBUG, "L1[0]:\t\t%x", L1[0]);
-	klog(DEBUG, "L1[1]:\t\t%x", L1[1]);
-	klog(DEBUG, "Interrupt Controller:\t%x", L1[0x3f0]);
-	klog(DEBUG, "uart:\t\t%x", L1[0x3f2]);
-	klog(DEBUG, "timer:\t\t%x", L1[0x400]);
-#endif
-
 	klog(LOG, "L1-table initialized.");
-}
-
-
-enum dacr_domain_access {
-	DACR_DOMAIN_NO_ACCESS = 0b00, // Any access generates domain fault
-	DACR_DOMAIN_CLIENT_ACCESS = 0b01, // access checked against access permission bits
-	DACR_DOMAIN_MANAGER_ACCESS = 0b11, // access not checked against access permission bits
-
-	DACR_DOMAIN_ACCESS_SIZE = 2,
-};
-
-uint32 set_dacr_domain_access(uint32 dacr, uint32 domain, enum dacr_domain_access access)
-{
-	SET_BIT_TO(dacr, domain*2, access, DACR_DOMAIN_ACCESS_SIZE);
-	return dacr;
 }
 
 uint32
 get_dacr_init_val(uint32 dacr)
 {
-	klog(DEBUG, "This function still needs an enum.");
-	// TODO(Aurel): Do we need to set any domain to a specific value?
-	// Domain 0 -> client mode?
-	//ASSERTM(1 == 0, "Not implemented yet.");
-	// TODO(Aurel): create enum.
-	// domain 0 is in client mode.
-	dacr = 1;
+	dacr = set_dacr_domain_access(dacr, 0, DACR_DOMAIN_CLIENT_ACCESS);
 	return dacr;
 }
 
 uint32
 get_ttbcr_init_val(uint32 ttbcr)
 {
-	klog(DEBUG, "This function still needs an enum.");
-#if 0
-	// TODO: cleanup
-	CLEAR_BIT(ttbcr, 5);
-	SET_BIT(ttbcr, 4);
-	// this also sets the 0th bit to 0 which selects the ttbr0
-	SET_BIT_TO(ttbcr, 0, 0b000, 3);
-#endif
-
+	// NOTE(Aurel): Setting the TTBCR to 0 means that it will only try to use
+	// the TTBR0 mappings. That is exactly what we want.
 	ttbcr = 0;
 	return ttbcr;
 }

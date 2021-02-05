@@ -10,8 +10,6 @@ struct uart_queue {
 	char chars[UART_INPUT_BUFFER_SIZE];
 };
 
-uint32* uart_get_uart_base();
-
 void init_uart();
 void uart_put_char(unsigned char c);
 char uart_pop_char();

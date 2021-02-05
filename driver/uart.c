@@ -90,12 +90,6 @@ enum mis_bit_field {
 static volatile struct uart* const uart = (struct uart*)UART_BASE;
 static struct uart_queue queue;
 
-uint32*
-uart_get_uart_base()
-{
-	return (uint32*)uart;
-}
-
 // NOTE(Aurel): Do not increment var when using this macro.
 #define circle_forward(var, size) (var) = (var) + 1 >= (size) ? 0 : (var) + 1
 
