@@ -314,11 +314,3 @@ exc_cleanup_return:
 	add sp, #8
 	// Return and change mode
 	movs pc, lr
-
-
-.global switch_to_usermode
-.extern kendless_loop
-switch_to_usermode:
-	msr spsr, #0x10
-	ldr lr, =kendless_loop
-	movs pc, lr

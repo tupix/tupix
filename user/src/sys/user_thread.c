@@ -5,6 +5,12 @@
 extern uint32 _kstacks_start[];
 
 void
+endless_loop()
+{
+	while (1) {}
+}
+
+void
 user_thread(void* args)
 {
 	uint32 c = '\\';
@@ -26,25 +32,27 @@ user_thread(void* args)
 		case 'k': // read kernel code
 			asm("ldr r0, =0x100004");
 			break;
-		case 'K': // read kernel stack
-			// asm("ldr r0, =%0" : "=r" (_kstacks_start));
+		case 'K':  { // read kernel stack
+			volatile uint32 x = *_kstacks_start;
+			printf("%x\n", x);
 			break;
+				   }
 		case 'g': // write to hardware
-			// TODO: UART address
 			asm("ldr r0, =0x3F201000;");
 			break;
 		case 'c': // write to user code
-			// asm("str, =user_thread, #0");
 			*((int*)&user_thread) = 0;
 			break;
-		case 's': // stack overflow
-			// asm("add sp, #0x404");
-			// asm("ldr r0, =sp");
+		case 's':  { // stack overflow
+			while (true) {
+				asm("push { r0 }");
+			}
 			break;
+				   }
 		case 'u': // unassigned address
 			asm("mov r0, #0xF00000");
 			break;
-		case 'x':
+		case 'x': // jump to user stack
 			asm("mov pc, sp");
 			break;
 		default:
