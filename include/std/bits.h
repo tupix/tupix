@@ -35,6 +35,8 @@
 		/* Clear all touched bits before setting the value, see 3b38e6b. */    \
 		for (__typeof__(_value_len) i = _bit; i < _bit + _value_len; ++i)      \
 			CLEAR_BIT(*_bitfield, i);                                          \
+		/* Make sure that value is maximum value_len long */                   \
+		_value &= (1 << _value_len) - 1;                                       \
 		*_bitfield |= _value << _bit;                                          \
 	} while (0)
 
