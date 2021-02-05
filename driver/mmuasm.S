@@ -8,9 +8,9 @@ init_mmu:
 	push { lr }
 
 	// init dacr
-	mrc p15, 0, r0, c2, c0, 0
+	mrc p15, 0, r0, c3, c0, 0
 	bl get_dacr_init_val
-	mcr p15, 0, r0, c2, c0, 0
+	mcr p15, 0, r0, c3, c0, 0
 
 	// init ttbcr
 	mrc p15, 0, r0, c2, c0, 2
@@ -20,7 +20,7 @@ init_mmu:
 	// init L1-table and tell MMU where to find it
 	bl init_l1
 	ldr r0, =_l1_start
-	mcr p15, 0, r0, c2, c0, 0
+	mcr p15, 0, r0, c2, c0, 0 // write TTBR0
 
 	// enable the MMU
 	mrc p15, 0, r0, c1, c0, 0 // read SCTLR
