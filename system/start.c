@@ -27,5 +27,4 @@ start_kernel(void)
 	init_scheduler();
 
 	thread_create(&user_thread, NULL, 0);
-	switch_to_usermode();
 }
