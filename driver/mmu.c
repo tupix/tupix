@@ -116,7 +116,7 @@ init_l1()
 	//ASSERTM(1 == 0, "Not implemented yet.");
 	/*
 	 * NOTE(Aurel): These indices correspond to the 6th hex-digit seen in
-	 * kernel.lds
+	 * kernel.lds or the base addresses of the hardware-components driver.
 	 */
 	memset(L1, 0, 0x4000);
 	klog(DEBUG,"%p", _kstacks_start);
@@ -141,6 +141,11 @@ init_l1()
 	L1[0x3F2] = build_l1_entry(0x3F2, L1_ACCESS_PERM_SYS_ONLY_FULL, false, false, L1_ENTRY_TYPE_1MB_PAGE);
 	// TIMER
 	L1[0x400] = build_l1_entry(0x400, L1_ACCESS_PERM_SYS_ONLY_FULL, false, false, L1_ENTRY_TYPE_1MB_PAGE);
+	klog(DEBUG, "L1[0]:\t\t%x", L1[0]);
+	klog(DEBUG, "L1[1]:\t\t%x", L1[1]);
+	klog(DEBUG, "Interrupt Controller:\t%x", L1[0x3f0]);
+	klog(DEBUG, "uart:\t\t%x", L1[0x3f2]);
+	klog(DEBUG, "timer:\t\t%x", L1[0x400]);
 #endif
 
 	klog(LOG, "L1-table initialized.");
