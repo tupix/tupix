@@ -10,6 +10,8 @@
 extern uint32 _l1_start[N_L1_ENTRIES];
 #define L1 _l1_start
 
+__attribute__((aligned(1024))) static uint32 l2_entries[N_THREADS][256];
+
 /*********** L1-TABLE HELPER ***********/
 enum l1_access_permission {
 	L1_ACCESS_PERM_SYS_USER_FULL           = 0b011,
@@ -80,15 +82,6 @@ set_l1_base_address_of_index(uint32 entry, uint32 index)
 }
 
 uint32
-set_l2_base_address_of_index(uint32 entry, uint32 index)
-{
-	// clear base address bits and set them to the index
-	entry &= 0x000003ff;
-	entry |= (index << 10);
-	return entry;
-}
-
-uint32
 set_l1_entry_type(uint32 entry, enum l1_entry_type entry_type)
 {
 	/*
@@ -126,16 +119,16 @@ build_l1_1MB_page_entry(uint32 index, enum l1_access_permission permission,
 uint32
 build_l1_l2_pointer_entry(uint32 index, bool allow_privileged_execute)
 {
-	uint32 entry = 0;
+	uint32 entry = (uint32)l2_entries[index];
 
 	entry = set_l1_entry_type(entry, L1_ENTRY_TYPE_L2_POINTER);
-	entry = set_l2_base_address_of_index(entry, index);
 
 	if (!allow_privileged_execute)
 		SET_BIT(entry, L1_L2_PAGE_PXN);
 
 	return entry;
 }
+
 /*********** \L1-TABLE HELPER ***********/
 
 /*********** L2-TABLE HELPER ***********/
@@ -189,8 +182,6 @@ init_l1()
 	// user data
 	L1[5] = build_l1_1MB_page_entry(5, L1_ACCESS_PERM_SYS_USER_FULL, false,
 	                                false);
-	// user stacks
-	L1[6] = build_l1_l2_pointer_entry(6, false);
 
 	// hardware
 	// Interrupt Controller
@@ -222,26 +213,14 @@ get_ttbcr_init_val(uint32 ttbcr)
 }
 
 void
-get_thread_memory(size_t index, struct l2_entry* memory)
+init_thread_memory(size_t index)
 {
-	memset(memory, 0, sizeof(*memory));
-
-	index  = index *2 +1;
-	uint32 phys_index = (6 << 8) | index;
-	uint32 stack_page = build_l1_1MB_page_entry(phys_index, L1_ACCESS_PERM_SYS_USER_FULL, false, false);
-	memory->pages[index] = stack_page;
-
-	// NOTE(Aurel): Guard page. Do not change or overwrite!
-	//memory->pages[index - 1] = 0;
-}
-
-void
-switch_memory(struct l2_entry* new_memory)
-{
-	// invalidate entire TLB
-	asm("mcr p15, 0, r0, c8, c7, 0");
-	// TODO(Aurel): Is this all we need to do, to get the address?
-	//SET_BIT_TO(L1[6], L1_L2_PAGE_BASE_ADDRESS, (uint32)new_memory >>  32 - L1_L2_PAGE_BASE_ADDRESS, 32 - L1_L2_PAGE_BASE_ADDRESS);
-	L1[6] &= 0x000000ff;
-	L1[6] |= (uint32)new_memory & 0xffffff00;
+	uint32 l1_entry = build_l1_l2_pointer_entry(index, false);
+	L1[index + 6]   = l1_entry;
+	// TODO(Aurel): l2 entries
+	for (uint32 i = 0; i < 156; ++i) {
+		l2_entries[index][i] = 0;
+	}
+	l2_entries[index][1] = build_l1_1MB_page_entry(
+			index, L1_ACCESS_PERM_SYS_USER_FULL, false, false);
 }

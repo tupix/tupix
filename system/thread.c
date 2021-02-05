@@ -20,13 +20,12 @@ extern char _ustacks_start[]; // see kernel.lds
 
 #define THREAD_STACK_SIZE 0x400 // 1KB
 // NOTE(Aurel): Place at the beginning of the second 4KB page
-#define THREAD_STACK_BASE ((void*) _ustacks_start)
+#define THREAD_STACK_BASE ((void*)_ustacks_start)
 
 void*
 get_stack_pointer(const size_t index)
 {
 	//return THREAD_STACK_BASE;
-
 
 	ASSERTM(_ustacks_start > (char*)NULL,
 	        "_ustacks_start = %p <= 0. This should not "
@@ -51,7 +50,9 @@ get_stack_pointer(const size_t index)
 	}
 
 	// stacks get allocated downwards in memory
-	return (void*)(THREAD_STACK_BASE) + ((index * 0x2000) +  THREAD_STACK_SIZE);
+	void* sp = (void*)(THREAD_STACK_BASE) + 0x100000 * index + 0x1400;
+	klog(DEBUG, "sp: %p", sp);
+	return sp;
 }
 
 void*
@@ -94,7 +95,7 @@ thread_create(void (*func)(void*), const void* args, size_t args_size)
 	// Update stack pointer
 	scheduled_thread->regs.sp = (uint32)thread_sp;
 
-	get_thread_memory(scheduled_thread->index, &scheduled_thread->l2_table);
+	init_thread_memory(scheduled_thread->index);
 
 	// Pass stack-pointer as argument
 	if (args && args_size)
