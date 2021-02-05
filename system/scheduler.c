@@ -246,11 +246,11 @@ scheduler_cycle(struct registers* regs, bool decrement)
 			klog(ERROR, "Could not push old thread back. Losing the thread!");
 			return;
 		}
-		switch_context(regs, old_thread, running_thread);
 	} else {
 		// Only set register values, do not modify null-thread
-		switch_context(regs, NULL, running_thread);
+		old_thread = NULL;
 	}
+	switch_context(regs, old_thread, running_thread);
 
 	klog(LOG, "Running thread: %i", running_thread->id);
 }
@@ -263,7 +263,6 @@ kill_cur_thread(struct registers* regs)
 	if (!running_thread)
 		running_thread = null_thread;
 
-	// discard volatile
 	switch_context(regs, NULL, running_thread);
 
 	push_index(&free_indices_q, cur_thread->index);
