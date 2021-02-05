@@ -13,7 +13,6 @@ enum thread_state { READY, WAITING, DONE };
 
 struct tcb {
 	size_t id, index;
-	void (*callback)(void*);
 	struct general_registers regs;
 	uint32 cpsr;
 	size_t waiting_duration;

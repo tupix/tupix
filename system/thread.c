@@ -59,7 +59,6 @@ struct tcb
 init_thread(void (*func)(void*))
 {
 	struct tcb thread       = { 0 };
-	thread.callback         = func;
 	thread.regs.pc          = (uint32)func;
 	thread.regs.lr          = (uint32)&exit;
 	thread.cpsr             = PROCESSOR_MODE_USR;
