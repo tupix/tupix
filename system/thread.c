@@ -4,6 +4,8 @@
 
 #include <arch/armv7/registers.h>
 
+#include <driver/mmu.h>
+
 #include <data/types.h>
 
 #include <system/assert.h>
@@ -64,6 +66,8 @@ init_thread(void (*func)(void*))
 	thread.cpsr             = PROCESSOR_MODE_USR;
 	thread.waiting_duration = 0;
 	thread.initialized      = false;
+
+	get_thread_memory(&thread.l2_table);
 
 	return thread;
 }

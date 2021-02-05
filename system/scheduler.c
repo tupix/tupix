@@ -4,6 +4,7 @@
 
 #include <arch/armv7/registers.h>
 
+#include <driver/mmu.h>
 #include <driver/timer.h>
 
 #include <system/assert.h>
@@ -251,6 +252,7 @@ scheduler_cycle(struct registers* regs, bool decrement)
 		old_thread = NULL;
 	}
 	switch_context(regs, old_thread, running_thread);
+	switch_memory(&(running_thread->l2_table));
 
 	klog(LOG, "Running thread: %i", running_thread->id);
 }
@@ -264,6 +266,7 @@ kill_cur_thread(struct registers* regs)
 		running_thread = null_thread;
 
 	switch_context(regs, NULL, running_thread);
+	switch_memory(&(running_thread->l2_table));
 
 	push_index(&free_indices_q, cur_thread->index);
 }

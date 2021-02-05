@@ -5,6 +5,8 @@
 
 #include <arch/armv7/registers.h>
 
+#include <driver/mmu.h>
+
 #include <data/types.h>
 #include <std/io.h>
 #include <std/log.h>
@@ -18,6 +20,7 @@ struct tcb {
 	size_t waiting_duration;
 	bool initialized;
 	enum thread_state state;
+	struct l2_entry l2_table;
 };
 
 void* get_stack_pointer(const size_t index);
