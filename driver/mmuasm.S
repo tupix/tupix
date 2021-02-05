@@ -25,7 +25,7 @@ init_mmu:
 	// enable the MMU
 	mrc p15, 0, r0, c1, c0, 0 // read SCTLR
 	orr r0, r0, #0b1		  // SCTRL bit 0 - enable MMU
-	mrc p15, 0, r0, c1, c0, 0 // write SCTLR
+	mcr p15, 0, r0, c1, c0, 0 // write SCTLR
 
 .extern kprintf
 	ldr r0, =init_mmu_done_msg
