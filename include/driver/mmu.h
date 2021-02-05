@@ -14,7 +14,7 @@ struct l2_entry {
 	uint32 pages[256]; // 1MB are 256 * 4KB
 };
 
-void get_thread_memory(struct l2_entry* memory);
+void get_thread_memory(size_t index, struct l2_entry* memory);
 void switch_memory(struct l2_entry* new_memory);
 
 #endif /* SYSTEM_MMU_H */
