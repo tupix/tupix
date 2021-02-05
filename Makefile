@@ -160,9 +160,17 @@ qemu: kernel
 qemu_debug: kernel_debug
 	$(QEMU) -M raspi2 -nographic -s -S -kernel $<
 
+.PHONY: qemu_debug_monitor
+qemu_debug_monitor: kernel_debug
+	$(QEMU) -M raspi2 -nographic -s -S -kernel kernel_debug -monitor telnet::45454,server,nowait -serial mon:stdio
+
 .PHONY: gdb_debug
 gdb_debug: kernel_debug
 	$(GDB) kernel_debug -ex "target remote localhost:1234"
+
+.PHONY: qemu_monitor
+qemu_monitor: kernel_debug
+	telnet localhost 45454
 
 .PHONY: clean
 clean:
