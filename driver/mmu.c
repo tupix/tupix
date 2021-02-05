@@ -99,9 +99,9 @@ build_l1_entry(uint32 index, enum l1_access_permission permission,
 	entry = set_base_address_of_index(entry, index);
 	entry = set_l1_access_permission(entry, permission);
 
-	if (allow_execute)
+	if (!allow_execute)
 		SET_BIT(entry, L1_XN);
-	if (allow_privileged_execute)
+	if (!allow_privileged_execute)
 		SET_BIT(entry, L1_PXN);
 
 	return entry;
