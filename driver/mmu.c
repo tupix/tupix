@@ -12,24 +12,47 @@ extern uint32 _l1_start[N_L1_ENTRIES];
 
 __attribute__((aligned(1024))) static uint32 l2_entries[N_THREADS][256];
 
-/*********** L1-TABLE HELPER ***********/
-enum l1_access_permission {
-	L1_ACCESS_PERM_SYS_USER_FULL           = 0b011,
-	L1_ACCESS_PERM_SYS_FULL_USER_READ_ONLY = 0b010,
-	L1_ACCESS_PERM_SYS_USER_READ_ONLY      = 0b111,
-	L1_ACCESS_PERM_SYS_ONLY_READ_ONLY      = 0b101,
-	L1_ACCESS_PERM_SYS_ONLY_FULL           = 0b001,
-	L1_ACCESS_PERM_NO                      = 0b000,
+enum page_access_permission {
+	PAGE_ACCESS_PERM_SYS_USER_FULL           = 0b011,
+	PAGE_ACCESS_PERM_SYS_FULL_USER_READ_ONLY = 0b010,
+	PAGE_ACCESS_PERM_SYS_USER_READ_ONLY      = 0b111,
+	PAGE_ACCESS_PERM_SYS_ONLY_READ_ONLY      = 0b101,
+	PAGE_ACCESS_PERM_SYS_ONLY_FULL           = 0b001,
+	PAGE_ACCESS_PERM_NO                      = 0b000,
 };
 
-enum l1_entry_type {
-	L1_ENTRY_TYPE_FAULT      = 0b00,
+enum page_entry_type {
+	PAGE_ENTRY_TYPE_FAULT = 0b00,
+
 	L1_ENTRY_TYPE_L2_POINTER = 0b01,
 	L1_ENTRY_TYPE_1MB_PAGE   = 0b10,
 
-	L1_ENTRY_TYPE_SIZE = 2,
+	L2_ENTRY_TYPE_LARGE_PAGE = 0b01,
+	L2_ENTRY_TYPE_SMALL_PAGE = 0b10,
+
+	PAGE_ENTRY_TYPE_SIZE = 2,
 };
 
+uint32
+set_page_entry_type(uint32 entry, enum page_entry_type entry_type)
+{
+	/*
+	 * NOTE(Aurel): We need to check for the type, as we don't want to overwrite
+	 * bit 0 when we are dealing with a 1MB page L1-entry or small page l2-entry
+	 * as that bit actually represents, whether privileged execution is not
+	 * allowed. This way this function never overwrites any bits set
+	 * beforehand.
+	 */
+	if (entry_type == L1_ENTRY_TYPE_1MB_PAGE ||
+	    entry_type == L2_ENTRY_TYPE_SMALL_PAGE)
+		SET_BIT(entry, 1);
+	else
+		SET_BIT_TO(entry, 0, entry_type, PAGE_ENTRY_TYPE_SIZE);
+
+	return entry;
+}
+
+/*********** L1-TABLE HELPER ***********/
 enum l1_1MB_page_entry_bit_field {
 	L1_1MB_PAGE_BASE_ADDRESS = 20, // Physical address to map to
 	L1_1MB_PAGE_NS           = 19, //
@@ -60,7 +83,7 @@ enum l1_l2_pointer_entry_bit_field {
 };
 
 uint32
-set_l1_access_permission(uint32 entry, enum l1_access_permission permission)
+set_l1_access_permission(uint32 entry, enum page_access_permission permission)
 {
 	/*
 	 * NOTE(Aurel): Permission bits are split into two:
@@ -82,29 +105,12 @@ set_l1_base_address_of_index(uint32 entry, uint32 index)
 }
 
 uint32
-set_l1_entry_type(uint32 entry, enum l1_entry_type entry_type)
-{
-	/*
-	 * NOTE(Aurel): We need to check for the type, as we don't want to overwrite
-	 * bit 0 when we are dealing with a 1MB page L1-entry as that bit actually
-	 * represents, whether privileged execution is allowed.
-	 * This way this function never overwrites any bits set beforehand.
-	 */
-	if (entry_type == L1_ENTRY_TYPE_1MB_PAGE)
-		SET_BIT(entry, 1);
-	else
-		SET_BIT_TO(entry, 0, entry_type, L1_ENTRY_TYPE_SIZE);
-
-	return entry;
-}
-
-uint32
-build_l1_1MB_page_entry(uint32 index, enum l1_access_permission permission,
+build_l1_1MB_page_entry(uint32 index, enum page_access_permission permission,
                         bool allow_execute, bool allow_privileged_execute)
 {
 	uint32 entry = 0;
 
-	entry = set_l1_entry_type(entry, L1_ENTRY_TYPE_1MB_PAGE);
+	entry = set_page_entry_type(entry, L1_ENTRY_TYPE_1MB_PAGE);
 	entry = set_l1_base_address_of_index(entry, index);
 	entry = set_l1_access_permission(entry, permission);
 
@@ -121,7 +127,7 @@ build_l1_l2_pointer_entry(uint32 index, bool allow_privileged_execute)
 {
 	uint32 entry = (uint32)l2_entries[index];
 
-	entry = set_l1_entry_type(entry, L1_ENTRY_TYPE_L2_POINTER);
+	entry = set_page_entry_type(entry, L1_ENTRY_TYPE_L2_POINTER);
 
 	if (!allow_privileged_execute)
 		SET_BIT(entry, L1_L2_PAGE_PXN);
@@ -166,32 +172,32 @@ init_l1()
 	 * kernel.lds or the base addresses of the hardware-components driver.
 	 */
 	// init code
-	L1[0] = build_l1_1MB_page_entry(0, L1_ACCESS_PERM_SYS_ONLY_READ_ONLY, true,
-	                                true);
+	L1[0] = build_l1_1MB_page_entry(0, PAGE_ACCESS_PERM_SYS_ONLY_READ_ONLY,
+	                                true, true);
 	// kernel code
-	L1[1] = build_l1_1MB_page_entry(1, L1_ACCESS_PERM_SYS_ONLY_READ_ONLY, true,
-	                                true);
+	L1[1] = build_l1_1MB_page_entry(1, PAGE_ACCESS_PERM_SYS_ONLY_READ_ONLY,
+	                                true, true);
 	// kernel data including stacks
-	L1[2] = build_l1_1MB_page_entry(2, L1_ACCESS_PERM_SYS_ONLY_FULL, false,
+	L1[2] = build_l1_1MB_page_entry(2, PAGE_ACCESS_PERM_SYS_ONLY_FULL, false,
 	                                false);
-	L1[3] = build_l1_1MB_page_entry(3, L1_ACCESS_PERM_SYS_ONLY_FULL, false,
+	L1[3] = build_l1_1MB_page_entry(3, PAGE_ACCESS_PERM_SYS_ONLY_FULL, false,
 	                                false);
 	// user code
-	L1[4] = build_l1_1MB_page_entry(4, L1_ACCESS_PERM_SYS_USER_READ_ONLY, true,
-	                                false);
+	L1[4] = build_l1_1MB_page_entry(4, PAGE_ACCESS_PERM_SYS_USER_READ_ONLY,
+	                                true, false);
 	// user data
-	L1[5] = build_l1_1MB_page_entry(5, L1_ACCESS_PERM_SYS_USER_FULL, false,
+	L1[5] = build_l1_1MB_page_entry(5, PAGE_ACCESS_PERM_SYS_USER_FULL, false,
 	                                false);
 
 	// hardware
 	// Interrupt Controller
-	L1[0x3F0] = build_l1_1MB_page_entry(0x3F0, L1_ACCESS_PERM_SYS_ONLY_FULL,
+	L1[0x3F0] = build_l1_1MB_page_entry(0x3F0, PAGE_ACCESS_PERM_SYS_ONLY_FULL,
 	                                    false, false);
 	// UART
-	L1[0x3F2] = build_l1_1MB_page_entry(0x3F2, L1_ACCESS_PERM_SYS_ONLY_FULL,
+	L1[0x3F2] = build_l1_1MB_page_entry(0x3F2, PAGE_ACCESS_PERM_SYS_ONLY_FULL,
 	                                    false, false);
 	// TIMER
-	L1[0x400] = build_l1_1MB_page_entry(0x400, L1_ACCESS_PERM_SYS_ONLY_FULL,
+	L1[0x400] = build_l1_1MB_page_entry(0x400, PAGE_ACCESS_PERM_SYS_ONLY_FULL,
 	                                    false, false);
 	klog(LOG, "L1-table initialized.");
 }
