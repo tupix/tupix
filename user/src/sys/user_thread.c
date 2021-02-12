@@ -63,9 +63,13 @@ user_thread(void* args)
 void
 main_thread()
 {
+#if 1
+	printf("Hello World!\n");
+#else
 	uint32 c;
 	while (1) {
 		c = getchar();
 		create_thread(&user_thread, &c, sizeof(c));
 	}
+#endif
 }
