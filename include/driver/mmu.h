@@ -15,5 +15,6 @@ struct l2_entry {
 };
 
 void init_thread_memory(size_t index);
+void switch_memory(uint32* l2_table);
 
 #endif /* SYSTEM_MMU_H */

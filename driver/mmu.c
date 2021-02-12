@@ -304,3 +304,13 @@ init_thread_memory(size_t index)
 			/* mb  = */ index + 6, 4, PAGE_ACCESS_PERM_SYS_USER_FULL, false);
 	l2_entries[index][1] = l2_entry;
 }
+
+void
+switch_memory(uint32* l2_table)
+{
+	// invalidate entire TLB
+	asm("mcr p15, 0, r0, c8, c7, 0");
+	// set base address to new l2_table
+	L1[6] &= 0x000000ff;
+	L1[6] |= (uint32)l2_table & 0xffffff00;
+}
