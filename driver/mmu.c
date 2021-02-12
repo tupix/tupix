@@ -296,8 +296,13 @@ init_thread_memory(size_t index)
 		l2_entries[index][i] = 0;
 	}
 
-	// The second entry is reserved for the thread stack. It should be read and
-	// writable, but not executable.
-	l2_entries[index][1] = build_l1_1MB_page_entry(
-			index, L1_ACCESS_PERM_SYS_USER_FULL, false, false);
+	/*
+	 * NOTE(Aurel): Stacks are located from the 6th MB upward, with the 0th stack exactly at
+	 * 6MB in memory. Hence index + 6.
+	 * The second entry is reserved for the thread stack. It should be read- and
+	 * writable, but not executable.
+	 */
+	uint32 l2_entry = build_l2_4KB_page_entry(
+			/* mb  = */ index + 6, 4, PAGE_ACCESS_PERM_SYS_USER_FULL, false);
+	l2_entries[index][1] = l2_entry;
 }
