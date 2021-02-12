@@ -186,7 +186,6 @@ build_l2_4KB_page_entry(uint32 mb, uint32 index,
                         enum page_access_permission permission,
                         bool allow_execute)
 {
-	klog(DEBUG, "Building new l2 4KB page entry...");
 	uint32 entry = 0;
 
 	entry = set_page_entry_type(entry, L2_ENTRY_TYPE_SMALL_PAGE);
@@ -197,11 +196,8 @@ build_l2_4KB_page_entry(uint32 mb, uint32 index,
 	if (!allow_execute)
 		SET_BIT(entry, L2_SMALL_PAGE_XN);
 
-	klog(DEBUG, "New 4KB entry: 0x%x", entry);
-	klog(DEBUG, "Done building new l2 4KB page entry.");
 	return entry;
 }
-
 /*********** \L2-TABLE HELPER ***********/
 
 /*********** DACR HELPER ***********/
@@ -287,9 +283,9 @@ init_thread_memory(size_t index)
 {
 	uint32 l1_entry = build_l1_l2_pointer_entry(index, false);
 
-	// With an offset of 6MB is where the thread stacks begin. See kerner.lds
+	// With an offset of 6MB is where the thread stacks begin. See kernel.lds
 	// for more information.
-	L1[index + 6]   = l1_entry;
+	L1[index + 6] = l1_entry;
 
 	// clear all other table entries
 	for (uint32 i = 0; i < 256; ++i) {
@@ -302,6 +298,8 @@ init_thread_memory(size_t index)
 	 * The second entry is reserved for the thread stack. It should be read- and
 	 * writable, but not executable.
 	 */
+	// TODO(Aurel): Why is the index hardcoded to 4? Changing it seems to have
+	// no effect whatsoever.
 	uint32 l2_entry = build_l2_4KB_page_entry(
 			/* mb  = */ index + 6, 4, PAGE_ACCESS_PERM_SYS_USER_FULL, false);
 	l2_entries[index][1] = l2_entry;
