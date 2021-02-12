@@ -10,8 +10,6 @@
 extern uint32 _l1_start[N_L1_ENTRIES];
 #define L1 _l1_start
 
-__attribute__((aligned(1024))) static uint32 l2_entries[N_THREADS][256];
-
 enum page_access_permission {
 	PAGE_ACCESS_PERM_SYS_USER_FULL           = 0b011,
 	PAGE_ACCESS_PERM_SYS_FULL_USER_READ_ONLY = 0b010,
@@ -123,9 +121,9 @@ build_l1_1MB_page_entry(uint32 index, enum page_access_permission permission,
 }
 
 uint32
-build_l1_l2_pointer_entry(uint32 index, bool allow_privileged_execute)
+build_l1_l2_pointer_entry(uint32* l2_table, bool allow_privileged_execute)
 {
-	uint32 entry = (uint32)l2_entries[index];
+	uint32 entry = (uint32)l2_table;
 
 	entry = set_page_entry_type(entry, L1_ENTRY_TYPE_L2_POINTER);
 
@@ -279,7 +277,7 @@ get_ttbcr_init_val(uint32 ttbcr)
 }
 
 void
-init_thread_memory(size_t index)
+init_thread_memory(size_t index, uint32* l2_table)
 {
 	uint32 l1_entry = build_l1_l2_pointer_entry(index, false);
 
@@ -287,9 +285,10 @@ init_thread_memory(size_t index)
 	// for more information.
 	L1[index + 6] = l1_entry;
 
+	// TODO(Aurel): Replace hardcoded 256: N_L2_TABLE_ENTRY
 	// clear all other table entries
 	for (uint32 i = 0; i < 256; ++i) {
-		l2_entries[index][i] = 0;
+		l2_table[i] = 0;
 	}
 
 	/*
@@ -302,7 +301,7 @@ init_thread_memory(size_t index)
 	// no effect whatsoever.
 	uint32 l2_entry = build_l2_4KB_page_entry(
 			/* mb  = */ index + 6, 4, PAGE_ACCESS_PERM_SYS_USER_FULL, false);
-	l2_entries[index][1] = l2_entry;
+	l2_table[1] = l2_entry;
 }
 
 void

@@ -95,7 +95,7 @@ thread_create(void (*func)(void*), const void* args, size_t args_size)
 	// Update stack pointer
 	scheduled_thread->regs.sp = (uint32)thread_sp;
 
-	init_thread_memory(scheduled_thread->index);
+	init_thread_memory(scheduled_thread->index, scheduled_thread->l2_table);
 
 	// Pass stack-pointer as argument
 	if (args && args_size)
