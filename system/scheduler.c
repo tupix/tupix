@@ -165,6 +165,7 @@ init_null_thread()
 			(uint32)get_stack_pointer(null_thread_init.index);
 	null_thread_init.initialized = true;
 	threads[0]                   = null_thread_init;
+	init_thread_memory(threads[0].index, threads[0].l2_table);
 	return &(threads[0]);
 }
 
