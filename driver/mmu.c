@@ -300,7 +300,10 @@ init_thread_memory(size_t index, uint32* l2_table)
 	 * writable, but not executable.
 	 */
 	// TODO(Aurel): Why is the index hardcoded to 4? Changing it seems to have
-	// no effect whatsoever.
+	// no effect whatsoever. Because its only the physical address and since we
+	// are changing the mb for every thread they never overwrite each others
+	// stack. Needs changing when we actually want to place them close to each
+	// other in physical memory and should be dependent on the index.
 	uint32 l2_entry = build_l2_4KB_page_entry(
 			/* mb  = */ index + 6, 4, PAGE_ACCESS_PERM_SYS_USER_FULL, false);
 	l2_table[1] = l2_entry;

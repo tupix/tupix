@@ -25,8 +25,6 @@ extern char _ustacks_start[]; // see kernel.lds
 void*
 get_stack_pointer(const size_t index)
 {
-	//return THREAD_STACK_BASE;
-
 	ASSERTM(_ustacks_start > (char*)NULL,
 	        "_ustacks_start = %p <= 0. This should not "
 	        "happen and probably means there is something wrong with your "
