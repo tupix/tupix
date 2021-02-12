@@ -247,6 +247,14 @@ init_l1()
 	L1[5] = build_l1_1MB_page_entry(5, PAGE_ACCESS_PERM_SYS_USER_FULL, false,
 	                                false);
 
+	// user stacks
+	/*
+	 * NOTE(Aurel): The user stacks share the same virtual address.
+	 * NOTE(Aurel): As long as there is no thread there can't be a user stack.
+	 * Hence why the pointer to the l2_table is initialized as NULL.
+	 */
+	L1[6] = build_l1_l2_pointer_entry(NULL, false);
+
 	// hardware
 	// Interrupt Controller
 	L1[0x3F0] = build_l1_1MB_page_entry(0x3F0, PAGE_ACCESS_PERM_SYS_ONLY_FULL,
@@ -279,12 +287,6 @@ get_ttbcr_init_val(uint32 ttbcr)
 void
 init_thread_memory(size_t index, uint32* l2_table)
 {
-	uint32 l1_entry = build_l1_l2_pointer_entry(index, false);
-
-	// With an offset of 6MB is where the thread stacks begin. See kernel.lds
-	// for more information.
-	L1[index + 6] = l1_entry;
-
 	// TODO(Aurel): Replace hardcoded 256: N_L2_TABLE_ENTRY
 	// clear all other table entries
 	for (uint32 i = 0; i < 256; ++i) {

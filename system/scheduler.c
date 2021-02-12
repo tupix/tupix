@@ -150,6 +150,9 @@ switch_context(struct registers* regs, struct tcb* old, struct tcb* new)
 		regs->gr.lr  = new->regs.pc;
 		regs->spsr   = new->cpsr;
 	}
+	// TODO(Aurel): Is this correct here? Do we always want to switch the
+	// memory?
+	switch_memory(new->l2_table);
 }
 
 struct tcb*

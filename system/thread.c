@@ -50,7 +50,7 @@ get_stack_pointer(const size_t index)
 	}
 
 	// stacks get allocated downwards in memory
-	void* sp = (void*)(THREAD_STACK_BASE) + 0x100000 * index + 0x1400;
+	void* sp = (void*)(THREAD_STACK_BASE) + 0x1400;
 	klog(DEBUG, "sp: %p", sp);
 	return sp;
 }
