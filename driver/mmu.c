@@ -138,6 +138,70 @@ build_l1_l2_pointer_entry(uint32 index, bool allow_privileged_execute)
 /*********** \L1-TABLE HELPER ***********/
 
 /*********** L2-TABLE HELPER ***********/
+enum l2_small_page_entry {
+	L2_SMALL_PAGE_BASE_ADDRESS = 12,
+	L2_SMALL_PAGE_nG           = 11,
+	L2_SMALL_PAGE_AP_2         = 10,
+	L2_SMALL_PAGE_S            = 9,
+	L2_SMALL_PAGE_TEX          = 6,
+	L2_SMALL_PAGE_AP_0         = 4,
+	L2_SMALL_PAGE_C            = 3,
+	L2_SMALL_PAGE_B            = 2,
+	L2_SMALL_PAGE_1            = 1,
+	L2_SMALL_PAGE_XN           = 0,
+};
+
+uint32
+set_l2_access_permission(uint32 entry, enum page_access_permission permission)
+{
+	/*
+	 * NOTE(Aurel): Permission bits are split into two:
+	 * L1_AP_0 takes the first two bits
+	 * L1_AP_2 takes the third bit
+	 */
+	SET_BIT_TO(entry, L2_SMALL_PAGE_AP_0, permission, 2);
+	SET_BIT_TO(entry, L2_SMALL_PAGE_AP_2, (permission >> 2), 1);
+	return entry;
+}
+
+/**
+ * TODO(Aurel): Think about the mb argument.
+ * @arg mb - megabyte in physical address space.
+ */
+uint32
+set_l2_base_address_of_index(uint32 mb, uint32 entry, uint32 index)
+{
+	// clear base address bits and set them to the index
+	entry &= 0x00000fff;
+	entry |= (index << 12);
+	entry |= (mb << 20);
+	return entry;
+}
+
+/**
+ * @arg index into the l2 address. index \in [0..256]
+ */
+uint32
+build_l2_4KB_page_entry(uint32 mb, uint32 index,
+                        enum page_access_permission permission,
+                        bool allow_execute)
+{
+	klog(DEBUG, "Building new l2 4KB page entry...");
+	uint32 entry = 0;
+
+	entry = set_page_entry_type(entry, L2_ENTRY_TYPE_SMALL_PAGE);
+	entry = set_l2_base_address_of_index(mb, entry, index);
+	entry = set_l2_access_permission(entry, permission);
+
+	// NOTE(Aurel): Privileged execution is set in L1 pointer entry.
+	if (!allow_execute)
+		SET_BIT(entry, L2_SMALL_PAGE_XN);
+
+	klog(DEBUG, "New 4KB entry: 0x%x", entry);
+	klog(DEBUG, "Done building new l2 4KB page entry.");
+	return entry;
+}
+
 /*********** \L2-TABLE HELPER ***********/
 
 /*********** DACR HELPER ***********/
