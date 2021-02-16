@@ -7,8 +7,8 @@
 
 #include <system/assert.h>
 #include <system/ivt.h>
+#include <system/process.h>
 #include <system/scheduler.h>
-#include <system/thread.h>
 
 #include <std/mem.h>
 
@@ -26,5 +26,5 @@ start_kernel(void)
 	ASSERTM(N_THREADS >= 32, "A minimum of 32 threads should be supported.");
 	init_scheduler();
 
-	thread_create(&main_thread, NULL, 0);
+	process_create(&main_thread, NULL, 0);
 }

@@ -14,18 +14,18 @@
 enum thread_state { READY, WAITING, DONE };
 
 struct tcb {
-	size_t id, index;
+	size_t tid, index;
+	void* process;
 	struct general_registers regs;
 	uint32 cpsr;
 	size_t waiting_duration;
 	bool initialized;
 	enum thread_state state;
-	__attribute__((aligned(1024))) uint32 l2_table[256];
 };
 
 void* get_stack_pointer(const size_t index);
 void* get_max_stack_pointer(const size_t index);
-struct tcb init_thread(void (*func)(void*));
-void thread_create(void (*func)(void*), const void* args, size_t args_size);
+void thread_create(void* process, void (*func)(void*), const void* args,
+                   size_t args_size);
 
 #endif /* SYSTEM_THREAD_H */

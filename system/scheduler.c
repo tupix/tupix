@@ -9,6 +9,7 @@
 
 #include <system/assert.h>
 #include <system/kutil.h>
+#include <system/process.h>
 #include <system/thread.h>
 
 #include <data/types.h>
@@ -152,12 +153,14 @@ switch_context(struct registers* regs, struct tcb* old, struct tcb* new)
 	}
 	// TODO(Aurel): Is this correct here? Do we always want to switch the
 	// memory?
-	switch_memory(new->l2_table);
+	switch_memory(((struct pcb*)new->process)->l2_table);
 }
 
 struct tcb*
 init_null_thread()
 {
+	// TODO(Aurel): Save null_process permanently in static global.
+	struct pcb null_process     = { 0 };
 	struct tcb null_thread_init = { 0 };
 	null_thread_init.regs.pc    = (uint32)&endless_loop;
 	null_thread_init.cpsr       = PROCESSOR_MODE_USR;
@@ -165,7 +168,8 @@ init_null_thread()
 			(uint32)get_stack_pointer(null_thread_init.index);
 	null_thread_init.initialized = true;
 	threads[0]                   = null_thread_init;
-	init_thread_memory(threads[0].index, threads[0].l2_table);
+	init_thread_memory(null_process.pid, threads[0].index,
+	                   null_process.l2_table);
 	return &(threads[0]);
 }
 
@@ -207,12 +211,12 @@ schedule_thread(struct tcb thread)
 	} else if (0 > index) {
 		return NULL; // Other error
 	}
-	thread.id                 = ++tid_count;
+	thread.tid                = ++tid_count;
 	thread.index              = index;
 	threads[thread.index]     = thread;
 	struct tcb* queued_thread = push_thread(&thread);
 	if (queued_thread) {
-		klog(LOG, "New thread: %i.", queued_thread->id);
+		klog(LOG, "New thread: %i.", queued_thread->tid);
 	} else {
 		// Make index available again
 		push_index(&free_indices_q, index);
@@ -233,7 +237,7 @@ scheduler_cycle(struct registers* regs, bool decrement)
 	// Continue if no other threads are waiting.
 	if (!thread_indices_q.count) {
 		klog(LOG, "No waiting threads. Thread %i continues",
-		     running_thread->id);
+		     running_thread->tid);
 		return;
 	}
 
@@ -244,7 +248,7 @@ scheduler_cycle(struct registers* regs, bool decrement)
 	struct tcb* old_thread = running_thread;
 	running_thread         = pop_thread();
 	if (!running_thread) {
-		klog(LOG, "Cannot pop thread. Thread %i continues", old_thread->id);
+		klog(LOG, "Cannot pop thread. Thread %i continues", old_thread->tid);
 		running_thread = old_thread;
 		return;
 	}
@@ -260,7 +264,7 @@ scheduler_cycle(struct registers* regs, bool decrement)
 	}
 	switch_context(regs, old_thread, running_thread);
 
-	klog(LOG, "Running thread: %i", running_thread->id);
+	klog(LOG, "Running thread: %i", running_thread->tid);
 }
 
 void

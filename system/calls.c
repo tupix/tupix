@@ -6,8 +6,8 @@
 
 #include <system/isr.h>
 #include <system/ivt.h>
+#include <system/process.h>
 #include <system/scheduler.h>
-#include <system/thread.h>
 
 #include <data/types.h>
 #include <std/log.h>
@@ -81,6 +81,9 @@ exec_syscall_wait(struct registers* regs)
 	scheduler_on_sleep(regs->gr.r0, regs);
 }
 
+/**
+ * Create a new process with it's own memory space
+ */
 static void
 exec_syscall_fork(struct registers* regs)
 {
@@ -107,7 +110,7 @@ exec_syscall_fork(struct registers* regs)
 		return;
 	}
 
-	thread_create(func, args, args_size);
+	process_create(func, args, args_size);
 }
 
 /***************************

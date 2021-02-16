@@ -285,14 +285,24 @@ get_ttbcr_init_val(uint32 ttbcr)
 }
 
 void
-init_thread_memory(size_t index, uint32* l2_table)
+init_process_memory(uint32* l2_table)
 {
+	// TODO(Aurel): Should this really be an mmu-function?
+	// TODO(Aurel): Replace with call to memset.
 	// TODO(Aurel): Replace hardcoded 256: N_L2_TABLE_ENTRY
-	// clear all other table entries
+	// NOTE(Aurel): Clear all table entries as all should throw aborts as long
+	// as there is no thread in the process which is the case at initialization.
 	for (uint32 i = 0; i < 256; ++i) {
 		l2_table[i] = 0;
 	}
+}
 
+void
+init_thread_memory(size_t pid, size_t thread_index, uint32* l2_table)
+{
+	klog(DEBUG,
+	     "Initializing thread memory for process %i, thread %i, in l2_table at %p",
+	     pid, thread_index, l2_table);
 	/*
 	 * NOTE(Aurel): Stacks are located from the 6th MB upward, with the 0th stack exactly at
 	 * 6MB in memory. Hence index + 6.
@@ -305,8 +315,9 @@ init_thread_memory(size_t index, uint32* l2_table)
 	// stack. Needs changing when we actually want to place them close to each
 	// other in physical memory and should be dependent on the index.
 	uint32 l2_entry = build_l2_4KB_page_entry(
-			/* mb  = */ index + 6, 4, PAGE_ACCESS_PERM_SYS_USER_FULL, false);
-	l2_table[1] = l2_entry;
+			/* mb  = */ pid + 6, thread_index, PAGE_ACCESS_PERM_SYS_USER_FULL,
+			false);
+	l2_table[thread_index * 2 + 1] = l2_entry;
 }
 
 void

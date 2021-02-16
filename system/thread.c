@@ -10,6 +10,7 @@
 
 #include <system/assert.h>
 #include <system/ivt.h>
+#include <system/process.h>
 #include <system/scheduler.h>
 
 #include <std/log.h>
@@ -47,8 +48,11 @@ get_stack_pointer(const size_t index)
 		return NULL;
 	}
 
+	// TODO(Aurel): Currently, no more than one stack per process can exist.
 	// stacks get allocated downwards in memory
-	void* sp = (void*)(THREAD_STACK_BASE) + 0x1400;
+	// mimics index * 2 + 1 (see system/mmu.c:init_thread_memory())
+	void* sp = (void*)(THREAD_STACK_BASE) + index * 0x2000 + 0x1000 +
+			   THREAD_STACK_SIZE;
 	klog(DEBUG, "sp: %p", sp);
 	return sp;
 }
@@ -60,11 +64,12 @@ get_max_stack_pointer(const size_t index)
 }
 
 struct tcb
-init_thread(void (*func)(void*))
+init_thread(struct pcb* process, void (*func)(void*))
 {
 	struct tcb thread       = { 0 };
 	thread.regs.pc          = (uint32)func;
 	thread.regs.lr          = (uint32)&exit;
+	thread.process          = process;
 	thread.cpsr             = PROCESSOR_MODE_USR;
 	thread.waiting_duration = 0;
 	thread.initialized      = false;
@@ -73,9 +78,11 @@ init_thread(void (*func)(void*))
 }
 
 void
-thread_create(void (*func)(void*), const void* args, size_t args_size)
+thread_create(void* process, void (*func)(void*), const void* args,
+              size_t args_size)
 {
-	struct tcb* scheduled_thread = schedule_thread(init_thread(func));
+	struct pcb* p                = (struct pcb*)process;
+	struct tcb* scheduled_thread = schedule_thread(init_thread(process, func));
 	if (!scheduled_thread)
 		return; // Thread was not added to queue
 
@@ -93,7 +100,7 @@ thread_create(void (*func)(void*), const void* args, size_t args_size)
 	// Update stack pointer
 	scheduled_thread->regs.sp = (uint32)thread_sp;
 
-	init_thread_memory(scheduled_thread->index, scheduled_thread->l2_table);
+	init_thread_memory(p->pid, scheduled_thread->index, p->l2_table);
 
 	// Pass stack-pointer as argument
 	if (args && args_size)
@@ -101,5 +108,6 @@ thread_create(void (*func)(void*), const void* args, size_t args_size)
 	else
 		scheduled_thread->regs.r0 = (uint32)NULL;
 
+	p->n_threads++;
 	scheduled_thread->initialized = true;
 }
