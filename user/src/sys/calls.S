@@ -22,12 +22,13 @@
 #define GET_CHAR 2
 #define PUT_CHAR 3
 #define WAIT 4
-#define CREATE_THREAD 5
+#define FORK 5
 
 .global exit
 .global getchar
 .global putchar
 .global wait
+.global fork
 .global create_thread
 
 exit:
@@ -46,6 +47,6 @@ wait:
     svc #WAIT
     bx lr
 
-create_thread:
-    svc #CREATE_THREAD
+fork:
+    svc #FORK
     bx lr

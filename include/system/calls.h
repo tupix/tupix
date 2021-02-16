@@ -8,14 +8,14 @@
 #define _GET_CHAR 2
 #define _PUT_CHAR 3
 #define _WAIT 4
-#define _CREATE_THREAD 5
+#define _FORK 5
 
 enum syscall_id {
-	EXIT          = _EXIT,
-	GET_CHAR      = _GET_CHAR,
-	PUT_CHAR      = _PUT_CHAR,
-	WAIT          = _WAIT,
-	CREATE_THREAD = _CREATE_THREAD,
+	EXIT     = _EXIT,
+	GET_CHAR = _GET_CHAR,
+	PUT_CHAR = _PUT_CHAR,
+	WAIT     = _WAIT,
+	FORK     = _FORK,
 };
 
 uint16 get_syscall_id(uint32 lr);

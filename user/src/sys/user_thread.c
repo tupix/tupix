@@ -69,7 +69,7 @@ main_thread()
 	uint32 c;
 	while (1) {
 		c = getchar();
-		create_thread(&user_thread, &c, sizeof(c));
+		fork(&user_thread, &c, sizeof(c));
 	}
 #endif
 }

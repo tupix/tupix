@@ -82,7 +82,7 @@ exec_syscall_wait(struct registers* regs)
 }
 
 static void
-exec_syscall_create_thread(struct registers* regs)
+exec_syscall_fork(struct registers* regs)
 {
 	void (*func)(void*) = (void (*)(void*))regs->gr.r0;
 	if (!verify_func_pointer(func)) {
@@ -141,8 +141,8 @@ exec_syscall(uint16 id, struct registers* regs)
 	case WAIT:
 		exec_syscall_wait(regs);
 		break;
-	case CREATE_THREAD:
-		exec_syscall_create_thread(regs);
+	case FORK:
+		exec_syscall_fork(regs);
 		break;
 	default:
 		print_registers(regs, "Software Interrupt", "Killing thread.", "");
