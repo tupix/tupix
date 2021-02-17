@@ -19,20 +19,61 @@ typedef unsigned long long uint64;
 typedef uint32 size_t;
 typedef int32 ssize_t;
 
-/* INDEX QUEUE */
+#define circle_forward(var, size) (var) = (var) + 1 >= (size) ? 0 : (var) + 1
+
+/**
+ * INDEX QUEUE
+ * NOTE(Aurel): This macro creates a new index queue and its functions. Be aware
+ * that you should only ever use this inside the .c-files as this might conflict
+ * with other index_queues in other .c-files otherwise.
+ * When using this function it creates a new struct with the given name and
+ * functions to initialize the index queue, push an index onto the queue and pop
+ * an index from the queue.
+ */
 #define INDEX_QUEUE(_name, _size)                                              \
 	struct _name {                                                             \
 		size_t size, count;                                                    \
 		size_t tail, head;                                                     \
 		size_t indices[_size];                                                 \
+	};                                                                         \
+                                                                               \
+	void init_queue(struct _name* q)                                           \
+	{                                                                          \
+		memset(q, 0, sizeof(*q));                                              \
+		q->size = _size;                                                       \
+	}                                                                          \
+                                                                               \
+	ssize_t push_index(struct _name* q, size_t index)                          \
+	{                                                                          \
+		if (!q) {                                                              \
+			klog(WARNING, "Invalid index_queue (NULL)");                       \
+			return -1;                                                         \
+		} else if (index <= 0 || index > q->size) {                            \
+			klog(WARNING, "Index %i out of bounds", index);                    \
+			return -1;                                                         \
+		} else if (q->count >= q->size) {                                      \
+			return 0;                                                          \
+		}                                                                      \
+                                                                               \
+		q->indices[q->tail] = index;                                           \
+		circle_forward(q->tail, q->size);                                      \
+		++(q->count);                                                          \
+		return index;                                                          \
+	}                                                                          \
+                                                                               \
+	ssize_t pop_index(struct _name* q)                                         \
+	{                                                                          \
+		if (!q) {                                                              \
+			klog(WARNING, "Invalid index_queue (NULL)");                       \
+			return -1;                                                         \
+		} else if (!q->count) {                                                \
+			return 0;                                                          \
+		}                                                                      \
+                                                                               \
+		size_t index = q->indices[q->head];                                    \
+		circle_forward(q->head, q->size);                                      \
+		--(q->count);                                                          \
+		return index;                                                          \
 	}
-INDEX_QUEUE(index_queue, N_THREADS);
-
-// NOTE(Aurel): Do not increment var when using this macro.
-#define circle_forward(var, size) (var) = (var) + 1 >= (size) ? 0 : (var) + 1
-
-void init_queue(struct index_queue* q);
-ssize_t push_index(struct index_queue* q, size_t index);
-ssize_t pop_index(struct index_queue* q);
 
 #endif /* STD_TYPES_H */

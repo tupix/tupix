@@ -19,6 +19,10 @@
 
 #include <driver/uart.h>
 
+// Create a new index_queue and functions for handling it. See
+// include/data/types.h for the implementation.
+INDEX_QUEUE(index_queue, N_THREADS)
+
 static struct index_queue thread_indices_q;
 static struct index_queue free_indices_q;
 
