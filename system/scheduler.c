@@ -80,6 +80,13 @@ pop_thread()
 		return NULL;
 	}
 
+	// TODO:
+	// The order in the queue is changed, if there is a thread that is not
+	// initialized yet. In that case that thread is pushed to the back. Is that
+	// unfair behaviour? We could continue to pop & push instead of breaking so
+	// that the order is restored.
+	// Another question: Is it even possible that there are uninitialized
+	// threads in here?
 	ssize_t index = -1;
 	for (size_t i = 0; i < thread_indices_q.count; ++i) {
 		index = pop_index(&thread_indices_q);
