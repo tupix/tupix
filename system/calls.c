@@ -113,6 +113,38 @@ exec_syscall_fork(struct registers* regs)
 	process_create(func, args, args_size);
 }
 
+/**
+ * Create a new thread with the same memory space as the creating thread.
+ */
+static void
+exec_syscall_create_thread(struct registers* regs)
+{
+	void (*func)(void*) = (void (*)(void*))regs->gr.r0;
+	if (!verify_func_pointer(func)) {
+		klog(WARNING, "Thread passed invalid pointer. Killing.");
+		kill_cur_thread(regs);
+		return;
+	}
+
+	void* args = (void*)regs->gr.r1;
+	if (!verify_pointer(args)) {
+		klog(WARNING, "Thread passed invalid pointer. Killing.");
+		kill_cur_thread(regs);
+		return;
+	}
+	size_t args_size = regs->gr.r2;
+
+	// NOTE: (args - args_size) points below the block that will be copied. It
+	// does not need to be valid, but the pointer above it.
+	if (!verify_pointer(args - (args_size - 4))) {
+		klog(WARNING, "Thread passed invalid pointer. Killing.");
+		kill_cur_thread(regs);
+		return;
+	}
+
+	thread_create(get_cur_process(), func, args, args_size);
+}
+
 /***************************
  * END OF STATIC FUNCTIONS *
  ***************************/
@@ -146,6 +178,9 @@ exec_syscall(uint16 id, struct registers* regs)
 		break;
 	case FORK:
 		exec_syscall_fork(regs);
+		break;
+	case CREATE_THREAD:
+		exec_syscall_create_thread(regs);
 		break;
 	default:
 		print_registers(regs, "Software Interrupt", "Killing thread.", "");

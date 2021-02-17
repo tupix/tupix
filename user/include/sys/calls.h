@@ -34,7 +34,7 @@ void putchar(unsigned char c);
 void wait(size_t duration);
 
 /**
- * Create a new thread with the same memory space as the creating thread.
+ * Create a new process with it's own memory space.
  *
  * @param func function the new thread executes.
  * @param args pointer to an array of arguments to pass to the function.
@@ -43,12 +43,12 @@ void wait(size_t duration);
 void fork(void (*func)(void*), const void* args, size_t args_size);
 
 /**
- * Create a new process with it's own memory space.
+ * Create a new thread with the same memory space as the creating thread.
  *
  * @param func function the new thread executes.
  * @param args pointer to an array of arguments to pass to the function.
  * @param args_size size of `args`.
  */
-void fork(void (*func)(void*), const void* args, size_t args_size);
+void create_thread(void (*func)(void*), const void* args, size_t args_size);
 
 #endif /* USER_SYSTEM_CALLS_H */
