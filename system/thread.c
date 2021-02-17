@@ -53,13 +53,14 @@ get_stack_pointer(const size_t index)
 	// mimics index * 2 + 1 (see system/mmu.c:init_thread_memory())
 	void* sp = (void*)(THREAD_STACK_BASE) + index * 0x2000 + 0x1000 +
 			   THREAD_STACK_SIZE;
-	klog(DEBUG, "sp: %p", sp);
+	//klog(DEBUG, "sp: %p", sp);
 	return sp;
 }
 
 void*
 get_max_stack_pointer(const size_t index)
 {
+	// TODO(Aurel): Is this correct?
 	return get_stack_pointer(index) - THREAD_STACK_SIZE;
 }
 
@@ -81,6 +82,7 @@ void
 thread_create(struct pcb* p, void (*func)(void*), const void* args,
               size_t args_size)
 {
+	klog(LOG, "Creating new thread...");
 	struct tcb* scheduled_thread = schedule_thread(init_thread(p, func));
 	if (!scheduled_thread)
 		return; // Thread was not added to queue
@@ -120,4 +122,5 @@ thread_create(struct pcb* p, void (*func)(void*), const void* args,
 
 	p->n_threads++;
 	scheduled_thread->initialized = true;
+	klog(LOG, "Done creating new thread.");
 }

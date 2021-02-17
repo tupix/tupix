@@ -287,6 +287,7 @@ get_ttbcr_init_val(uint32 ttbcr)
 void
 init_process_memory(uint32* l2_table)
 {
+	klog(LOG, "Initializing process memory...");
 	// TODO(Aurel): Should this really be an mmu-function?
 	// TODO(Aurel): Replace with call to memset.
 	// TODO(Aurel): Replace hardcoded 256: N_L2_TABLE_ENTRY
@@ -295,14 +296,18 @@ init_process_memory(uint32* l2_table)
 	for (uint32 i = 0; i < 256; ++i) {
 		l2_table[i] = 0;
 	}
+	klog(LOG, "Done initializing process memory.");
 }
 
 void
 init_thread_memory(size_t pid, size_t thread_index, uint32* l2_table)
 {
+	klog(LOG, "Initializing thread memory...");
+#if 0
 	klog(DEBUG,
-	     "Initializing thread memory for process %i, thread %i, in l2_table at %p",
+	     "Initializing thread memory for process %i, thread %i, in l2_table at %p...",
 	     pid, thread_index, l2_table);
+#endif
 	/*
 	 * NOTE(Aurel): Stacks are located from the 6th MB upward, with the 0th stack exactly at
 	 * 6MB in memory. Hence index + 6.
@@ -318,6 +323,7 @@ init_thread_memory(size_t pid, size_t thread_index, uint32* l2_table)
 			/* mb  = */ pid + 6, thread_index, PAGE_ACCESS_PERM_SYS_USER_FULL,
 			false);
 	l2_table[thread_index * 2 + 1] = l2_entry;
+	klog(LOG, "Done initializing thread memory.");
 }
 
 void

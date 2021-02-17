@@ -19,6 +19,9 @@ user_thread(void* args)
 		args += sizeof(c);
 	}
 
+	printf("%c", c);
+	return;
+
 	switch (c) {
 	case 'n': // read NULL
 		asm("ldr r0, =0");
@@ -63,7 +66,7 @@ user_thread(void* args)
 void
 main_thread()
 {
-#if 1
+#if 0
 	printf("Hello World!\n");
 #else
 	uint32 c;

@@ -244,7 +244,7 @@ schedule_thread(struct tcb thread)
 	threads[thread.index]     = thread;
 	struct tcb* queued_thread = push_thread(&thread);
 	if (queued_thread) {
-		klog(LOG, "New thread: %i.", queued_thread->tid);
+		klog(LOG, "New thread %i scheduled.", queued_thread->tid);
 	} else {
 		// Make index available again
 		push_index(&free_thread_indices_q, index);
