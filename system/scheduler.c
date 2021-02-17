@@ -80,14 +80,13 @@ pop_thread()
 		return NULL;
 	}
 
-	ssize_t index;
-	size_t i;
-	for (i = 0; i < thread_indices_q.count; ++i) {
+	ssize_t index = -1;
+	for (size_t i = 0; i < thread_indices_q.count; ++i) {
 		index = pop_index(&thread_indices_q);
 		if (!index) {
 			klog(LOG, "Thread queue empty");
 			return NULL;
-		} else if (0 > index) {
+		} else if (index < 0) {
 			return NULL; // Other error
 		}
 
@@ -97,11 +96,10 @@ pop_thread()
 			klog(LOG, "Thread not initialized; getting next one");
 			push_index(&thread_indices_q, index);
 		}
+
+		index = -1;
 	}
-	// NOTE: Through a successful pop the count would decrease. Thus we need
-	// 'greater' and not 'greater or equal' for the case that we pop the last
-	// thread in the queue.
-	if (i > thread_indices_q.count) {
+	if (index == -1) {
 		klog(LOG, "No thread is initialized, returning null-thread");
 		return NULL;
 	}
@@ -298,8 +296,8 @@ scheduler_cycle(struct registers* regs, bool decrement)
 void
 kill_cur_thread(struct registers* regs)
 {
-	struct tcb* cur_thread  = running_thread;
-	struct pcb* cur_process = ((struct pcb*)cur_thread->process);
+	struct tcb* cur_thread  = get_cur_thread();
+	struct pcb* cur_process = get_cur_process();
 	running_thread          = pop_thread();
 	if (!running_thread)
 		running_thread = null_thread;

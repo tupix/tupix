@@ -108,7 +108,7 @@ thread_create(struct pcb* p, void (*func)(void*), const void* args,
 		thread_sp -= args_size;
 		memcpy(thread_sp, args_buffer, args_size);
 
-		switch_memory(((struct pcb*)get_cur_thread()->process)->l2_table);
+		switch_memory(get_cur_process()->l2_table);
 	}
 
 	// Update stack pointer
