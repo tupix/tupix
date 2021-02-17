@@ -320,6 +320,22 @@ get_cur_thread_index()
 	return running_thread->index;
 }
 
+// NOTE: Be careful that the scheduler is not running when calling this to
+// prevent a race condition.
+struct tcb*
+get_cur_thread()
+{
+	return running_thread;
+}
+
+// NOTE: Be careful that the scheduler is not running when calling this to
+// prevent a race condition.
+struct pcb*
+get_cur_process()
+{
+	return running_thread->process;
+}
+
 enum thread_state
 get_cur_thread_state()
 {

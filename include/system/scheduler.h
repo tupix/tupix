@@ -13,6 +13,8 @@ struct tcb* schedule_thread(struct tcb thread);
 void scheduler_cycle(struct registers* regs, bool decrement);
 void kill_cur_thread(struct registers* regs);
 size_t get_cur_thread_index();
+struct tcb* get_cur_thread();
+struct pcb* get_cur_process();
 enum thread_state get_cur_thread_state();
 void scheduler_on_getchar(struct registers* regs);
 void scheduler_on_char_received();
