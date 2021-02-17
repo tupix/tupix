@@ -217,9 +217,9 @@ schedule_process(struct pcb process)
 	} else if (0 > index) {
 		return NULL; // Other error
 	}
-	process.pid                = ++pid_count;
-	process.index              = index;
-	processes[process.index]   = process;
+	process.pid              = ++pid_count;
+	process.index            = index;
+	processes[process.index] = process;
 	return &processes[process.index];
 }
 /*
@@ -298,12 +298,18 @@ scheduler_cycle(struct registers* regs, bool decrement)
 void
 kill_cur_thread(struct registers* regs)
 {
-	struct tcb* cur_thread = running_thread;
-	running_thread         = pop_thread();
+	struct tcb* cur_thread  = running_thread;
+	struct pcb* cur_process = ((struct pcb*)cur_thread->process);
+	running_thread          = pop_thread();
 	if (!running_thread)
 		running_thread = null_thread;
 
 	switch_context(regs, NULL, running_thread);
+
+	if (cur_process->n_threads == 1) {
+		klog(LOG, "No more threads in process. Killing process.");
+		push_index(&free_process_indices_q, cur_process->index);
+	}
 
 	push_index(&free_thread_indices_q, cur_thread->index);
 }
