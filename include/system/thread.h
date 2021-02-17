@@ -15,7 +15,7 @@ enum thread_state { READY, WAITING, DONE };
 
 struct tcb {
 	size_t tid, index;
-	void* process;
+	struct pcb* process;
 	struct general_registers regs;
 	uint32 cpsr;
 	size_t waiting_duration;
@@ -25,7 +25,7 @@ struct tcb {
 
 void* get_stack_pointer(const size_t index);
 void* get_max_stack_pointer(const size_t index);
-void thread_create(void* process, void (*func)(void*), const void* args,
+void thread_create(struct pcb* p, void (*func)(void*), const void* args,
                    size_t args_size);
 
 #endif /* SYSTEM_THREAD_H */

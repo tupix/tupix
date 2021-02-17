@@ -78,11 +78,10 @@ init_thread(struct pcb* process, void (*func)(void*))
 }
 
 void
-thread_create(void* process, void (*func)(void*), const void* args,
+thread_create(struct pcb* p, void (*func)(void*), const void* args,
               size_t args_size)
 {
-	struct pcb* p                = (struct pcb*)process;
-	struct tcb* scheduled_thread = schedule_thread(init_thread(process, func));
+	struct tcb* scheduled_thread = schedule_thread(init_thread(p, func));
 	if (!scheduled_thread)
 		return; // Thread was not added to queue
 
