@@ -85,21 +85,32 @@ thread_create(struct pcb* p, void (*func)(void*), const void* args,
 	if (!scheduled_thread)
 		return; // Thread was not added to queue
 
+	init_thread_memory(p->pid, scheduled_thread->index, p->l2_table);
 	void* thread_sp = get_stack_pointer(scheduled_thread->index);
 
 	// TODO(Aurel): Error handling for thread_sp == NULL
 
-	// Since the stack grows to the 'bottom', copy below it
-	// TODO: What to do if we cannot access user memory?
+	/*
+	 * NOTE(Aurel): When creating a new process the l1 entry still points to the
+	 * l2 table of the currently running thread. This means we do not have
+	 * access to the stack of the thread in creation. That means however, that
+	 * we cannot copy over the memory from the old stack to the new stack.
+	 */
 	if (args && args_size) {
+		char args_buffer[args_size];
+		memcpy(args_buffer, args, args_size);
+
+		switch_memory(p->l2_table);
+
+		// Since the stack grows to the 'bottom', copy below it
 		thread_sp -= args_size;
-		memcpy(thread_sp, args, args_size);
+		memcpy(thread_sp, args_buffer, args_size);
+
+		switch_memory(((struct pcb*)get_cur_thread()->process)->l2_table);
 	}
 
 	// Update stack pointer
 	scheduled_thread->regs.sp = (uint32)thread_sp;
-
-	init_thread_memory(p->pid, scheduled_thread->index, p->l2_table);
 
 	// Pass stack-pointer as argument
 	if (args && args_size)

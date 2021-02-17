@@ -100,8 +100,8 @@ exec_syscall_fork(struct registers* regs)
 		kill_cur_thread(regs);
 		return;
 	}
-	size_t args_size = regs->gr.r2;
 
+	size_t args_size = regs->gr.r2;
 	// NOTE: (args - args_size) points below the block that will be copied. It
 	// does not need to be valid, but the pointer above it.
 	if (!verify_pointer(args - (args_size - 4))) {
