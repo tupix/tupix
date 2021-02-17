@@ -21,10 +21,12 @@
 
 // Create a new index_queue and functions for handling it. See
 // include/data/types.h for the implementation.
-INDEX_QUEUE(index_queue, N_THREADS)
+INDEX_QUEUE(index_queue, N_THREADS);
 
+//static struct index_queue process_indices_q;
+static struct index_queue free_process_indices_q;
 static struct index_queue thread_indices_q;
-static struct index_queue free_indices_q;
+static struct index_queue free_thread_indices_q;
 
 /* WAITING QUEUES */
 // NOTE: When adding queues, do not forget to initialize them in init_scheduler
@@ -32,11 +34,13 @@ static struct index_queue sleep_waiting_q;
 static struct index_queue char_waiting_q;
 /* \WAITING QUEUES */
 
+static struct pcb processes[N_PROCESSES + 1];
 static struct tcb threads[N_THREADS + 1];
 static struct tcb* running_thread;
 static struct tcb* null_thread;
 
 static uint32 tid_count;
+static uint32 pid_count;
 
 extern void endless_loop();
 
@@ -180,8 +184,9 @@ init_null_thread()
 void
 init_scheduler()
 {
+	init_queue(&free_process_indices_q);
 	init_queue(&thread_indices_q);
-	init_queue(&free_indices_q);
+	init_queue(&free_thread_indices_q);
 
 	/* WAITING QUEUES */
 	init_queue(&sleep_waiting_q);
@@ -189,15 +194,34 @@ init_scheduler()
 	/* \WAITING QUEUES */
 
 	tid_count = 0;
-	// Mark all indices as free
-	for (size_t i = 0; i < free_indices_q.size; ++i)
-		push_index(&free_indices_q, i + 1);
+	pid_count = 0;
+	// Mark all process indices as free
+	for (size_t i = 0; i < free_process_indices_q.size; ++i)
+		push_index(&free_process_indices_q, i + 1);
+	// Mark all thread indices as free
+	for (size_t i = 0; i < free_thread_indices_q.size; ++i)
+		push_index(&free_thread_indices_q, i + 1);
 
 	null_thread    = init_null_thread();
 	running_thread = null_thread;
 	klog(LOG, "Scheduler initialized.");
 }
 
+struct pcb*
+schedule_process(struct pcb process)
+{
+	ssize_t index = pop_index(&free_process_indices_q);
+	if (!index) {
+		klog(WARNING, "No available thread indices");
+		return NULL;
+	} else if (0 > index) {
+		return NULL; // Other error
+	}
+	process.pid                = ++pid_count;
+	process.index              = index;
+	processes[process.index]   = process;
+	return &processes[process.index];
+}
 /*
  * Put given thread into scheduled queue.
  * The id of the thread is set in this function and a value of 0 indicates a
@@ -208,7 +232,7 @@ init_scheduler()
 struct tcb*
 schedule_thread(struct tcb thread)
 {
-	ssize_t index = pop_index(&free_indices_q);
+	ssize_t index = pop_index(&free_thread_indices_q);
 	if (!index) {
 		klog(WARNING, "No available thread indices");
 		return NULL;
@@ -223,7 +247,7 @@ schedule_thread(struct tcb thread)
 		klog(LOG, "New thread: %i.", queued_thread->tid);
 	} else {
 		// Make index available again
-		push_index(&free_indices_q, index);
+		push_index(&free_thread_indices_q, index);
 	}
 	return queued_thread;
 }
@@ -281,7 +305,7 @@ kill_cur_thread(struct registers* regs)
 
 	switch_context(regs, NULL, running_thread);
 
-	push_index(&free_indices_q, cur_thread->index);
+	push_index(&free_thread_indices_q, cur_thread->index);
 }
 
 size_t

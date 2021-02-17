@@ -8,6 +8,7 @@
 
 void init_scheduler();
 
+struct pcb* schedule_process(struct pcb process);
 struct tcb* schedule_thread(struct tcb thread);
 void scheduler_cycle(struct registers* regs, bool decrement);
 void kill_cur_thread(struct registers* regs);

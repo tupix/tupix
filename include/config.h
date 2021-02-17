@@ -22,7 +22,8 @@
 // See `include/std/log.h`
 #define LOGGING_LEVEL 99
 
-// Number of Threads supported
+// Number of processes and threads supported
+#define N_PROCESSES 5
 #define N_THREADS 32
 
 #endif /* CONFIG_H */
