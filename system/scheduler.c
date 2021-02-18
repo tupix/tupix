@@ -318,6 +318,7 @@ kill_cur_thread(struct registers* regs)
 		running_thread = null_thread;
 
 	switch_context(regs, NULL, running_thread);
+	// TODO(Aurel): Clear memory section.
 
 	if (cur_process->n_threads == 1) {
 		klog(LOG, "No more threads in process. Killing process.");

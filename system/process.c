@@ -3,6 +3,11 @@
 #include <system/process.h>
 #include <system/scheduler.h>
 
+/*
+ * TODO(Aurel): Index queues to place the threads in the processes list. This
+ * index is then also used for the memory.
+ */
+
 /**
  * Create a new memory region and start a new thread inside it
  */
