@@ -40,6 +40,11 @@ SECTIONS
 		_kstacks_start = .;
 	}
 
+	. = (0x00300000);
+	.udata_cpy : {
+		_udata_cpy_begin = .;
+	}
+
 	. = (0x00400000);
 	.ucode : {
 		*(.ucode)
@@ -47,7 +52,9 @@ SECTIONS
 
 	. = (0x00500000);
 	.udata : {
+		_udata_begin = .;
 		*(.udata)
+		_udata_end = .;
 	}
 
 	. = (0x00600000);
