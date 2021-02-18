@@ -5,12 +5,9 @@
 
 #include <system/thread.h>
 
-#define MAX_PROCESSES 5
-#define MAX_THREADS_PER_PROCESS 4
-
 struct pcb {
 	size_t pid, index, n_threads;
-	struct tcb threads[MAX_THREADS_PER_PROCESS];
+	struct tcb threads[N_THREADS];
 	__attribute__((aligned(1024))) uint32 l2_table[256];
 };
 
