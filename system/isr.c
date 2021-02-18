@@ -207,24 +207,6 @@ irq_handler(struct registers* regs)
 			return;
 		}
 
-		switch (uart_peek_char()) {
-		case 'N': // read null-pointer
-			asm("ldr r0, =0");
-			break;
-		case 'P': // jump to null
-			asm("mov pc, #0");
-			break;
-		case 'C': // write to kernel code
-			*((int*)&irq_handler) = 0;
-			break;
-		case 'U': // read unmapped address
-			asm("mov r0, #0xF00000");
-			break;
-		case 'X': // execute user code
-			asm("b main_thread");
-			break;
-		}
-
 		// Notify scheduler that UART received a char.
 		scheduler_on_char_received();
 

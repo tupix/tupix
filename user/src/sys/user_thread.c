@@ -19,48 +19,8 @@ user_thread(void* args)
 		args += sizeof(c);
 	}
 
-	printf("%c", c);
-	return;
-
-	switch (c) {
-	case 'n': // read NULL
-		asm("ldr r0, =0");
-		break;
-	case 'p': // jump to NULL
-		asm("mov pc, #0");
-		break;
-	case 'd': // read kernel data
-		asm("ldr r0, =0x200004");
-		break;
-	case 'k': // read kernel code
-		asm("ldr r0, =0x100004");
-		break;
-	case 'K': { // read kernel stack
-		volatile uint32 x = *_kstacks_start;
-		printf("%x\n", x);
-		break;
-	}
-	case 'g': // write to hardware
-		asm("ldr r0, =0x3F201000;");
-		break;
-	case 'c': // write to user code
-		*((int*)&user_thread) = 0;
-		break;
-	case 's': { // stack overflow
-		while (true) {
-			asm("push { r0 }");
-		}
-		break;
-	}
-	case 'u': // unassigned address
-		asm("mov r0, #0xF00000");
-		break;
-	case 'x': // jump to user stack
-		asm("mov pc, sp");
-		break;
-	default:
-		break;
-	}
+	printf("Hello World! ");
+	printf("%c\n", c);
 }
 
 void
