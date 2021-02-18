@@ -195,6 +195,9 @@ init_scheduler()
 	init_queue(&thread_indices_q);
 	init_queue(&free_thread_indices_q);
 
+	// TODO: Fix type of free_process_indices_q
+	free_process_indices_q.size = N_PROCESSES;
+
 	/* WAITING QUEUES */
 	init_queue(&sleep_waiting_q);
 	init_queue(&char_waiting_q);
