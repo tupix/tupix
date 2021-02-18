@@ -249,7 +249,8 @@ schedule_thread(struct tcb thread)
 	threads[thread.index]     = thread;
 	struct tcb* queued_thread = push_thread(&thread);
 	if (queued_thread) {
-		klog(LOG, "New thread %i scheduled.", queued_thread->tid);
+		klog(LOG, "New thread (p%u,t%u) scheduled.",
+		     queued_thread->process->pid, queued_thread->tid);
 	} else {
 		// Make index available again
 		push_index(&free_thread_indices_q, index);
@@ -269,8 +270,8 @@ scheduler_cycle(struct registers* regs, bool decrement)
 
 	// Continue if no other threads are waiting.
 	if (!thread_indices_q.count) {
-		klog(LOG, "No waiting threads. Thread %i continues",
-		     running_thread->tid);
+		klog(LOG, "No waiting threads. Thread (p%u,t%u) continues",
+		     running_thread->process->pid, running_thread->tid);
 		return;
 	}
 
@@ -281,7 +282,8 @@ scheduler_cycle(struct registers* regs, bool decrement)
 	struct tcb* old_thread = running_thread;
 	running_thread         = pop_thread();
 	if (!running_thread) {
-		klog(LOG, "Cannot pop thread. Thread %i continues", old_thread->tid);
+		klog(LOG, "Cannot pop thread. (p%u,t%u) continues",
+		     old_thread->process->pid, old_thread->tid);
 		running_thread = old_thread;
 		return;
 	}
@@ -297,7 +299,8 @@ scheduler_cycle(struct registers* regs, bool decrement)
 	}
 	switch_context(regs, old_thread, running_thread);
 
-	klog(LOG, "Running thread: %i", running_thread->tid);
+	klog(LOG, "Running thread: (p%u,t%u)", running_thread->process->pid,
+	     running_thread->tid);
 }
 
 void

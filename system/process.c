@@ -15,5 +15,5 @@ process_create(void (*func)(void*), const void* args, size_t args_size)
 	init_process_memory(process->l2_table);
 
 	thread_create(process, func, args, args_size);
-	klog(LOG, "Done creating new process.");
+	klog(LOG, "Done creating new process. (p%u)", process->pid);
 }

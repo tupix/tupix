@@ -122,5 +122,6 @@ thread_create(struct pcb* p, void (*func)(void*), const void* args,
 
 	p->n_threads++;
 	scheduled_thread->initialized = true;
-	klog(LOG, "Done creating new thread.");
+	klog(LOG, "Done creating new thread (p%u,t%u)",
+	     scheduled_thread->process->pid, scheduled_thread->tid);
 }
