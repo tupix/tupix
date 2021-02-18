@@ -88,9 +88,22 @@ thread_create(struct pcb* p, void (*func)(void*), const void* args,
 		return; // Thread was not added to queue
 
 	init_thread_memory(p->pid, scheduled_thread->index, p->l2_table);
-	void* thread_sp = get_stack_pointer(scheduled_thread->index);
 
+	/*
+	 * TODO(Aurel): Remove thread from being scheduled. This should never
+	 * happen. When the thread has been scheduled, it should be able to get a
+	 * sp. Currently this can fail because of a relic of before having
+	 * processes. We need to change over to indices into the process tcb array
+	 * instead of (only) into the big scheduler thread array `threads[]`. At
+	 * least that's what I think.
+	 */
+	void* thread_sp = get_stack_pointer(scheduled_thread->index);
 	// TODO(Aurel): Error handling for thread_sp == NULL
+	if (!thread_sp) {
+		klog(DEBUG,
+		     "THIS STILL NEEDS TO BE FIXED BUT IS A RESULT OF ANOTHER PROBLEM.");
+		return;
+	}
 
 	/*
 	 * NOTE(Aurel): When creating a new process the l1 entry still points to the
