@@ -14,6 +14,9 @@
 
 extern void main_thread(void*);
 
+extern char _udata_begin[], _udata_end[], _udata_cpy_begin[];
+#define UDATA_SIZE _udata_end - _udata_begin
+
 void
 start_kernel(void)
 {
@@ -22,6 +25,9 @@ start_kernel(void)
 	init_local_timer();
 	init_mmu();
 	klog(LOG, "Kernel initialized.");
+
+	// Copy user data and bss segments to kernel memory.
+	memcpy(_udata_cpy_begin, _udata_begin, UDATA_SIZE);
 
 	ASSERTM(N_THREADS >= 32, "A minimum of 32 threads should be supported.");
 	init_scheduler();
