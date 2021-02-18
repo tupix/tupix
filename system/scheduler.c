@@ -183,6 +183,8 @@ init_null_thread()
 	threads[0]                   = null_thread_init;
 	init_thread_memory(null_process.pid, threads[0].index,
 	                   null_process.l2_table);
+	processes[0]       = null_process;
+	threads[0].process = &(processes[0]);
 	return &(threads[0]);
 }
 
