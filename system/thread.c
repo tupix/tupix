@@ -115,13 +115,15 @@ thread_create(struct pcb* p, void (*func)(void*), const void* args,
 		char args_buffer[args_size];
 		memcpy(args_buffer, args, args_size);
 
-		switch_memory(p->l2_table);
+		switch_memory(p->pid, p->l2_table);
 
 		// Since the stack grows to the 'bottom', copy below it
 		thread_sp -= args_size;
 		memcpy(thread_sp, args_buffer, args_size);
 
-		switch_memory(get_cur_process()->l2_table);
+		// TODO(Aurel): Cleanup into own function?
+		struct pcb* cur_process = get_cur_process();
+		switch_memory(cur_process->pid, cur_process->l2_table);
 	}
 
 	// Update stack pointer

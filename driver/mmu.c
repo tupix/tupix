@@ -327,11 +327,19 @@ init_thread_memory(size_t pid, size_t thread_index, uint32* l2_table)
 }
 
 void
-switch_memory(uint32* l2_table)
+switch_memory(uint32 pid, uint32* l2_table)
 {
 	// invalidate entire TLB
 	asm("mcr p15, 0, r0, c8, c7, 0");
+
+	// set physical address (base address) of user data
+	uint32 mb = pid + 6;
+	// TODO(Aurel): Cleanup into function? Already exists: set_l1_base_address_of_index
+	L1[5] &= 0x000fffff;
+	L1[5] |= (mb << 20);
+
 	// set base address to new l2_table
+	// TODO(Aurel): Cleanup into function?
 	L1[6] &= 0x000000ff;
 	L1[6] |= (uint32)l2_table & 0xffffff00;
 }

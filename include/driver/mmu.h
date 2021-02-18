@@ -11,6 +11,6 @@
 void init_mmu();
 void init_process_memory(uint32* l2_table);
 void init_thread_memory(size_t pid, size_t thread_index, uint32* l2_table);
-void switch_memory(uint32* l2_table);
+void switch_memory(uint32 pid, uint32* l2_table);
 
 #endif /* SYSTEM_MMU_H */
