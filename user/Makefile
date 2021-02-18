@@ -16,8 +16,8 @@
 
 # Hier eure Dateien hinzufügen
 # Source files
-ASS_OBJ := $(shell find . -name "*.S" -a -type f | sed -E 's:^\./(.*)S$$:\1o:')
-SRC_OBJ := $(shell find . -name "*.c" -a -type f | sed -E 's:^\./(.*)c$$:\1o:')
+ASS_OBJ := $(shell find . -name "*.S" -a -type f | sed -E 's:^\./(.*.S)$$:\1.o:')
+SRC_OBJ := $(shell find . -name "*.c" -a -type f | sed -E 's:^\./(.*.c)$$:\1.o:')
 OBJ := $(ASS_OBJ) $(SRC_OBJ)
 
 
@@ -49,16 +49,16 @@ all: user user.bin dump
 
 -include $(DEP)
 
-%.o: %.S
+%.S.o: %.S
 	$(CC) $(CPPFLAGS) $(CFLAGS) -MMD -MP -o $@ -c $<
 
-%.o: %.c
+%.c.o: %.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -MMD -MP -o $@ -c $<
 
-%.o_d: %.S
+%.S.o_d: %.S
 	$(CC) $(CPPFLAGS) $(CFLAGS_DEBUG) -MMD -MP -o $@ -c $<
 
-%.o_d: %.c
+%.c.o_d: %.c
 	$(CC) $(CPPFLAGS) $(CFLAGS_DEBUG) -MMD -MP -o $@ -c $<
 
 user: $(LSCRIPT) $(OBJ)
