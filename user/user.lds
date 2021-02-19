@@ -8,5 +8,6 @@ SECTIONS
 	.udata : {
 		*(.data .data.*)
 		*(.bss .bss.*)
+		*(.bss* COMMON)
 	}
 }
