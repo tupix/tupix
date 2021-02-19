@@ -28,6 +28,11 @@ struct index_queue {
 // NOTE(Aurel): Do not increment var when using this macro.
 #define circle_forward(var, size) (var) = (var) + 1 >= (size) ? 0 : (var) + 1
 
+#define MARK_ALL_FREE(Q)                                                       \
+	for (size_t i = 0; i < (Q).size; ++i) {                                    \
+		push_index(&(Q), i + 1);                                               \
+	}
+
 #define INDEX_QUEUE(NAME, SIZE)                                                \
 	size_t NAME[SIZE];                                                         \
 	struct index_queue NAME##_q;

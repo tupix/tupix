@@ -198,12 +198,8 @@ init_scheduler()
 
 	tid_count = 0;
 	pid_count = 0;
-	// Mark all process indices as free
-	for (size_t i = 0; i < free_process_indices_q.size; ++i)
-		push_index(&free_process_indices_q, i + 1);
-	// Mark all thread indices as free
-	for (size_t i = 0; i < free_thread_indices_q.size; ++i)
-		push_index(&free_thread_indices_q, i + 1);
+	MARK_ALL_FREE(free_process_indices_q);
+	MARK_ALL_FREE(free_thread_indices_q);
 
 	null_thread    = init_null_thread();
 	running_thread = null_thread;
