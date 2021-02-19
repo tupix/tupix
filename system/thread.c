@@ -81,7 +81,7 @@ init_thread(struct pcb* process, void (*func)(void*))
 	return thread;
 }
 
-struct tcb *
+struct tcb*
 thread_create(struct pcb* p, void (*func)(void*), const void* args,
               size_t args_size)
 {
@@ -132,7 +132,7 @@ thread_create(struct pcb* p, void (*func)(void*), const void* args,
 		new_thread.regs.r0 = (uint32)NULL;
 
 	// Register in scheduler
-	struct tcb *scheduled_thread = schedule_thread(&new_thread);
+	struct tcb* scheduled_thread = schedule_thread(&new_thread);
 
 	klog(LOG, "Done creating new thread (p%u,t%u)(pidx%u,tidx%u)",
 	     new_thread.process->pid, new_thread.tid, new_thread.process->index,
