@@ -4,7 +4,7 @@
 
 #define TEST_UDATA_SEPERATION 0
 
-# if TEST_UDATA_SEPERATION
+#if TEST_UDATA_SEPERATION
 char PRINT_CHAR;
 unsigned int GLOB_COUNTER = 100;
 #endif
@@ -15,7 +15,7 @@ endless_loop()
 	while (1) {}
 }
 
-# if TEST_UDATA_SEPERATION
+#if TEST_UDATA_SEPERATION
 void
 countdown(void* args)
 {
@@ -48,7 +48,7 @@ user_thread(void* args)
 	create_thread(&countdown, &one, sizeof(c));
 	create_thread(&countdown, &two, sizeof(c));
 	create_thread(&countdown, &three, sizeof(c));
-#else /* TEST_UDATA_SEPERATION */
+#else  /* TEST_UDATA_SEPERATION */
 	printf("Hello World! ");
 	printf("%c\n", c);
 #endif /* TEST_UDATA_SEPERATION */
