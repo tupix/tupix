@@ -5,7 +5,7 @@ SECTIONS
 	.init : { *(.init) }
 
 	. = (0x00100000);
-	kcode : {
+	.kcode : {
 		data/?*.o_d    (.text*)
 		driver/?*.o_d  (.text*)
 		lib/?*.o_d     (.text*)
@@ -18,7 +18,7 @@ SECTIONS
 	}
 
 	. = (0x00200000);
-	kdata : {
+	.kdata : {
 		data/?*.o_d    (.data*)
 		driver/?*.o_d  (.data*)
 		lib/?*.o_d     (.data*)
@@ -40,6 +40,11 @@ SECTIONS
 		_kstacks_start = .;
 	}
 
+	. = (0x00300000);
+	.udata_cpy : {
+		_udata_cpy_begin = .;
+	}
+
 	. = (0x00400000);
 	.ucode : {
 		*(.ucode)
@@ -47,7 +52,9 @@ SECTIONS
 
 	. = (0x00500000);
 	.udata : {
+		_udata_begin = .;
 		*(.udata)
+		_udata_end = .;
 	}
 
 	. = (0x00600000);
