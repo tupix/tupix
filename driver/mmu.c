@@ -13,7 +13,8 @@ extern uint32 _l1_start[N_L1_ENTRIES];
 extern uint32 _udata_begin[];
 #define UDATA_USTACK_PHYS_MB ((uint32)_udata_begin >> 20)
 
-__attribute__((aligned(1024))) uint32 l1_udata_initialization_l2_table[256];
+__attribute__((aligned(1024)))
+uint32 l1_udata_initialization_l2_table[N_L2_ENTRIES];
 
 enum page_access_permission {
 	PAGE_ACCESS_PERM_SYS_USER_FULL           = 0b011,
@@ -294,13 +295,8 @@ init_process_memory(uint32 index, uint32* l2_table)
 {
 	klog(LOG, "Initializing process memory...");
 	// TODO(Aurel): Should this really be an mmu-function?
-	// TODO(Aurel): Replace with call to memset.
-	// TODO(Aurel): Replace hardcoded 256: N_L2_TABLE_ENTRY
-	// NOTE(Aurel): Clear all table entries as all should throw aborts as long
 	// as there is no thread in the process which is the case at initialization.
-	for (uint32 i = 0; i < 256; ++i) {
-		l2_table[i] = 0;
-	}
+	memset(l2_table, 0, N_L2_ENTRIES * sizeof(*l2_table));
 	l2_table[0] = build_l2_4KB_page_entry(
 			/* mb  = */ index + UDATA_USTACK_PHYS_MB, 0,
 			PAGE_ACCESS_PERM_SYS_USER_FULL, false);

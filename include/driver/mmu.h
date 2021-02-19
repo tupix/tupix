@@ -4,6 +4,7 @@
 #include <data/types.h>
 
 #define N_L1_ENTRIES 4096
+#define N_L2_ENTRIES 256
 
 // 16KB aligned. TODO: Do not hardcode
 //__attribute__((aligned(16384))) static uint32 l1[N_L1_ENTRIES];
