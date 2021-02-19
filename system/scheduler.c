@@ -40,10 +40,14 @@ extern void endless_loop();
 static size_t
 get_global_index(struct tcb* t)
 {
-	//  Example with N_THREADS_PER_PROCESS = 3
-	//  p0 |p1         |p2         |p3
-	// [t0,|t1, t2, t3,|t1, t2, t3,|t1, t2, ...]
-	//  0   1   2   3   4   5   6   7   8
+	/*
+	 * NOTE: A small visualization of how the threads are put into the
+	 * threads-table based on their processes index:
+	 *            0    1             2             3           ...
+	 * processes[ p0 | p1          | p2          | p3         |...
+	 *   threads[ t0,| t1, t2, t3, | t1, t2, t3, | t1, t2, t3 |... ]
+	 *            0    1   2   3     4   5   6     7   8   9   ...
+	 */
 	return (t->process->index - 1) * N_THREADS_PER_PROCESS + t->index;
 }
 
@@ -59,16 +63,18 @@ decrement_waits()
 		circle_forward(p, sleep_waiting_q.size);
 
 		if (!--threads[thread_idx].waiting_duration) {
-			// Threads wait is done
+			// threads wait is done
 
 			ssize_t res = pop_index(&sleep_waiting_q);
 			ASSERTM(res == thread_idx, "Current thread was not popped.");
 			// TODO: Push to front?
 			push_index(&thread_indices_q, thread_idx);
 		} else {
-			// We only want to increment here as pop_index decrements
-			// waiting_queue.count. This would then mess with our loop
-			// condition.
+			/*
+			 * NOTE: We only want to increment here as pop_index decrements
+			 * waiting_queue.count. This would then mess with our loop
+			 * condition.
+			 */
 			++i;
 		}
 	}
@@ -82,7 +88,7 @@ switch_context(struct registers* regs, struct tcb* old, struct tcb* new)
 		klog(ERROR, "regs points to NULL");
 		return;
 	}
-	// We never want to change the null_threads register
+	// never change the null_threads registers
 	if (old && old != null_thread) {
 		old->regs    = regs->gr;
 		old->regs.lr = regs->usr_lr;
@@ -97,24 +103,24 @@ switch_context(struct registers* regs, struct tcb* old, struct tcb* new)
 		regs->gr.lr  = new->regs.pc;
 		regs->spsr   = new->cpsr;
 	}
-	// TODO(Aurel): Is this correct here? Do we always want to switch the
-	// memory?
 	switch_memory(new->process->l2_table);
 }
 
 struct tcb*
 init_null_thread()
 {
-	// TODO(Aurel): Save null_process permanently in static global.
 	struct pcb null_process     = { 0 };
 	struct tcb null_thread_init = { 0 };
 	null_thread_init.regs.pc    = (uint32)&endless_loop;
 	null_thread_init.cpsr       = PROCESSOR_MODE_USR;
 	null_thread_init.regs.sp =
 			(uint32)get_stack_pointer(null_thread_init.index);
+
 	threads[0] = null_thread_init;
+
 	init_thread_memory(null_process.pid, threads[0].index,
 	                   null_process.l2_table);
+
 	processes[0]       = null_process;
 	threads[0].process = &(processes[0]);
 	return &(threads[0]);
@@ -140,7 +146,7 @@ init_scheduler()
 }
 
 struct pcb*
-schedule_process(struct pcb* process)
+scheduler_register_process(struct pcb* process)
 {
 	ssize_t index = pop_index(&free_process_indices_q);
 	if (index < 0)
@@ -156,10 +162,12 @@ schedule_process(struct pcb* process)
  * @return a pointer to the new memory location.
  */
 struct tcb*
-schedule_thread(struct tcb* thread)
+scheduler_register_thread(struct tcb* thread)
 {
 	size_t index = get_global_index(thread);
-	push_index(&thread_indices_q, index);
+	if (push_index(&thread_indices_q, index) < 0)
+		return NULL;
+
 	threads[index] = *thread;
 	return &(threads[index]);
 }
@@ -169,15 +177,17 @@ scheduler_cycle(struct registers* regs, bool decrement)
 {
 	klog(LOG, "Cycling...");
 
-	// Before doing anything else, decrement the waiting times of all waiting
-	// threads and eventually readd them to the thread_indices_q.
+	/*
+	 * NOTE: Before doing anything else, decrement the waiting times of all
+	 * waiting threads and eventually push them back into the thread_indices_q.
+	 */
 	if (decrement)
 		decrement_waits();
 
-	// Continue if no other threads are waiting.
+	// continue if no other threads are waiting.
 	if (!thread_indices_q.count) {
 		klog(LOG,
-		     "No waiting threads. Thread (p%u,t%u)(pidx%u,tidx%u) continues",
+		     "No waiting threads. Thread (p%u,t%u)(pidx%u,tidx%u) continues...",
 		     running_thread->process->pid, running_thread->tid,
 		     running_thread->process->index, running_thread->index);
 		return;
@@ -190,7 +200,7 @@ scheduler_cycle(struct registers* regs, bool decrement)
 	struct tcb* old_thread = running_thread;
 	ssize_t index          = pop_index(&thread_indices_q);
 	if (index < 0) {
-		klog(LOG, "Cannot pop thread. (p%u,t%u)(pidx%u,tidx%u) continues",
+		klog(LOG, "Cannot pop thread. (p%u,t%u)(pidx%u,tidx%u) continues...",
 		     old_thread->process->pid, old_thread->tid,
 		     running_thread->process->index, running_thread->index);
 		running_thread = old_thread;
@@ -205,7 +215,7 @@ scheduler_cycle(struct registers* regs, bool decrement)
 			return;
 		}
 	} else {
-		// Only set register values, do not modify null-thread
+		// only set register values; do not modify null-thread
 		old_thread = NULL;
 	}
 	switch_context(regs, old_thread, running_thread);
@@ -227,9 +237,10 @@ kill_cur_thread(struct registers* regs)
 		running_thread = &(threads[index]);
 
 	switch_context(regs, NULL, running_thread);
-	// TODO(Aurel): Clear memory section.
+	// TODO(Aurel): Clear memory section. Or should this be left to user
+	// programs?
 
-	// Make thread index available again in process
+	// make thread index available again in process
 	push_index(&(cur_process->free_indices_q), cur_thread->index);
 	klog(LOG, "Killed thread (p%u,t%u)(pidx%u,tidx%u).", cur_process->pid,
 	     cur_thread->tid, cur_process->index, cur_thread->index);
@@ -278,15 +289,19 @@ push_waiting_thread(struct index_queue* waiting_q, struct registers* regs)
 	push_index(waiting_q, get_global_index(running_thread));
 	struct tcb* thread = running_thread;
 
-	// Do not "re"queue into thread_indices_q.
-	// Explicitly switch context to null_thread too as scheduler_cycle might do
-	// nothing if there are no other threads and will assume that `regs` match
-	// `running_thread->regs`.
+	/*
+	 * NOTE: Do not push back into thread_indices_q.
+	 * Explicitly switch context to null_thread too as scheduler_cycle might do
+	 * nothing if there are no other threads and will assume that `regs` match
+	 * `running_thread->regs`.
+	 */
 	switch_context(regs, thread, null_thread);
 	running_thread = null_thread;
 
-	// As the syscall interrupts and resets the current time slice, we do not
-	// want to decrement other waiting threads.
+	/*
+	 * NOTE: As the syscall interrupts and resets the current time slice, we do
+	 * not want to decrement the waiting threads.
+	 */
 	scheduler_cycle(regs, false);
 	return thread;
 }

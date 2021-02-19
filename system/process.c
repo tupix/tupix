@@ -12,11 +12,6 @@ static size_t pid_counter = 0;
 extern char _udata_begin[], _udata_end[], _udata_cpy_begin[];
 #define UDATA_SIZE _udata_end - _udata_begin
 
-/*
- * TODO(Aurel): Index queues to place the threads in the processes list. This
- * index is then also used for the memory.
- */
-
 /**
  * Create a new memory region and start a new thread inside it
  */
@@ -30,7 +25,7 @@ process_create(void (*func)(void*), const void* args, size_t args_size)
 	INIT_INDEX_QUEUE(p.free_indices);
 	MARK_ALL_FREE(p.free_indices_q);
 
-	struct pcb* process = schedule_process(&p);
+	struct pcb* process = scheduler_register_process(&p);
 	if (!process) {
 		klog(LOG, "Something went wrong creating a new process.");
 		return;
@@ -40,10 +35,7 @@ process_create(void (*func)(void*), const void* args, size_t args_size)
 
 	// copy in the user data
 	switch_memory(process->l2_table);
-
 	memcpy(_udata_begin, _udata_cpy_begin, UDATA_SIZE);
-
-	// TODO(Aurel): Cleanup into own function?
 	switch_memory(get_cur_process()->l2_table);
 
 	struct tcb* thread = thread_create(process, func, args, args_size);

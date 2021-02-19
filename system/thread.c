@@ -23,7 +23,6 @@ extern char _ustacks_start[]; // see kernel.lds
 extern char _udata_begin[];
 
 #define THREAD_STACK_SIZE 0x400 // 1KB
-// NOTE(Aurel): Place at the beginning of the second 4KB page
 #define THREAD_STACK_BASE ((void*)_udata_begin)
 
 void*
@@ -36,34 +35,35 @@ get_stack_pointer(const size_t index)
 	        "linker.",
 	        _ustacks_start);
 
-	// All thread stacks are positioned on top of each other with stack for id 0
-	// at the very top.
+	/*
+	 * NOTE: All thread stacks are positioned below each other with stack of
+	 * thread with index 0 at the very top.
+	 */
 
-	// Respect max number of threads
+	// respect max number of threads
 	if (index > N_THREADS_PER_PROCESS) {
 		klog(ERROR, "Already reached the limit of threads.");
 		return NULL;
 	}
 
-	// We need to have enough space for the new thread's stack.
+	// we need to have enough space for the new thread's stack.
 	if ((void*)(index * THREAD_STACK_SIZE) > THREAD_STACK_BASE) {
 		klog(ERROR, "Not enough memory for this thread's stack.");
 		return NULL;
 	}
 
-	// TODO(Aurel): Currently, no more than one stack per process can exist.
-	// stacks get allocated downwards in memory
-	// mimics index * 2 + 1 + 1 (see driver/mmu.c:init_thread_memory())
+	/*
+	 * NOTE(Aurel): mimics index * 2 + 1 + 1 (see
+	 * driver/mmu.c:init_thread_memory() for detailed description)
+	 */
 	void* sp = (void*)(THREAD_STACK_BASE) + index * 0x2000 + 0x1000 + 0x1000 +
 			   THREAD_STACK_SIZE;
-	//klog(DEBUG, "sp: %p", sp);
 	return sp;
 }
 
 void*
 get_max_stack_pointer(const size_t index)
 {
-	// TODO(Aurel): Is this correct?
 	return get_stack_pointer(index) - THREAD_STACK_SIZE;
 }
 
@@ -118,7 +118,6 @@ thread_create(struct pcb* p, void (*func)(void*), const void* args,
 		thread_sp -= args_size;
 		memcpy(thread_sp, args_buffer, args_size);
 
-		// TODO(Aurel): Cleanup into own function?
 		switch_memory(get_cur_process()->l2_table);
 	}
 
@@ -131,8 +130,8 @@ thread_create(struct pcb* p, void (*func)(void*), const void* args,
 	else
 		new_thread.regs.r0 = (uint32)NULL;
 
-	// Register in scheduler
-	struct tcb* scheduled_thread = schedule_thread(&new_thread);
+	// register thread in scheduler
+	struct tcb* scheduled_thread = scheduler_register_thread(&new_thread);
 
 	klog(LOG, "Done creating new thread (p%u,t%u)(pidx%u,tidx%u)",
 	     new_thread.process->pid, new_thread.tid, new_thread.process->index,

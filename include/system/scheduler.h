@@ -8,8 +8,8 @@
 
 void init_scheduler();
 
-struct pcb* schedule_process(struct pcb* process);
-struct tcb* schedule_thread(struct tcb* thread);
+struct pcb* scheduler_register_process(struct pcb* process);
+struct tcb* scheduler_register_thread(struct tcb* thread);
 void scheduler_cycle(struct registers* regs, bool decrement);
 void kill_cur_thread(struct registers* regs);
 size_t get_cur_thread_index();

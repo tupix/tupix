@@ -11,7 +11,7 @@ extern uint32 _l1_start[N_L1_ENTRIES];
 #define L1 _l1_start
 
 extern uint32 _udata_begin[];
-#define UDATA_USTACK_PHYS_MB ((uint32)_udata_begin >> 20)
+#define UDATA_USTACK_PHYS_BASE_MB ((uint32)_udata_begin >> 20)
 
 __attribute__((aligned(1024)))
 uint32 l1_udata_initialization_l2_table[N_L2_ENTRIES];
@@ -76,14 +76,14 @@ enum l1_1MB_page_entry_bit_field {
 };
 
 enum l1_l2_pointer_entry_bit_field {
-	L1_L2_PAGE_BASE_ADDRESS = 10, // physical address to map to
-	L1_L2_PAGE_IMPL         = 9,  // IMPLementation defined
-	L1_L2_PAGE_DOMAIN       = 5,  //
-	L1_L2_PAGE_SBZ          = 4,  // Should Be Zero
-	L1_L2_PAGE_NS           = 3,  // Non-Secure
-	L1_L2_PAGE_PXN          = 2,  // Privileged eXecute Never
-	L1_L2_PAGE_0            = 1,  // must be 0
-	L1_L2_PAGE_1            = 0,  // must be 1
+	L1_L2_POINTER_BASE_ADDRESS = 10, // physical address to map to
+	L1_L2_POINTER_IMPL         = 9,  // IMPLementation defined
+	L1_L2_POINTER_DOMAIN       = 5,  //
+	L1_L2_POINTER_SBZ          = 4,  // Should Be Zero
+	L1_L2_POINTER_NS           = 3,  // Non-Secure
+	L1_L2_POINTER_PXN          = 2,  // Privileged eXecute Never
+	L1_L2_POINTER_0            = 1,  // must be 0
+	L1_L2_POINTER_1            = 0,  // must be 1
 };
 
 uint32
@@ -91,8 +91,8 @@ set_l1_access_permission(uint32 entry, enum page_access_permission permission)
 {
 	/*
 	 * NOTE(Aurel): Permission bits are split into two:
-	 * L1_AP_0 takes the first two bits
-	 * L1_AP_2 takes the third bit
+	 * L1_1MB_PAGE_AP_0 takes the first two bits
+	 * L1_1MB_PAGE_AP_2 takes the third bit
 	 */
 	SET_BIT_TO(entry, L1_1MB_PAGE_AP_0, permission, 2);
 	SET_BIT_TO(entry, L1_1MB_PAGE_AP_2, (permission >> 2), 1);
@@ -134,7 +134,7 @@ build_l1_l2_pointer_entry(uint32* l2_table, bool allow_privileged_execute)
 	entry = set_page_entry_type(entry, L1_ENTRY_TYPE_L2_POINTER);
 
 	if (!allow_privileged_execute)
-		SET_BIT(entry, L1_L2_PAGE_PXN);
+		SET_BIT(entry, L1_L2_POINTER_PXN);
 
 	return entry;
 }
@@ -160,8 +160,8 @@ set_l2_access_permission(uint32 entry, enum page_access_permission permission)
 {
 	/*
 	 * NOTE(Aurel): Permission bits are split into two:
-	 * L1_AP_0 takes the first two bits
-	 * L1_AP_2 takes the third bit
+	 * L2_SMALL_PAGE_AP_0 takes the first two bits
+	 * L2_SMALL_PAGE_AP_2 takes the third bit
 	 */
 	SET_BIT_TO(entry, L2_SMALL_PAGE_AP_0, permission, 2);
 	SET_BIT_TO(entry, L2_SMALL_PAGE_AP_2, (permission >> 2), 1);
@@ -173,7 +173,7 @@ set_l2_access_permission(uint32 entry, enum page_access_permission permission)
  * @arg mb - megabyte in physical address space.
  */
 uint32
-set_l2_base_address_of_index(uint32 mb, uint32 entry, uint32 index)
+set_l2_base_address_of_index(uint32 mb, uint32 index, uint32 entry)
 {
 	// clear base address bits and set them to the index
 	entry &= 0x00000fff;
@@ -193,7 +193,7 @@ build_l2_4KB_page_entry(uint32 mb, uint32 index,
 	uint32 entry = 0;
 
 	entry = set_page_entry_type(entry, L2_ENTRY_TYPE_SMALL_PAGE);
-	entry = set_l2_base_address_of_index(mb, entry, index);
+	entry = set_l2_base_address_of_index(mb, index, entry);
 	entry = set_l2_access_permission(entry, permission);
 
 	// NOTE(Aurel): Privileged execution is set in L1 pointer entry.
@@ -220,6 +220,7 @@ uint32
 set_dacr_domain_access(uint32 dacr, uint32 domain,
                        enum dacr_domain_access access)
 {
+	// TODO(Aurel): Limit domain to allowed values only.
 	SET_BIT_TO(dacr, domain * 2, access, DACR_DOMAIN_ACCESS_SIZE);
 	return dacr;
 }
@@ -228,12 +229,13 @@ set_dacr_domain_access(uint32 dacr, uint32 domain,
 void
 init_l1()
 {
-	// Null all entries.
+	// null all entries (0x4000 = 4 * 0x1000 = 4 * 4KB = 16KB = size of L1 table)
 	memset(L1, 0, 0x4000);
 
 	/*
 	 * NOTE(Aurel): These indices correspond to the 6th hex-digit seen in
 	 * kernel.lds or the base addresses of the hardware-components driver.
+	 * In other words: the MB in physical memory.
 	 */
 	// init code
 	L1[0] = build_l1_1MB_page_entry(0, PAGE_ACCESS_PERM_SYS_ONLY_READ_ONLY,
@@ -249,28 +251,31 @@ init_l1()
 	// user code
 	L1[4] = build_l1_1MB_page_entry(4, PAGE_ACCESS_PERM_SYS_USER_READ_ONLY,
 	                                true, false);
-	// user data and stacks
 	/*
-	 * NOTE(Aurel): The user stacks share the same virtual address.
+	 * user data and stacks
+	 * NOTE(Aurel): All user stacks share the same virtual address.
 	 * NOTE(Aurel): As long as there is no thread there can't be a user stack
-	 * hence why at initialization there is only one entry into the l2 table
-	 * pointed to here enabling access to the user data and bss segments.
+	 * hence why at initialization there is only one entry in the L2 table
+	 * pointed to here, enabling access to the user data and bss segments.
 	 */
-	l1_udata_initialization_l2_table[0] = build_l2_4KB_page_entry(
-			UDATA_USTACK_PHYS_MB, 0, PAGE_ACCESS_PERM_SYS_USER_FULL, false);
-	L1[UDATA_USTACK_PHYS_MB] =
+	l1_udata_initialization_l2_table[0] =
+			build_l2_4KB_page_entry(UDATA_USTACK_PHYS_BASE_MB, 0,
+	                                PAGE_ACCESS_PERM_SYS_USER_FULL, false);
+	L1[UDATA_USTACK_PHYS_BASE_MB] =
 			build_l1_l2_pointer_entry(l1_udata_initialization_l2_table, false);
 
-	// hardware
-	// Interrupt Controller
+	/* memory mapped hardware */
+	// interrupt controller
 	L1[0x3F0] = build_l1_1MB_page_entry(0x3F0, PAGE_ACCESS_PERM_SYS_ONLY_FULL,
 	                                    false, false);
 	// UART
 	L1[0x3F2] = build_l1_1MB_page_entry(0x3F2, PAGE_ACCESS_PERM_SYS_ONLY_FULL,
 	                                    false, false);
-	// TIMER
+	// timer
 	L1[0x400] = build_l1_1MB_page_entry(0x400, PAGE_ACCESS_PERM_SYS_ONLY_FULL,
 	                                    false, false);
+	/* \memory mapped hardware */
+
 	klog(LOG, "L1-table initialized.");
 }
 
@@ -284,44 +289,53 @@ get_dacr_init_val(uint32 dacr)
 uint32
 get_ttbcr_init_val(uint32 ttbcr)
 {
-	// NOTE(Aurel): Setting the TTBCR to 0 means that it will only try to use
-	// the TTBR0 mappings. That is exactly what we want.
+	/*
+	 * NOTE(Aurel): Setting the TTBCR to 0 means that it will only try to use
+	 * the TTBR0 mappings which is what we want for now.
+	 */
 	ttbcr = 0;
 	return ttbcr;
 }
 
 void
-init_process_memory(uint32 index, uint32* l2_table)
+init_process_memory(uint32 process_index, uint32* l2_table)
 {
 	klog(LOG, "Initializing process memory...");
-	// TODO(Aurel): Should this really be an mmu-function?
-	// as there is no thread in the process which is the case at initialization.
+
+	/* 
+	 * NOTE(Aurel): Each process gets its own MB in physical memory offset by
+	 * its index from the base address.
+	 * In virtual memory, all processes use the same memory. The very first
+	 * small page (4KB) of this memory is reserved for the process specific user
+	 * data, bss and COMMON sections. All other sections are initialized to
+	 * throw data aborts if accessed.
+	 */
 	memset(l2_table, 0, N_L2_ENTRIES * sizeof(*l2_table));
 	l2_table[0] = build_l2_4KB_page_entry(
-			/* mb  = */ index + UDATA_USTACK_PHYS_MB, 0,
-			PAGE_ACCESS_PERM_SYS_USER_FULL, false);
+			/* physical MB  = */ UDATA_USTACK_PHYS_BASE_MB + process_index,
+			/* 4KB offset = */ 0, PAGE_ACCESS_PERM_SYS_USER_FULL, false);
+
 	klog(LOG, "Done initializing process memory.");
 }
 
 void
-init_thread_memory(size_t pid, size_t thread_index, uint32* l2_table)
+init_thread_memory(size_t process_index, size_t thread_index, uint32* l2_table)
 {
 	klog(LOG, "Initializing thread memory...");
-#if 0
-	klog(DEBUG,
-	     "Initializing thread memory for process %i, thread %i, in l2_table at %p...",
-	     pid, thread_index, l2_table);
-#endif
-	/*
-	 * NOTE(Aurel): Stacks are located from the 6th MB upward, with the 0th stack exactly at
-	 * 6MB in memory. Hence index + 6.
-	 * The second entry is reserved for the thread stack. It should be read- and
-	 * writable, but not executable.
-	 */
 	uint32 l2_entry = build_l2_4KB_page_entry(
-			/* mb  = */ pid + 5, thread_index + 1,
-			PAGE_ACCESS_PERM_SYS_USER_FULL, false);
-	l2_table[thread_index * 2 + 1 + 1] = l2_entry;
+			/* physical MB  = */ UDATA_USTACK_PHYS_BASE_MB + process_index,
+			/* 4KB offset = */ thread_index + 1, PAGE_ACCESS_PERM_SYS_USER_FULL,
+			false);
+	/*
+	 * NOTE(Aurel):	In virtual memory, each thread needs two small pages in the
+	 * L2 table. One for its stack itself, and one for the stack's guard-page.
+	 * An additional one time offset of 1 small page is needed for the data, bss
+	 * and COMMON segments of the process.
+	 *
+	 * two small pages + 1 guard-page + 1 page for data, bss, COMMON
+	 */
+	uint32 l2_table_index    = thread_index * 2 + 1 + 1;
+	l2_table[l2_table_index] = l2_entry;
 	klog(LOG, "Done initializing thread memory.");
 }
 
@@ -332,7 +346,6 @@ switch_memory(uint32* l2_table)
 	asm("mcr p15, 0, r0, c8, c7, 0");
 
 	// set base address to new l2_table
-	// TODO(Aurel): Cleanup into function?
-	L1[UDATA_USTACK_PHYS_MB] &= 0x000000ff;
-	L1[UDATA_USTACK_PHYS_MB] |= (uint32)l2_table & 0xffffff00;
+	L1[UDATA_USTACK_PHYS_BASE_MB] &= 0x000000ff;
+	L1[UDATA_USTACK_PHYS_BASE_MB] |= (uint32)l2_table & 0xffffff00;
 }
