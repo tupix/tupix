@@ -71,7 +71,7 @@ OBJ_PATCH = $(OBJ:.o=.orig) $(OBJ:.o=.rej)
 
 # Submission files (Everything tracked by git minus hidden files, tars, pdfs and
 # the format.sh
-SUBMISSION_FILES = $(shell git ls-files | grep -Ev "(^|/)\." | grep -Ev "\.(tar\.gz|pdf)$$" | grep -v "format.sh")
+SUBMISSION_FILES = $(shell git ls-files 2>/dev/null | grep -Ev "(^|/)\." | grep -Ev "\.(tar\.gz|pdf)$$" | grep -v "format.sh")
 MATRIKEL_NR := $(shell awk '(NR > 1) && (NR < 3)  {ORS="+"; print prev} {prev=$$1} END { ORS=""; print $$1 }' matrikel_nr.txt )
 
 # Configuration
@@ -202,7 +202,7 @@ home: kernel.img
 MATRIKEL_NR_ROWS := $(shell test "$$(wc -l < matrikel_nr.txt)" -gt 2; echo $$?)
 MATRIKEL_NR_DIGITS := $(shell egrep -vq '^[0-9]{6}$$' matrikel_nr.txt; echo $$?)
 
-GIT_REPO_DIRTY := $(shell test -n "$$(git status --porcelain --untracked-files)"; echo $$?)
+GIT_REPO_DIRTY := $(shell test -n "$$(git status --porcelain --untracked-files 2>/dev/null)"; echo $$?)
 
 .PHONY: submission_check
 submission_check:
