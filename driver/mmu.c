@@ -10,6 +10,11 @@
 extern uint32 _l1_start[N_L1_ENTRIES];
 #define L1 _l1_start
 
+extern uint32 _udata_begin[];
+#define UDATA_USTACK_PHYS_MB ((uint32)_udata_begin >> 20)
+
+__attribute__((aligned(1024))) uint32 l1_udata_initialization_l2_table[256];
+
 enum page_access_permission {
 	PAGE_ACCESS_PERM_SYS_USER_FULL           = 0b011,
 	PAGE_ACCESS_PERM_SYS_FULL_USER_READ_ONLY = 0b010,
@@ -243,17 +248,17 @@ init_l1()
 	// user code
 	L1[4] = build_l1_1MB_page_entry(4, PAGE_ACCESS_PERM_SYS_USER_READ_ONLY,
 	                                true, false);
-	// user data
-	L1[5] = build_l1_1MB_page_entry(5, PAGE_ACCESS_PERM_SYS_USER_FULL, false,
-	                                false);
-
-	// user stacks
+	// user data and stacks
 	/*
 	 * NOTE(Aurel): The user stacks share the same virtual address.
-	 * NOTE(Aurel): As long as there is no thread there can't be a user stack.
-	 * Hence why the pointer to the l2_table is initialized as NULL.
+	 * NOTE(Aurel): As long as there is no thread there can't be a user stack
+	 * hence why at initialization there is only one entry into the l2 table
+	 * pointed to here enabling access to the user data and bss segments.
 	 */
-	L1[6] = build_l1_l2_pointer_entry(NULL, false);
+	l1_udata_initialization_l2_table[0] = build_l2_4KB_page_entry(
+			UDATA_USTACK_PHYS_MB, 0, PAGE_ACCESS_PERM_SYS_USER_FULL, false);
+	L1[UDATA_USTACK_PHYS_MB] =
+			build_l1_l2_pointer_entry(l1_udata_initialization_l2_table, false);
 
 	// hardware
 	// Interrupt Controller
@@ -285,7 +290,7 @@ get_ttbcr_init_val(uint32 ttbcr)
 }
 
 void
-init_process_memory(uint32* l2_table)
+init_process_memory(uint32 index, uint32* l2_table)
 {
 	klog(LOG, "Initializing process memory...");
 	// TODO(Aurel): Should this really be an mmu-function?
@@ -296,6 +301,9 @@ init_process_memory(uint32* l2_table)
 	for (uint32 i = 0; i < 256; ++i) {
 		l2_table[i] = 0;
 	}
+	l2_table[0] = build_l2_4KB_page_entry(
+			/* mb  = */ index + UDATA_USTACK_PHYS_MB, 0,
+			PAGE_ACCESS_PERM_SYS_USER_FULL, false);
 	klog(LOG, "Done initializing process memory.");
 }
 
@@ -314,32 +322,21 @@ init_thread_memory(size_t pid, size_t thread_index, uint32* l2_table)
 	 * The second entry is reserved for the thread stack. It should be read- and
 	 * writable, but not executable.
 	 */
-	// TODO(Aurel): Why is the index hardcoded to 4? Changing it seems to have
-	// no effect whatsoever. Because its only the physical address and since we
-	// are changing the mb for every thread they never overwrite each others
-	// stack. Needs changing when we actually want to place them close to each
-	// other in physical memory and should be dependent on the index.
 	uint32 l2_entry = build_l2_4KB_page_entry(
-			/* mb  = */ pid + 6, thread_index, PAGE_ACCESS_PERM_SYS_USER_FULL,
-			false);
-	l2_table[thread_index * 2 + 1] = l2_entry;
+			/* mb  = */ pid + 5, thread_index + 1,
+			PAGE_ACCESS_PERM_SYS_USER_FULL, false);
+	l2_table[thread_index * 2 + 1 + 1] = l2_entry;
 	klog(LOG, "Done initializing thread memory.");
 }
 
 void
-switch_memory(uint32 pid, uint32* l2_table)
+switch_memory(uint32* l2_table)
 {
 	// invalidate entire TLB
 	asm("mcr p15, 0, r0, c8, c7, 0");
 
-	// set physical address (base address) of user data
-	uint32 mb = pid + 6;
-	// TODO(Aurel): Cleanup into function? Already exists: set_l1_base_address_of_index
-	L1[5] &= 0x000fffff;
-	L1[5] |= (mb << 20);
-
 	// set base address to new l2_table
 	// TODO(Aurel): Cleanup into function?
-	L1[6] &= 0x000000ff;
-	L1[6] |= (uint32)l2_table & 0xffffff00;
+	L1[UDATA_USTACK_PHYS_MB] &= 0x000000ff;
+	L1[UDATA_USTACK_PHYS_MB] |= (uint32)l2_table & 0xffffff00;
 }

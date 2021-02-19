@@ -26,6 +26,7 @@ start_kernel(void)
 	init_mmu();
 	klog(LOG, "Kernel initialized.");
 
+	ASSERTM(UDATA_SIZE < 0x1000, "user data is bigger than reserved memory.");
 	// Copy user data and bss segments to kernel memory.
 	memcpy(_udata_cpy_begin, _udata_begin, UDATA_SIZE);
 

@@ -33,16 +33,15 @@ process_create(void (*func)(void*), const void* args, size_t args_size)
 		return;
 	}
 
-	init_process_memory(process->l2_table);
+	init_process_memory(process->index, process->l2_table);
 
 	// copy in the user data
-	switch_memory(process->pid, process->l2_table);
+	switch_memory(process->l2_table);
 
 	memcpy(_udata_begin, _udata_cpy_begin, UDATA_SIZE);
 
 	// TODO(Aurel): Cleanup into own function?
-	struct pcb* cur_process = get_cur_process();
-	switch_memory(cur_process->pid, cur_process->l2_table);
+	switch_memory(get_cur_process()->l2_table);
 
 	thread_create(process, func, args, args_size);
 	klog(LOG, "Done creating new process. (p%u, pidx%u)", process->pid,

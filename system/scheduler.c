@@ -102,7 +102,7 @@ switch_context(struct registers* regs, struct tcb* old, struct tcb* new)
 	}
 	// TODO(Aurel): Is this correct here? Do we always want to switch the
 	// memory?
-	switch_memory(new->process->pid, new->process->l2_table);
+	switch_memory(new->process->l2_table);
 }
 
 struct tcb*

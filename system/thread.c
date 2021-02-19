@@ -20,10 +20,11 @@ static size_t tid_counter = 0;
 
 extern void exit();           // syscall in user
 extern char _ustacks_start[]; // see kernel.lds
+extern char _udata_begin[];
 
 #define THREAD_STACK_SIZE 0x400 // 1KB
 // NOTE(Aurel): Place at the beginning of the second 4KB page
-#define THREAD_STACK_BASE ((void*)_ustacks_start)
+#define THREAD_STACK_BASE ((void*)_udata_begin)
 
 void*
 get_stack_pointer(const size_t index)
@@ -52,8 +53,8 @@ get_stack_pointer(const size_t index)
 
 	// TODO(Aurel): Currently, no more than one stack per process can exist.
 	// stacks get allocated downwards in memory
-	// mimics index * 2 + 1 (see system/mmu.c:init_thread_memory())
-	void* sp = (void*)(THREAD_STACK_BASE) + index * 0x2000 + 0x1000 +
+	// mimics index * 2 + 1 + 1 (see driver/mmu.c:init_thread_memory())
+	void* sp = (void*)(THREAD_STACK_BASE) + index * 0x2000 + 0x1000 + 0x1000 +
 			   THREAD_STACK_SIZE;
 	//klog(DEBUG, "sp: %p", sp);
 	return sp;
@@ -111,15 +112,14 @@ thread_create(struct pcb* p, void (*func)(void*), const void* args,
 		char args_buffer[args_size];
 		memcpy(args_buffer, args, args_size);
 
-		switch_memory(p->pid, p->l2_table);
+		switch_memory(p->l2_table);
 
 		// Since the stack grows to the 'bottom', copy below it
 		thread_sp -= args_size;
 		memcpy(thread_sp, args_buffer, args_size);
 
 		// TODO(Aurel): Cleanup into own function?
-		struct pcb* cur_process = get_cur_process();
-		switch_memory(cur_process->pid, cur_process->l2_table);
+		switch_memory(get_cur_process()->l2_table);
 	}
 
 	// Update stack pointer
