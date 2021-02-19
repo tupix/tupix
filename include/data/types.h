@@ -29,11 +29,15 @@ struct index_queue {
 #define circle_forward(var, size) (var) = (var) + 1 >= (size) ? 0 : (var) + 1
 
 #define INDEX_QUEUE(NAME, SIZE)                                                \
+	size_t NAME[SIZE];                                                         \
+	struct index_queue NAME##_q;
+
+#define STATIC_INDEX_QUEUE(NAME, SIZE)                                         \
 	static size_t NAME[SIZE];                                                  \
 	static struct index_queue NAME##_q;
 
 #define INIT_INDEX_QUEUE(NAME)                                                 \
-	init_queue(&NAME##_q, NAME, sizeof(NAME) / sizeof(*NAME))
+	init_queue(&(NAME##_q), (NAME), sizeof(NAME) / sizeof(*(NAME)))
 
 void init_queue(struct index_queue* q, size_t* indices, size_t n);
 ssize_t push_index(struct index_queue* q, size_t index);
