@@ -44,7 +44,7 @@ push_index(struct index_queue* q, size_t index)
 /*
  * Pop index from index_queue.
  *
- * @return 0 on any fatal error.
+ * @return -1 on any fatal error.
  */
 ssize_t
 pop_index(struct index_queue* q)
