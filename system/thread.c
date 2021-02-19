@@ -39,7 +39,7 @@ get_stack_pointer(const size_t index)
 	// at the very top.
 
 	// Respect max number of threads
-	if (index >= N_THREADS_PER_PROCESS) {
+	if (index > N_THREADS_PER_PROCESS) {
 		klog(ERROR, "Already reached the limit of threads.");
 		return NULL;
 	}
