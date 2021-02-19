@@ -19,19 +19,23 @@ typedef unsigned long long uint64;
 typedef uint32 size_t;
 typedef int32 ssize_t;
 
-/* INDEX QUEUE */
-#define INDEX_QUEUE(_name, _size)                                              \
-	struct _name {                                                             \
-		size_t size, count;                                                    \
-		size_t tail, head;                                                     \
-		size_t indices[_size];                                                 \
-	}
-INDEX_QUEUE(index_queue, N_THREADS);
+struct index_queue {
+	size_t size, count;
+	size_t tail, head;
+	size_t* indices;
+};
 
 // NOTE(Aurel): Do not increment var when using this macro.
 #define circle_forward(var, size) (var) = (var) + 1 >= (size) ? 0 : (var) + 1
 
-void init_queue(struct index_queue* q);
+#define INDEX_QUEUE(NAME, SIZE)                                                \
+	static size_t NAME[SIZE];                                                  \
+	static struct index_queue NAME##_q;
+
+#define INIT_INDEX_QUEUE(NAME)                                                 \
+	init_queue(&NAME##_q, NAME, sizeof(NAME) / sizeof(*NAME))
+
+void init_queue(struct index_queue* q, size_t* indices, size_t n);
 ssize_t push_index(struct index_queue* q, size_t index);
 ssize_t pop_index(struct index_queue* q);
 

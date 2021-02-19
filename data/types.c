@@ -3,17 +3,16 @@
 #include <std/mem.h>
 
 /*
- * Null the struct but set the size
+ * Null the struct and the buffer and set buffer and size
  */
 void
-init_queue(struct index_queue* q)
+init_queue(struct index_queue* q, size_t* indices, size_t n)
 {
 	memset(q, 0, sizeof(*q));
-	q->size = sizeof(q->indices) / sizeof(*(q->indices));
+	memset(indices, 0, n * sizeof(*indices));
+	q->indices = indices;
+	q->size    = n;
 }
-
-// NOTE(Aurel): Do not increment var when using this macro.
-#define circle_forward(var, size) (var) = (var) + 1 >= (size) ? 0 : (var) + 1
 
 /*
  * Push index to index_queue.

@@ -20,14 +20,14 @@
 #include <driver/uart.h>
 
 //static struct index_queue process_indices_q;
-static struct index_queue free_process_indices_q;
-static struct index_queue thread_indices_q;
-static struct index_queue free_thread_indices_q;
+INDEX_QUEUE(free_process_indices, N_PROCESSES);
+INDEX_QUEUE(thread_indices, N_THREADS);
+INDEX_QUEUE(free_thread_indices, N_THREADS);
 
 /* WAITING QUEUES */
 // NOTE: When adding queues, do not forget to initialize them in init_scheduler
-static struct index_queue sleep_waiting_q;
-static struct index_queue char_waiting_q;
+INDEX_QUEUE(sleep_waiting, N_THREADS);
+INDEX_QUEUE(char_waiting, N_THREADS);
 /* \WAITING QUEUES */
 
 static struct pcb processes[N_PROCESSES + 1];
@@ -187,16 +187,13 @@ init_null_thread()
 void
 init_scheduler()
 {
-	init_queue(&free_process_indices_q);
-	init_queue(&thread_indices_q);
-	init_queue(&free_thread_indices_q);
-
-	// TODO: Fix type of free_process_indices_q
-	free_process_indices_q.size = N_PROCESSES;
+	INIT_INDEX_QUEUE(free_process_indices);
+	INIT_INDEX_QUEUE(thread_indices);
+	INIT_INDEX_QUEUE(free_thread_indices);
 
 	/* WAITING QUEUES */
-	init_queue(&sleep_waiting_q);
-	init_queue(&char_waiting_q);
+	INIT_INDEX_QUEUE(sleep_waiting);
+	INIT_INDEX_QUEUE(char_waiting);
 	/* \WAITING QUEUES */
 
 	tid_count = 0;
