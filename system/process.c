@@ -27,7 +27,7 @@ process_create(void (*func)(void*), const void* args, size_t args_size)
 	INIT_INDEX_QUEUE(p.free_indices);
 	MARK_ALL_FREE(p.free_indices_q);
 
-	struct pcb* process = schedule_process(p);
+	struct pcb* process = schedule_process(&p);
 	if (!process) {
 		klog(LOG, "Something went wrong creating a new process.");
 		return;

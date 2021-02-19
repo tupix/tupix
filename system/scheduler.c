@@ -145,29 +145,28 @@ init_scheduler()
 }
 
 struct pcb*
-schedule_process(struct pcb process)
+schedule_process(struct pcb* process)
 {
 	ssize_t index = pop_index(&free_process_indices_q);
 	if (index < 0)
 		return NULL;
 
-	process.pid              = ++pid_count;
-	process.index            = index;
-	processes[process.index] = process;
-	return &processes[process.index];
+	process->pid              = ++pid_count;
+	process->index            = index;
+	processes[process->index] = *process;
+	return &processes[process->index];
 }
 /*
  * Register thread.
- * TODO: Take pointer, so that memory is only copied once.
  *
  * @return a pointer to the new memory location.
  */
 struct tcb*
-schedule_thread(struct tcb thread)
+schedule_thread(struct tcb* thread)
 {
-	size_t index = get_global_index(&thread);
+	size_t index = get_global_index(thread);
 	push_index(&thread_indices_q, index);
-	threads[index] = thread;
+	threads[index] = *thread;
 	return &(threads[index]);
 }
 
