@@ -63,7 +63,11 @@ main_thread()
 	uint32 c;
 	while (1) {
 		c = getchar();
-		fork(&user_thread, &c, sizeof(c));
+		if (c >= 'A' && c <= 'Z') {
+			create_thread(&user_thread, &c, sizeof(c));
+		} else {
+			fork(&user_thread, &c, sizeof(c));
+		}
 	}
 #endif
 }
