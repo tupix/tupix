@@ -81,7 +81,7 @@ init_thread(struct pcb* process, void (*func)(void*))
 	return thread;
 }
 
-void
+struct tcb *
 thread_create(struct pcb* p, void (*func)(void*), const void* args,
               size_t args_size)
 {
@@ -91,7 +91,7 @@ thread_create(struct pcb* p, void (*func)(void*), const void* args,
 	ssize_t index         = pop_index(&(p->free_indices_q));
 	if (index < 0) {
 		klog(WARNING, "No thread created.");
-		return;
+		return NULL;
 	}
 	new_thread.index = index;
 
@@ -99,7 +99,7 @@ thread_create(struct pcb* p, void (*func)(void*), const void* args,
 	void* thread_sp = get_stack_pointer(new_thread.index);
 	if (!thread_sp) {
 		klog(WARNING, "No thread created.");
-		return;
+		return NULL;
 	}
 
 	/*
@@ -132,9 +132,10 @@ thread_create(struct pcb* p, void (*func)(void*), const void* args,
 		new_thread.regs.r0 = (uint32)NULL;
 
 	// Register in scheduler
-	schedule_thread(new_thread);
+	struct tcb *scheduled_thread = schedule_thread(new_thread);
 
 	klog(LOG, "Done creating new thread (p%u,t%u)(pidx%u,tidx%u)",
 	     new_thread.process->pid, new_thread.tid, new_thread.process->index,
 	     new_thread.index);
+	return scheduled_thread;
 }

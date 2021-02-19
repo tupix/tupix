@@ -29,7 +29,7 @@ process_create(void (*func)(void*), const void* args, size_t args_size)
 
 	struct pcb* process = schedule_process(p);
 	if (!process) {
-		klog(LOG, "Something went wrong creating a new thread.");
+		klog(LOG, "Something went wrong creating a new process.");
 		return;
 	}
 
@@ -43,7 +43,12 @@ process_create(void (*func)(void*), const void* args, size_t args_size)
 	// TODO(Aurel): Cleanup into own function?
 	switch_memory(get_cur_process()->l2_table);
 
-	thread_create(process, func, args, args_size);
+	struct tcb* thread = thread_create(process, func, args, args_size);
+	if (!thread) {
+		klog(LOG, "Something went wrong creating a new thread.");
+		return;
+	}
+
 	klog(LOG, "Done creating new process. (p%u, pidx%u)", process->pid,
 	     process->index);
 }
