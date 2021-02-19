@@ -5,6 +5,7 @@
 /*
  * Null the struct and the buffer and set buffer and size
  */
+// TODO: flag if memset or not
 void
 init_queue(struct index_queue* q, size_t* indices, size_t n)
 {

@@ -158,6 +158,7 @@ schedule_process(struct pcb process)
 }
 /*
  * Register thread.
+ * TODO: Take pointer, so that memory is only copied once.
  *
  * @return a pointer to the new memory location.
  */
@@ -206,6 +207,7 @@ scheduler_cycle(struct registers* regs, bool decrement)
 
 	if (old_thread != null_thread) {
 		if (push_index(&thread_indices_q, old_thread->index) < 0) {
+			// TODO: Do we need to do something with the free_indices_q?
 			klog(ERROR, "Could not push old thread back. Losing the thread!");
 			return;
 		}

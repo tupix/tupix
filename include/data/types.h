@@ -33,6 +33,10 @@ struct index_queue {
 		push_index(&(Q), i + 1);                                               \
 	}
 
+/* TODO:
+	size_t NAME[SIZE];
+	struct index_queue NAME##_q = { .size = SIZE, .indices = NAME };
+*/
 #define INDEX_QUEUE(NAME, SIZE)                                                \
 	size_t NAME[SIZE];                                                         \
 	struct index_queue NAME##_q;
