@@ -19,7 +19,6 @@ struct tcb {
 	struct general_registers regs;
 	uint32 cpsr;
 	size_t waiting_duration;
-	bool initialized;
 	enum thread_state state;
 };
 

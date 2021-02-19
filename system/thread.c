@@ -16,6 +16,8 @@
 #include <std/log.h>
 #include <std/mem.h>
 
+static size_t tid_counter = 0;
+
 extern void exit();           // syscall in user
 extern char _ustacks_start[]; // see kernel.lds
 
@@ -37,7 +39,7 @@ get_stack_pointer(const size_t index)
 	// at the very top.
 
 	// Respect max number of threads
-	if (index >= N_THREADS) {
+	if (index >= N_THREADS_PER_PROCESS) {
 		klog(ERROR, "Already reached the limit of threads.");
 		return NULL;
 	}
@@ -68,12 +70,12 @@ struct tcb
 init_thread(struct pcb* process, void (*func)(void*))
 {
 	struct tcb thread       = { 0 };
+	thread.tid              = ++tid_counter;
 	thread.regs.pc          = (uint32)func;
 	thread.regs.lr          = (uint32)&exit;
 	thread.process          = process;
 	thread.cpsr             = PROCESSOR_MODE_USR;
 	thread.waiting_duration = 0;
-	thread.initialized      = false;
 
 	return thread;
 }
@@ -83,25 +85,19 @@ thread_create(struct pcb* p, void (*func)(void*), const void* args,
               size_t args_size)
 {
 	klog(LOG, "Creating new thread...");
-	struct tcb* scheduled_thread = schedule_thread(init_thread(p, func));
-	if (!scheduled_thread)
-		return; // Thread was not added to queue
 
-	init_thread_memory(p->pid, scheduled_thread->index, p->l2_table);
+	struct tcb new_thread = init_thread(p, func);
+	ssize_t index         = pop_index(&(p->free_indices_q));
+	if (index < 0) {
+		klog(WARNING, "No thread created.");
+		return;
+	}
+	new_thread.index = index;
 
-	/*
-	 * TODO(Aurel): Remove thread from being scheduled. This should never
-	 * happen. When the thread has been scheduled, it should be able to get a
-	 * sp. Currently this can fail because of a relic of before having
-	 * processes. We need to change over to indices into the process tcb array
-	 * instead of (only) into the big scheduler thread array `threads[]`. At
-	 * least that's what I think.
-	 */
-	void* thread_sp = get_stack_pointer(scheduled_thread->index);
-	// TODO(Aurel): Error handling for thread_sp == NULL
+	init_thread_memory(p->pid, new_thread.index, p->l2_table);
+	void* thread_sp = get_stack_pointer(new_thread.index);
 	if (!thread_sp) {
-		klog(DEBUG,
-		     "THIS STILL NEEDS TO BE FIXED BUT IS A RESULT OF ANOTHER PROBLEM.");
+		klog(WARNING, "No thread created.");
 		return;
 	}
 
@@ -127,16 +123,18 @@ thread_create(struct pcb* p, void (*func)(void*), const void* args,
 	}
 
 	// Update stack pointer
-	scheduled_thread->regs.sp = (uint32)thread_sp;
+	new_thread.regs.sp = (uint32)thread_sp;
 
 	// Pass stack-pointer as argument
 	if (args && args_size)
-		scheduled_thread->regs.r0 = scheduled_thread->regs.sp;
+		new_thread.regs.r0 = new_thread.regs.sp;
 	else
-		scheduled_thread->regs.r0 = (uint32)NULL;
+		new_thread.regs.r0 = (uint32)NULL;
 
-	p->n_threads++;
-	scheduled_thread->initialized = true;
-	klog(LOG, "Done creating new thread (p%u,t%u)",
-	     scheduled_thread->process->pid, scheduled_thread->tid);
+	// Register in scheduler
+	schedule_thread(new_thread);
+
+	klog(LOG, "Done creating new thread (p%u,t%u)(pidx%u,tidx%u)",
+	     new_thread.process->pid, new_thread.tid, new_thread.process->index,
+	     new_thread.index);
 }

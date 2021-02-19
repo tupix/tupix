@@ -23,7 +23,8 @@
 #define LOGGING_LEVEL 99
 
 // Number of processes and threads supported
-#define N_PROCESSES 5
-#define N_THREADS 32
+#define N_PROCESSES 8
+#define N_THREADS_PER_PROCESS 4
+#define N_THREADS (N_PROCESSES * N_THREADS_PER_PROCESS)
 
 #endif /* CONFIG_H */

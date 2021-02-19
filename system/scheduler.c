@@ -21,8 +21,8 @@
 
 //static struct index_queue process_indices_q;
 STATIC_INDEX_QUEUE(free_process_indices, N_PROCESSES);
+STATIC_INDEX_QUEUE(process_indices, N_PROCESSES);
 STATIC_INDEX_QUEUE(thread_indices, N_THREADS);
-STATIC_INDEX_QUEUE(free_thread_indices, N_THREADS);
 
 /* WAITING QUEUES */
 // NOTE: When adding queues, do not forget to initialize them in init_scheduler
@@ -40,74 +40,14 @@ static uint32 pid_count;
 
 extern void endless_loop();
 
-/*
- * Push thread onto thread queue.
- *
- * @return NULL on errors.
- */
-static struct tcb*
-push_thread(struct tcb* thread)
+static size_t
+get_global_index(struct tcb* t)
 {
-	if (!thread) {
-		klog(WARNING, "Invalid thread (NULL)");
-		return NULL;
-	} else if (thread == &(threads[0])) {
-		klog(WARNING, "Trying to push null-thread");
-		return NULL;
-	}
-
-	// Push thread
-	ssize_t index = push_index(&thread_indices_q, thread->index);
-	if (!index) {
-		klog(LOG, "Thread queue full");
-		return NULL;
-	} else if (0 > index) {
-		return NULL; // Other error
-	}
-
-	return &(threads[thread->index]);
-}
-
-static struct tcb*
-pop_thread()
-{
-	if (!thread_indices_q.count) {
-		klog(LOG, "thread_indices_q is empty.");
-		return NULL;
-	}
-
-	// TODO:
-	// The order in the queue is changed, if there is a thread that is not
-	// initialized yet. In that case that thread is pushed to the back. Is that
-	// unfair behaviour? We could continue to pop & push instead of breaking so
-	// that the order is restored.
-	// Another question: Is it even possible that there are uninitialized
-	// threads in here?
-	ssize_t index = -1;
-	for (size_t i = 0; i < thread_indices_q.count; ++i) {
-		index = pop_index(&thread_indices_q);
-		if (!index) {
-			klog(LOG, "Thread queue empty");
-			return NULL;
-		} else if (index < 0) {
-			return NULL; // Other error
-		}
-
-		if (threads[index].initialized) {
-			break;
-		} else {
-			klog(LOG, "Thread not initialized; getting next one");
-			push_index(&thread_indices_q, index);
-		}
-
-		index = -1;
-	}
-	if (index == -1) {
-		klog(LOG, "No thread is initialized, returning null-thread");
-		return NULL;
-	}
-
-	return &(threads[index]);
+	//  Example with N_THREADS_PER_PROCESS = 3
+	//  p0 |p1         |p2         |p3
+	// [t0,|t1, t2, t3,|t1, t2, t3,|t1, t2, ...]
+	//  0   1   2   3   4   5   6   7   8
+	return (t->process->index - 1) * N_THREADS_PER_PROCESS + t->index;
 }
 
 static void
@@ -115,7 +55,7 @@ decrement_waits()
 {
 	size_t i = 0;
 	size_t p = sleep_waiting_q.head;
-	size_t thread_idx;
+	ssize_t thread_idx;
 
 	while (i < sleep_waiting_q.count) {
 		thread_idx = sleep_waiting_q.indices[p];
@@ -124,7 +64,7 @@ decrement_waits()
 		if (!--threads[thread_idx].waiting_duration) {
 			// Threads wait is done
 
-			size_t res = pop_index(&sleep_waiting_q);
+			ssize_t res = pop_index(&sleep_waiting_q);
 			ASSERTM(res == thread_idx, "Current thread was not popped.");
 			// TODO: Push to front?
 			push_index(&thread_indices_q, thread_idx);
@@ -175,8 +115,7 @@ init_null_thread()
 	null_thread_init.cpsr       = PROCESSOR_MODE_USR;
 	null_thread_init.regs.sp =
 			(uint32)get_stack_pointer(null_thread_init.index);
-	null_thread_init.initialized = true;
-	threads[0]                   = null_thread_init;
+	threads[0] = null_thread_init;
 	init_thread_memory(null_process.pid, threads[0].index,
 	                   null_process.l2_table);
 	processes[0]       = null_process;
@@ -188,8 +127,8 @@ void
 init_scheduler()
 {
 	INIT_INDEX_QUEUE(free_process_indices);
+	INIT_INDEX_QUEUE(process_indices);
 	INIT_INDEX_QUEUE(thread_indices);
-	INIT_INDEX_QUEUE(free_thread_indices);
 
 	/* WAITING QUEUES */
 	INIT_INDEX_QUEUE(sleep_waiting);
@@ -199,7 +138,6 @@ init_scheduler()
 	tid_count = 0;
 	pid_count = 0;
 	MARK_ALL_FREE(free_process_indices_q);
-	MARK_ALL_FREE(free_thread_indices_q);
 
 	null_thread    = init_null_thread();
 	running_thread = null_thread;
@@ -210,46 +148,26 @@ struct pcb*
 schedule_process(struct pcb process)
 {
 	ssize_t index = pop_index(&free_process_indices_q);
-	if (!index) {
-		klog(WARNING, "No available thread indices");
+	if (index < 0)
 		return NULL;
-	} else if (0 > index) {
-		return NULL; // Other error
-	}
+
 	process.pid              = ++pid_count;
 	process.index            = index;
 	processes[process.index] = process;
 	return &processes[process.index];
 }
 /*
- * Put given thread into scheduled queue.
- * The id of the thread is set in this function and a value of 0 indicates a
- * full queue.
+ * Register thread.
  *
- * @return NULL if the thread could not be pushed.
+ * @return a pointer to the new memory location.
  */
 struct tcb*
 schedule_thread(struct tcb thread)
 {
-	ssize_t index = pop_index(&free_thread_indices_q);
-	if (!index) {
-		klog(WARNING, "No available thread indices");
-		return NULL;
-	} else if (0 > index) {
-		return NULL; // Other error
-	}
-	thread.tid                = ++tid_count;
-	thread.index              = index;
-	threads[thread.index]     = thread;
-	struct tcb* queued_thread = push_thread(&thread);
-	if (queued_thread) {
-		klog(LOG, "New thread (p%u,t%u) scheduled.",
-		     queued_thread->process->pid, queued_thread->tid);
-	} else {
-		// Make index available again
-		push_index(&free_thread_indices_q, index);
-	}
-	return queued_thread;
+	size_t index = get_global_index(&thread);
+	push_index(&thread_indices_q, index);
+	threads[index] = thread;
+	return &(threads[index]);
 }
 
 void
@@ -264,8 +182,10 @@ scheduler_cycle(struct registers* regs, bool decrement)
 
 	// Continue if no other threads are waiting.
 	if (!thread_indices_q.count) {
-		klog(LOG, "No waiting threads. Thread (p%u,t%u) continues",
-		     running_thread->process->pid, running_thread->tid);
+		klog(LOG,
+		     "No waiting threads. Thread (p%u,t%u)(pidx%u,tidx%u) continues",
+		     running_thread->process->pid, running_thread->tid,
+		     running_thread->process->index, running_thread->index);
 		return;
 	}
 
@@ -274,16 +194,18 @@ scheduler_cycle(struct registers* regs, bool decrement)
 	 * the queue is full.
 	 */
 	struct tcb* old_thread = running_thread;
-	running_thread         = pop_thread();
-	if (!running_thread) {
-		klog(LOG, "Cannot pop thread. (p%u,t%u) continues",
-		     old_thread->process->pid, old_thread->tid);
+	ssize_t index          = pop_index(&thread_indices_q);
+	if (index < 0) {
+		klog(LOG, "Cannot pop thread. (p%u,t%u)(pidx%u,tidx%u) continues",
+		     old_thread->process->pid, old_thread->tid,
+		     running_thread->process->index, running_thread->index);
 		running_thread = old_thread;
 		return;
 	}
+	running_thread = &(threads[index]);
 
 	if (old_thread != null_thread) {
-		if (!push_thread(old_thread)) {
+		if (push_index(&thread_indices_q, old_thread->index) < 0) {
 			klog(ERROR, "Could not push old thread back. Losing the thread!");
 			return;
 		}
@@ -293,8 +215,9 @@ scheduler_cycle(struct registers* regs, bool decrement)
 	}
 	switch_context(regs, old_thread, running_thread);
 
-	klog(LOG, "Running thread: (p%u,t%u)", running_thread->process->pid,
-	     running_thread->tid);
+	klog(LOG, "Running thread: (p%u,t%u)(pidx%u,tidx%u)",
+	     running_thread->process->pid, running_thread->tid,
+	     running_thread->process->index, running_thread->index);
 }
 
 void
@@ -302,19 +225,25 @@ kill_cur_thread(struct registers* regs)
 {
 	struct tcb* cur_thread  = get_cur_thread();
 	struct pcb* cur_process = get_cur_process();
-	running_thread          = pop_thread();
-	if (!running_thread)
+	ssize_t index           = pop_index(&thread_indices_q);
+	if (index <= 0)
 		running_thread = null_thread;
+	else
+		running_thread = &(threads[index]);
 
 	switch_context(regs, NULL, running_thread);
 	// TODO(Aurel): Clear memory section.
 
-	if (cur_process->n_threads == 1) {
-		klog(LOG, "No more threads in process. Killing process.");
+	// Make thread index available again in process
+	push_index(&(cur_process->free_indices_q), cur_thread->index);
+	klog(LOG, "Killed thread (p%u,t%u)(pidx%u,tidx%u).", cur_process->pid,
+	     cur_thread->tid, cur_process->index, cur_thread->index);
+
+	if (cur_process->free_indices_q.count >= cur_process->free_indices_q.size) {
+		klog(LOG, "No more threads in process. Killing process (p%u,pidx%u).",
+		     cur_process->pid, cur_process->index);
 		push_index(&free_process_indices_q, cur_process->index);
 	}
-
-	push_index(&free_thread_indices_q, cur_thread->index);
 }
 
 size_t
@@ -351,7 +280,7 @@ push_waiting_thread(struct index_queue* waiting_q, struct registers* regs)
 	ASSERTM(running_thread != null_thread,
 	        "Null thread should loop endlessly and never wait.");
 
-	push_index(waiting_q, running_thread->index);
+	push_index(waiting_q, get_global_index(running_thread));
 	struct tcb* thread = running_thread;
 
 	// Do not "re"queue into thread_indices_q.
@@ -396,7 +325,10 @@ scheduler_on_char_received()
 		return;
 	}
 
-	size_t index = pop_index(&char_waiting_q);
+	ssize_t index = pop_index(&char_waiting_q);
+	if (index < 0)
+		return;
+
 	if (uart_queue_is_emtpy()) {
 		// NOTE(Aurel): Accidental irq?
 		return;
@@ -406,5 +338,5 @@ scheduler_on_char_received()
 	thread->regs.r0    = uart_pop_char();
 	thread->state      = READY;
 
-	push_thread(thread);
+	push_index(&thread_indices_q, index);
 }

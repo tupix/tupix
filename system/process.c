@@ -22,7 +22,11 @@ void
 process_create(void (*func)(void*), const void* args, size_t args_size)
 {
 	klog(LOG, "Creating new process...");
-	struct pcb p        = { 0 };
+
+	struct pcb p = { 0 };
+	INIT_INDEX_QUEUE(p.free_indices);
+	MARK_ALL_FREE(p.free_indices_q);
+
 	struct pcb* process = schedule_process(p);
 	if (!process) {
 		klog(LOG, "Something went wrong creating a new thread.");
@@ -41,5 +45,6 @@ process_create(void (*func)(void*), const void* args, size_t args_size)
 	switch_memory(cur_process->pid, cur_process->l2_table);
 
 	thread_create(process, func, args, args_size);
-	klog(LOG, "Done creating new process. (p%u)", process->pid);
+	klog(LOG, "Done creating new process. (p%u, pidx%u)", process->pid,
+	     process->index);
 }
