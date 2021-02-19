@@ -35,9 +35,6 @@ static struct tcb threads[N_THREADS + 1];
 static struct tcb* running_thread;
 static struct tcb* null_thread;
 
-static uint32 tid_count;
-static uint32 pid_count;
-
 extern void endless_loop();
 
 static size_t
@@ -135,8 +132,6 @@ init_scheduler()
 	INIT_INDEX_QUEUE(char_waiting);
 	/* \WAITING QUEUES */
 
-	tid_count = 0;
-	pid_count = 0;
 	MARK_ALL_FREE(free_process_indices_q);
 
 	null_thread    = init_null_thread();
@@ -151,7 +146,6 @@ schedule_process(struct pcb* process)
 	if (index < 0)
 		return NULL;
 
-	process->pid              = ++pid_count;
 	process->index            = index;
 	processes[process->index] = *process;
 	return &processes[process->index];

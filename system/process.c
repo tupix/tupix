@@ -7,6 +7,8 @@
 
 #include <std/mem.h>
 
+static size_t pid_counter = 0;
+
 extern char _udata_begin[], _udata_end[], _udata_cpy_begin[];
 #define UDATA_SIZE _udata_end - _udata_begin
 
@@ -24,6 +26,7 @@ process_create(void (*func)(void*), const void* args, size_t args_size)
 	klog(LOG, "Creating new process...");
 
 	struct pcb p = { 0 };
+	p.pid        = ++pid_counter;
 	INIT_INDEX_QUEUE(p.free_indices);
 	MARK_ALL_FREE(p.free_indices_q);
 
