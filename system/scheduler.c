@@ -38,16 +38,23 @@ static struct tcb* null_thread;
 extern void endless_loop();
 
 static size_t
-get_global_index(struct tcb* t)
+get_global_thread_index(struct tcb* t)
 {
 	/*
 	 * NOTE: A small visualization of how the threads are put into the
 	 * threads-table based on their processes index:
-	 *            0    1             2             3           ...
-	 * processes[ p0 | p1          | p2          | p3         |...
-	 *   threads[ t0,| t1, t2, t3, | t1, t2, t3, | t1, t2, t3 |... ]
-	 *            0    1   2   3     4   5   6     7   8   9   ...
+	 *
+	 * processes        [ 0 | 1     | 2     | 3     | ... ]
+	 * threads (local)  [ 0 | 1 2 3 | 1 2 3 | 1 2 3 | ... ]
+	 * threads (global) [ 0 | 1 2 3 | 4 5 6 | 7 8 9 | ... ]
+	 *
+	 * (with N_THREADS_PER_PROCESS = 3)
 	 */
+
+	// The formula only works with indices greater than zero
+	if (!t->process->index)
+		return 0;
+
 	return (t->process->index - 1) * N_THREADS_PER_PROCESS + t->index;
 }
 
@@ -164,7 +171,7 @@ scheduler_register_process(struct pcb* process)
 struct tcb*
 scheduler_register_thread(struct tcb* thread)
 {
-	size_t index = get_global_index(thread);
+	size_t index = get_global_thread_index(thread);
 	if (push_index(&thread_indices_q, index) < 0)
 		return NULL;
 
@@ -286,7 +293,7 @@ push_waiting_thread(struct index_queue* waiting_q, struct registers* regs)
 	ASSERTM(running_thread != null_thread,
 	        "Null thread should loop endlessly and never wait.");
 
-	push_index(waiting_q, get_global_index(running_thread));
+	push_index(waiting_q, get_global_thread_index(running_thread));
 	struct tcb* thread = running_thread;
 
 	/*
