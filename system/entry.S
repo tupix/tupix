@@ -2,24 +2,24 @@
 
 .global _start
 _start:
-	/* Erkennen ob Hypervisor Mode aktiv */
+	// Check if hypervisor mode is active
 	mrs r0, cpsr
 	and r0, r0, #0x1F
-	mov r1, #0x1A	//Modebits = 0x1A = Hypervisor Mode
-	cmp r0, r1		//Vergleichen und Statusbits setzen für bedingte Sprünge
+    // modebits = 0x1A = hypervisor mode
+	mov r1, #0x1A
+	cmp r0, r1
 
-	/* Wenn Hypemode erkannt: abschalten (sprung nach _exitHyper)
-	 * wenn nicht erkannt: dann weitermachen (weiterlaufen nach _tupix)
-	 */
+    // if in Hypervisor mode: shutdown
 	beq _exitHyper
 
-	/* Qemu startet immer alle 4 Kerne
-	 * Wir lassen alle anderen Kerne endless loopen
-	 */
+     /*
+      * NOTE(Aurel): Qemu always starts all 4 cores. As we are currently only
+      * using one we send all other cores to idle.
+      */
 _loopCores:
-	/* Id des Cpu Cores Abfragen */
+    // get core id
 	mrc p15, 0, r0, c0, c0, 5
-	/* Falls nicht core 0 -> Endless loop */
+    // if not core 0: loop endlessly
 	tst r0, #3
 	bne .Lend
 
@@ -27,50 +27,42 @@ _loopCores:
 _tupix:
     bl _init_modes
 
-    /* setzen, der ivt base-address im VBAR */
+    // set ivt base-address in VBAR
     ldr r0, =_ivt
     mcr p15, 0, r0, c12, c0, 0
 
-	/* Zu c Code springen */
+	// jump to c code
 	bl start_kernel
 
+// endless loop
 .Lend:
 	WFI // wait for interrupt
 	b .Lend
 
 _exitHyper:
 
-	/* Rücksprungadresse ins Hypervisor Rücksprungregister schreiben.
-	 * Dies ist das Label _tupix für die normale Programmausfürung.
-	 */
+    // Write the return address into the hypervisor link-register.
 	ldr lr, =_loopCores
 	msr ELR_hyp, lr
 
-	/* Der Hypervisor mode ist auch "nur" eine etwas kompliziertere Exception.
-	 * Also springen wir aus dieser zurück.
-	 * (Rücksprunge in Aufgabe 2 sind anders zu lösen!).
-	 * Dazu zunächst das CPSR auslesen und die Modebits zum Supervisor ändern.
-	 * Danach dies in das SPSR für den Rücksprung schreiben.
-	 */
-
 	mrs r0, cpsr
 	bic r0, r0, #0x1F
-	orr r0, r0, #0x13	//Supervisormode
+    // Supervisormode = 0x13
+	orr r0, r0, #0x13
 	msr spsr_hyp, r0
 	eret
 
+.extern _kstacks_start
 _init_modes:
-	// Enable IRQ and disable FIQ
+	// enable IRQ and disable FIQ
 	cpsid f
 	cpsie i
-
-.extern _kstacks_start
 
 	// supervisor sp
 	ldr r0, =_kstacks_start
 	add r0, r0, #0x1000
 	mov sp, r0
-	// Initialize other stack pointers
+	// initialize other stack pointers
 	// subtract 4KB (= 0x1000) from previous stack base
 	add r0, r0, #0x1000
 	msr sp_und, r0
