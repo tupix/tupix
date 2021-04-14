@@ -1,50 +1,48 @@
-
-# Kurzanleitung
+#
+# Usage
 # =============
 #
-# make			-- Baut den User Teil.
+# make            -- Build user space
 #
-# make all		-- Wie make
+# make all        -- Build user space
 #
-# make debug		-- Baut den User Teil mit debug flags
+# make user_debug -- Build user space with debug flags
 #
-# make user_test	-- Baut den User Teil als komplettes image zum testen
+# make dump       -- Dump user space
 #
-# make dump		-- Dumpt den User Teil
-#
-# make clean		-- Löscht alle erzeugten Dateien.
+# make clean      -- Delete all created files
 
-# Hier eure Dateien hinzufügen
 # Source files
 ASS_OBJ := $(shell find . -name "*.S" -a -type f | sed -E 's:^\./(.*.S)$$:\1.o:')
 SRC_OBJ := $(shell find . -name "*.c" -a -type f | sed -E 's:^\./(.*.c)$$:\1.o:')
 OBJ := $(ASS_OBJ) $(SRC_OBJ)
-
-
-# --- Ab hier sollte nichts mehr angepasst werden müssen ;D ---
-
-# Quellen
-LSCRIPT = user.lds
-
-# Seperates Target für Debugging
 OBJ_DEBUG = $(OBJ:.o=.o_d)
 
+# Linker script
+LSCRIPT = user.lds
+
+# Clean patch files on `clean` target
+OBJ_PATCH = $(OBJ:.o=.orig) $(OBJ:.o=.rej)
+
+# Configuration
+RM = rm -f
 CC = arm-none-eabi-gcc
 LD = arm-none-eabi-ld
 OBJCOPY = arm-none-eabi-objcopy
 OBJDUMP = arm-none-eabi-objdump
 
 CFLAGS = -Wall -Wextra -ffreestanding -mcpu=cortex-a7 -O2
-CFLAGS_DEBUG = $(CFLAGS) -ggdb
+# gcc will use last specified -O flag
+CFLAGS_DEBUG = $(CFLAGS) -ggdb -Og
 CPPFLAGS = -Iinclude
 
 DEP = $(OBJ:.o=.d) $(OBJ_LSG:.o=.d)
 
 #
-# Regeln
-#
-.PHONY: all clean
+# Targets
+# ===========
 
+.PHONY: all
 all: user user.bin dump
 
 -include $(DEP)
@@ -73,11 +71,14 @@ user.bin: user
 user.img: user.bin
 	mkimage -A arm -T standalone -C none -a 0x8000 -d $< $@
 
+.PHONY: dump
 dump: user
 	$(OBJDUMP) -D user > user_dump.s
 
+.PHONY: clean
 clean:
-	rm -f user user_debug user.bin user.img user_dump.s
-	rm -f $(OBJ)
-	rm -f $(OBJ_DEBUG)
-	rm -f $(DEP)
+	$(RM) user user_debug user.bin user.img user_dump.s
+	$(RM) $(OBJ)
+	$(RM) $(OBJ_DEBUG)
+	$(RM) $(OBJ_PATCH)
+	$(RM) $(DEP)
