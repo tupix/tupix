@@ -67,7 +67,7 @@ CPPFLAGS = -Iinclude
 LDFLAGS = -T$(LSCRIPT)
 LDFLAGS_DEBUG = -T$(LSCRIPT_DEBUG)
 
-DEP = $(OBJ:.o=.d) $(OBJ_LSG:.o=.d)
+DEP = $(OBJ:.o=.d)
 
 #
 # Targets
@@ -97,10 +97,10 @@ $(UOBJ_DEBUG):
 	$(MAKE) -C user user_debug
 
 kernel: $(KERNEL_TARGETS)
-	$(LD) -o $@ $(OBJ) $(UOBJ) $(OBJ_LSG) $(LDFLAGS)
+	$(LD) -o $@ $(OBJ) $(UOBJ) $(LDFLAGS)
 
 kernel_debug: $(KERNEL_TARGETS_DEBUG)
-	$(LD) -o $@ $(OBJ_DEBUG) $(UOBJ_DEBUG) $(OBJ_LSG) $(LDFLAGS_DEBUG)
+	$(LD) -o $@ $(OBJ_DEBUG) $(UOBJ_DEBUG) $(LDFLAGS_DEBUG)
 
 kernel.bin: kernel
 	$(OBJCOPY) -Obinary --set-section-flags .bss=contents,alloc,load,data $< $@

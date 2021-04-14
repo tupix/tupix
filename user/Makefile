@@ -36,7 +36,7 @@ CFLAGS = -Wall -Wextra -ffreestanding -mcpu=cortex-a7 -O2
 CFLAGS_DEBUG = $(CFLAGS) -ggdb -Og
 CPPFLAGS = -Iinclude
 
-DEP = $(OBJ:.o=.d) $(OBJ_LSG:.o=.d)
+DEP = $(OBJ:.o=.d)
 
 #
 # Targets
@@ -60,10 +60,10 @@ all: user user.bin dump
 	$(CC) $(CPPFLAGS) $(CFLAGS_DEBUG) -MMD -MP -o $@ -c $<
 
 user: $(LSCRIPT) $(OBJ)
-	$(LD) -r -T$(LSCRIPT) -o $@ $(OBJ) $(OBJ_LSG)
+	$(LD) -r -T$(LSCRIPT) -o $@ $(OBJ)
 
 user_debug: $(LSCRIPT) $(OBJ_DEBUG)
-	$(LD) -r -T$(LSCRIPT) -o $@ $(OBJ_DEBUG) $(OBJ_LSG)
+	$(LD) -r -T$(LSCRIPT) -o $@ $(OBJ_DEBUG)
 
 user.bin: user
 	$(OBJCOPY) -Obinary --set-section-flags .bss=contents,alloc,load,data $< $@
