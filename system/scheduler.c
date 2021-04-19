@@ -244,6 +244,11 @@ kill_cur_thread(struct registers* regs)
 		running_thread = &(threads[index]);
 
 	switch_context(regs, NULL, running_thread);
+
+	// We're done if this was the null_thread
+	if (cur_thread == null_thread)
+		return;
+
 	// TODO(Aurel): Clear memory section. Or should this be left to user
 	// programs?
 
