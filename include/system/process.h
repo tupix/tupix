@@ -15,6 +15,7 @@ struct pcb {
 	__attribute__((aligned(1024))) uint32 l2_table[N_L2_ENTRIES];
 };
 
-void process_create(void (*func)(void*), const void* args, size_t args_size);
+void process_create(void (*func)(void*), const void* args, size_t args_size,
+                    struct registers* regs);
 
 #endif /* SYSTEM_PROCESS_H */

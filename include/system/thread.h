@@ -25,6 +25,6 @@ struct tcb {
 void* get_stack_pointer(const size_t index);
 void* get_max_stack_pointer(const size_t index);
 struct tcb* thread_create(struct pcb* p, void (*func)(void*), const void* args,
-                          size_t args_size);
+                          size_t args_size, struct registers* regs);
 
 #endif /* SYSTEM_THREAD_H */

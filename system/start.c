@@ -33,5 +33,5 @@ start_kernel(void)
 	ASSERTM(N_THREADS >= 32, "A minimum of 32 threads should be supported.");
 	init_scheduler();
 
-	process_create(&main_thread, NULL, 0);
+	process_create(&main_thread, NULL, 0, NULL);
 }
