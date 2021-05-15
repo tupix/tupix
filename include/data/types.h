@@ -3,7 +3,7 @@
 
 #include <config.h>
 
-typedef enum bool { true = 1, false = 0 } bool;
+typedef enum bool { false = 0, true = 1 } bool;
 
 /* NUMERICS */
 typedef char int8;

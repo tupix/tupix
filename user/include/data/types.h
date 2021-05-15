@@ -1,7 +1,7 @@
 #ifndef STD_TYPES_H
 #define STD_TYPES_H
 
-typedef enum bool { true = 1, false = 0 } bool;
+typedef enum bool { false = 0, true = 1 } bool;
 
 typedef char int8;
 typedef short int16;

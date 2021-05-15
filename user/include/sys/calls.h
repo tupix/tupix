@@ -27,7 +27,7 @@ void putchar(unsigned char c);
  * than you expect.
  * NOTE(Aurel): This should not be used in actual time-sensitive code.
  * NOTE(Aurel): wait(0) is basically a noop with a mode-switch, just don't use
- *				it.
+ *              it.
  *
  * @param duration scheduler time-slides to wait until execution continues.
  */
