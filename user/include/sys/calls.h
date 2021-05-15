@@ -37,7 +37,8 @@ void wait(size_t duration);
  * Create a new process with it's own memory space.
  *
  * @param func function the new thread executes.
- * @param args pointer to an array of arguments to pass to the function.
+ * @param args pointer a block of memory that is passed and can be used for
+ *             arguments for `func`.
  * @param args_size size of `args`.
  */
 void fork(void (*func)(void*), const void* args, size_t args_size);
