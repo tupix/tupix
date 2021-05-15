@@ -30,7 +30,6 @@ start_kernel(void)
 	// Copy user data and bss segments to kernel memory.
 	memcpy(_udata_cpy_begin, _udata_begin, UDATA_SIZE);
 
-	ASSERTM(N_THREADS >= 32, "A minimum of 32 threads should be supported.");
 	init_scheduler();
 
 	process_create(&main_thread, NULL, 0);
