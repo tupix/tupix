@@ -1,12 +1,11 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-// Nächste Zeile auskommentieren falls auf der Hardware getestet wird
+// Undefine if using on real hardware
 #define __QEMU__
 
-// Wir testen nur mit Werten die durch 2^n darstellbar sind
 #define UART_INPUT_BUFFER_SIZE 128
-// Timer Interrupt Interval zum testen in Mikrosekunden
+// timer interrupt interval in microseconds
 #define LOCAL_TIMER_US 1000000
 
 // clang-format off
@@ -22,7 +21,7 @@
 // See `include/std/log.h`
 #define LOGGING_LEVEL 99
 
-// Number of processes and threads supported
+// Number of processes and threads per process supported
 #define N_PROCESSES 8
 #define N_THREADS_PER_PROCESS 4
 #define N_THREADS (N_PROCESSES * N_THREADS_PER_PROCESS)
