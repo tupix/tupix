@@ -16,7 +16,8 @@ extern char _udata_begin[], _udata_end[], _udata_cpy_begin[];
  * Create a new memory region and start a new thread inside it
  */
 void
-process_create(void (*func)(void*), const void* args, size_t args_size)
+process_create(void (*func)(void*), const void* args, size_t args_size,
+               struct registers* regs)
 {
 	klog(LOG, "Creating new process...");
 
@@ -38,7 +39,7 @@ process_create(void (*func)(void*), const void* args, size_t args_size)
 	memcpy(_udata_begin, _udata_cpy_begin, UDATA_SIZE);
 	switch_memory(get_cur_process()->l2_table);
 
-	struct tcb* thread = thread_create(process, func, args, args_size);
+	struct tcb* thread = thread_create(process, func, args, args_size, regs);
 	if (!thread) {
 		klog(LOG, "Something went wrong creating a new thread.");
 		return;

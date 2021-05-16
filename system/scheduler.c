@@ -169,13 +169,18 @@ scheduler_register_process(struct pcb* process)
  * @return a pointer to the new memory location.
  */
 struct tcb*
-scheduler_register_thread(struct tcb* thread)
+scheduler_register_thread(struct tcb* thread, struct registers* regs)
 {
 	size_t index = get_global_thread_index(thread);
 	if (push_index(&thread_indices_q, index) < 0)
 		return NULL;
 
 	threads[index] = *thread;
+
+	// Directly start the new thread if we are currently running nothing.
+	if (get_cur_thread() == null_thread && regs)
+		scheduler_cycle(regs, false);
+
 	return &(threads[index]);
 }
 
@@ -244,6 +249,11 @@ kill_cur_thread(struct registers* regs)
 		running_thread = &(threads[index]);
 
 	switch_context(regs, NULL, running_thread);
+
+	// We're done if this was the null_thread
+	if (cur_thread == null_thread)
+		return;
+
 	// TODO(Aurel): Clear memory section. Or should this be left to user
 	// programs?
 

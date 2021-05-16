@@ -32,5 +32,5 @@ start_kernel(void)
 
 	init_scheduler();
 
-	process_create(&main_thread, NULL, 0);
+	process_create(&main_thread, NULL, 0, NULL);
 }

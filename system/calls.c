@@ -110,7 +110,7 @@ exec_syscall_fork(struct registers* regs)
 		return;
 	}
 
-	process_create(func, args, args_size);
+	process_create(func, args, args_size, regs);
 }
 
 /**
@@ -142,7 +142,7 @@ exec_syscall_create_thread(struct registers* regs)
 		return;
 	}
 
-	thread_create(get_cur_process(), func, args, args_size);
+	thread_create(get_cur_process(), func, args, args_size, regs);
 }
 
 /***************************
