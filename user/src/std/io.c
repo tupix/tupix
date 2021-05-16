@@ -94,9 +94,6 @@ calc_field_width(const char* cur_char, char* padding, size_t* flag_len)
 	return field_width;
 }
 
-/*
- * Produce output according to `format`.
- */
 void
 printf(const char* format, ...)
 {
