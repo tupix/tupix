@@ -29,8 +29,10 @@
 # Source files
 ASS_OBJ := $(shell find . \( -path "./user" -prune -o -name "*.S" \) -a -type f | sed -E 's:^\./(.*\.S)$$:\1.o:')
 SRC_OBJ := $(shell find . \( -path "./user" -prune -o -name "*.c" \) -a -type f | sed -E 's:^\./(.*\.c)$$:\1.o:')
-OBJ := $(ASS_OBJ) $(SRC_OBJ)
+DEP = $(OBJ:.o=.d)
+OBJ := $(addprefix build/, $(OBJ))
 OBJ_DEBUG = $(OBJ:.o=.o_d)
+DIRS := $(dir $OBJ)
 
 # Enter TFTP path here for work at home
 TFTP_PATH = /srv/tftp
@@ -43,7 +45,7 @@ LSCRIPT_DEBUG = kernel_debug.lds
 UOBJ = user/user
 UOBJ_DEBUG = $(UOBJ)_debug
 
-KERNEL_TARGETS = $(LSCRIPT) $(OBJ) $(UOBJ)
+KERNEL_TARGETS = $(LSCRIPT) $(DIRS) $(OBJ) $(UOBJ)
 KERNEL_TARGETS_DEBUG = $(LSCRIPT_DEBUG) $(OBJ_DEBUG) $(UOBJ_DEBUG)
 
 # Clean patch files on `clean` target
@@ -67,8 +69,6 @@ CPPFLAGS = -Iinclude
 LDFLAGS = -T$(LSCRIPT)
 LDFLAGS_DEBUG = -T$(LSCRIPT_DEBUG)
 
-DEP = $(OBJ:.o=.d)
-
 #
 # Targets
 # =============
@@ -78,17 +78,20 @@ all: kernel kernel.bin dump
 
 -include $(DEP)
 
-%.S.o: %.S
+build/%.S.o: %.S
 	$(CC) $(CPPFLAGS) $(CFLAGS) -MMD -MP -o $@ -c $<
 
-%.c.o: %.c
+build/%.c.o: %.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -MMD -MP -o $@ -c $<
 
-%.S.o_d: %.S
+build/%.S.o_d: %.S
 	$(CC) $(CPPFLAGS) $(CFLAGS_DEBUG) -MMD -MP -o $@ -c $<
 
-%.c.o_d: %.c
+build/%.c.o_d: %.c
 	$(CC) $(CPPFLAGS) $(CFLAGS_DEBUG) -MMD -MP -o $@ -c $<
+
+%/:
+	mkdir -p $@
 
 $(UOBJ):
 	$(MAKE) -C user user
