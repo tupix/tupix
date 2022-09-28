@@ -12,9 +12,6 @@ static size_t pid_counter = 0;
 extern char _udata_begin[], _udata_end[], _udata_cpy_begin[];
 #define UDATA_SIZE _udata_end - _udata_begin
 
-/**
- * Create a new memory region and start a new thread inside it
- */
 void
 process_create(void (*func)(void*), const void* args, size_t args_size)
 {

@@ -2,10 +2,6 @@
 
 #include <data/types.h>
 
-/*
- * Copies `n` bytes from `src` to `dest`. The memory areas must not overlap.
- * Returns: `dest`
- */
 void*
 umemcpy(void* dest, const void* src, const size_t n)
 {

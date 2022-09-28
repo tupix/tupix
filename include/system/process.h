@@ -15,6 +15,9 @@ struct pcb {
 	__attribute__((aligned(1024))) uint32 l2_table[N_L2_ENTRIES];
 };
 
+/**
+ * Create a new memory region and start a new thread inside it
+ */
 void process_create(void (*func)(void*), const void* args, size_t args_size);
 
 #endif /* SYSTEM_PROCESS_H */

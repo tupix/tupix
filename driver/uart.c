@@ -93,10 +93,6 @@ static struct uart_queue queue;
 // NOTE(Aurel): Do not increment var when using this macro.
 #define circle_forward(var, size) (var) = (var) + 1 >= (size) ? 0 : (var) + 1
 
-/*
- * Pop next buffered character from uart queue. This will block until at least
- * one character is available.
- */
 char
 uart_pop_char()
 {
@@ -106,19 +102,12 @@ uart_pop_char()
 	return c;
 }
 
-/*
- * Get next buffered character from uart queue without popping it. This will
- * block until at least one character is available.
- */
 char
 uart_peek_char()
 {
 	return queue.chars[queue.head];
 }
 
-/*
- * Put received character into queue.
- */
 bool
 uart_push_char()
 {

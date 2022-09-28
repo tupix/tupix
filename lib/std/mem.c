@@ -2,10 +2,6 @@
 
 #include <data/types.h>
 
-/*
- * Copies `n` bytes from `src` to `dest`. The memory areas must not overlap.
- * Returns: `dest`
- */
 void*
 memcpy(void* dest, const void* src, const size_t n)
 {
@@ -17,10 +13,6 @@ memcpy(void* dest, const void* src, const size_t n)
 	return dest;
 }
 
-/*
- * Sets `n` bytes to `val` at address `mem`.
- * Returns: `mem`
- */
 void*
 memset(void* mem, const unsigned char val, const size_t n)
 {

@@ -5,8 +5,18 @@
 
 #define NULL ((void*)0)
 
+/*
+ * Copies `n` bytes from `src` to `dest`. The memory areas must not overlap.
+ * Returns: `dest`
+ */
 void* memcpy(void* dest, const void* src, const size_t n);
+
+/*
+ * Sets `n` bytes to `val` at address `mem`.
+ * Returns: `mem`
+ */
 void* memset(void* mem, const unsigned char val, const size_t n);
+
 // TODO: memmove()
 
 #endif /* STD_MEM_H */
